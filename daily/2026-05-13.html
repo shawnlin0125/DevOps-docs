@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-05-13 · Telegram 監控告警路由 & Cron Job 管理 — Shawn's DevOps Lab</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --accent-red: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  header a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; margin-top: 0.5rem; }
+  .date { color: var(--text-dim); font-size: 0.9rem; }
+  section { margin-bottom: 2rem; }
+  h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 0.8rem; }
+  h3 { font-size: 1rem; color: #f0f6fc; margin: 1rem 0 0.4rem; }
+  p { margin-bottom: 0.8rem; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.3rem; }
+  code { background: var(--bg-card); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; border: 1px solid var(--border); }
+  pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.85rem; margin: 0.8rem 0; }
+  .note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+  .warning { background: rgba(210,153,29,0.08); border-left: 3px solid var(--accent-orange); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+  .tag { display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); margin-right: 0.4rem; }
+  footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; text-align: center; }
+  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+  th { background: var(--bg-card); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a href="../index.html">← 回首頁</a>
+    <h1>Telegram 監控告警路由 & Cron Job 管理</h1>
+    <p class="date">📅 2026 年 5 月 13 日 · <span class="tag">Telegram Bot</span> <span class="tag">Cron Job</span> <span class="tag">Prometheus Alerts</span> <span class="tag">K3s Monitoring</span></p>
+  </header>
+
+  <section>
+    <h2>🧠 學到了什麼</h2>
+
+    <h3>1. 問題發現：Alert 傳錯 Topic</h3>
+    <p>當天發現 Prometheus Alert Checker 的告警訊息出現在 Telegram Supergroup 的 <strong>General</strong> topic，但應該去 <strong>#infra</strong>（基礎設施/監控專用 topic）。</p>
+    <p>根因：cron job 的 <code>deliver: "origin"</code> 設定會將輸出送到「建立 cron job 時所在的 topic」。當初 cron job 在 General (thread 1) 建立，所以 alert 一直送到那裡。</p>
+
+    <div class="warning">
+      <strong>⚠️ 教訓：</strong>建立 cron job 時，務必確認 <code>deliver</code> 參數指向正確的目標 topic，不要盲目使用 <code>"origin"</code>。
+    </div>
+
+    <h3>2. Telegram Topic 機制探索</h3>
+    <p>Telegram Supergroup 開啟 Forum 模式後，每個 topic 有獨立的 <code>message_thread_id</code>。Hermes Agent 使用 <code>telegram:chat_id:thread_id</code> 格式來路由訊息。</p>
+
+    <p><strong>Topic 探索過程：</strong></p>
+    <ol>
+      <li>先查 <code>~/.hermes/channel_directory.json</code> — 只有 General (thread 1)</li>
+      <li>用 <code>send_message</code> 嘗試 thread 2~10，發現 2、4、7、8 存在</li>
+      <li>發送不同內容的測試訊息，請使用者辨識每個 thread 對應的 topic 名稱</li>
+    </ol>
+
+    <p><strong>最終 Topic 地圖：</strong></p>
+    <table>
+      <tr><th>Thread ID</th><th>Topic 名稱</th><th>用途</th></tr>
+      <tr><td>1</td><td>General</td><td>一般討論</td></tr>
+      <tr><td>2</td><td>#korean</td><td>韓文平台開發/部署/CI/CD</td></tr>
+      <tr><td>4</td><td>#infra</td><td>伺服器/k3s/安全/監控</td></tr>
+      <tr><td>7</td><td>#gitops</td><td>ArgoCD/Flux</td></tr>
+      <tr><td>8</td><td>#research</td><td>工具/架構/討論</td></tr>
+    </table>
+
+    <div class="note">
+      <strong>💡 關鍵發現：</strong>Telegram topic 的 thread_id <strong>不一定是連續的</strong>。刪除 topic 後重建可能跳號。不要假設 ID=2,3,4,5... 一定要逐個測試。
+    </div>
+
+    <h3>3. Cron Job 路由修正</h3>
+    <p>使用 <code>cronjob</code> 工具更新現有 job 的 delivery target：</p>
+    <pre>cronjob(
+  action='update',
+  job_id='fe448223c4db',           # Prometheus Alert Checker
+  deliver='telegram:-1003966564424:4'  # #infra thread
+)</pre>
+
+    <p><strong>Alert Checker 架構：</strong></p>
+    <ul>
+      <li><code>no_agent: true</code> — 不經過 LLM，直接執行 Python script</li>
+      <li>script <code>alert-checker.py</code> 透過 <code>kubectl get --raw</code> 查詢 Prometheus API</li>
+      <li>有告警時輸出格式化文字 (exit code 1)，無告警時 exit 0 (silent)</li>
+      <li>cron scheduler 將 stdout 直接 deliver 到目標 topic</li>
+    </ul>
+
+    <h3>4. Hermes Cron Job 管理要點</h3>
+    <table>
+      <tr><th>參數</th><th>說明</th></tr>
+      <tr><td><code>no_agent: true</code></td><td>純 script 模式，輸出直接 delivery（watchdog 模式）</td></tr>
+      <tr><td><code>no_agent: false</code></td><td>LLM 驅動模式，每次執行 prompt（需要推理時用）</td></tr>
+      <tr><td><code>deliver: "origin"</code></td><td>送回建立時的來源 chat/topic</td></tr>
+      <tr><td><code>deliver: "telegram:chat_id:thread_id"</code></td><td>指定目標 topic</td></tr>
+      <tr><td><code>deliver: "local"</code></td><td>只存檔，不發送</td></tr>
+    </table>
+
+    <div class="note">
+      <strong>💡 最佳實踐：</strong>no_agent 模式的 script 應該在無事發生時 exit 0（silent），只有在需要通知時才輸出內容並 exit 1。這樣使用者不會被無意義的「一切正常」訊息打擾。
+    </div>
+
+    <h3>5. Token 安全性：工具層級遮蔽</h3>
+    <p>在探索過程中發現 Hermes 的 <code>read_file</code> 和 <code>execute_code</code> 工具會自動遮蔽敏感 token（如 <code>TELEGRAM_BOT_TOKEN</code>、API key），輸出顯示為 <code>***</code>。這是安全設計，但也意味著無法直接在工具中取用 token 來呼叫外部 API。替代方案：使用 Hermes 內建的 <code>send_message</code> 等封裝好的平台工具。</p>
+  </section>
+
+  <section>
+    <h2>🛠️ 涉及指令與工具</h2>
+    <ul>
+      <li><code>cronjob(action='list')</code> — 列出所有排程任務</li>
+      <li><code>cronjob(action='update', job_id=..., deliver=...)</code> — 更新 delivery 目標</li>
+      <li><code>send_message(target='telegram:-1003966564424:N')</code> — 發送到特定 topic</li>
+      <li><code>~/.hermes/channel_directory.json</code> — 已知的 channel/topic 快取</li>
+      <li><code>~/.hermes/logs/gateway.log</code> — 查看 inbound message 紀錄</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>📂 相關檔案</h2>
+    <ul>
+      <li><code>~/.hermes/scripts/alert-checker.py</code> — Prometheus alert 檢查 script</li>
+      <li><code>~/.hermes/channel_directory.json</code> — Telegram channel 快取</li>
+      <li><code>~/.hermes/config.yaml</code> — Hermes 主設定檔</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>🚀 由 Hermes Agent 從真實對話中自動整理 · <a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent);">GitHub Repo</a></p>
+    <p style="margin-top:0.3rem;"><a href="../index.html" style="color:var(--accent);">← 回首頁</a> | 下一篇：敬請期待</p>
+  </footer>
+</div>
+</body>
+</html>
