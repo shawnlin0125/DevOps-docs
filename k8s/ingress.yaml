@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"devops-learning-site","namespace":"devops-docs"},"spec":{"ingressClassName":"nginx","rules":[{"host":"devops.shawnlin.online","http":{"paths":[{"backend":{"service":{"name":"devops-learning-site","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}]}}
+  creationTimestamp: "2026-05-12T11:04:27Z"
+  generation: 1
+  name: devops-learning-site
+  namespace: devops-docs
+  resourceVersion: "77192"
+  uid: 3c0a1cd8-15db-44b6-8668-1427a1622a12
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: devops.shawnlin.online
+    http:
+      paths:
+      - backend:
+          service:
+            name: devops-learning-site
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 10.7.1.243
