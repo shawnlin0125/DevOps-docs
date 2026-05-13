@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>從 Zero 到 Hero · Shawn 的 DevOps 全記錄 (2026.05.10–05.13)</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d2991d;
+    --red: #f85149;
+    --purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 2rem; text-align: center; }
+  h1 { font-size: 2rem; color: #f0f6fc; }
+  h1 span { background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { color: var(--text-dim); margin-top: 0.5rem; }
+  .timeline { position: relative; padding-left: 2rem; margin: 2rem 0; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .phase { margin-bottom: 2.5rem; position: relative; }
+  .phase::before { content: ''; position: absolute; left: -2.4rem; top: 0.6rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .phase h2 { font-size: 1.3rem; color: var(--accent); margin-bottom: 0.3rem; }
+  .phase .date { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.8rem; }
+  .phase p { margin-bottom: 0.7rem; }
+  section { margin: 2rem 0; }
+  h2.section-title { font-size: 1.4rem; color: #f0f6fc; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin: 2.5rem 0 1rem; }
+  h3 { font-size: 1.1rem; color: var(--accent); margin: 1.2rem 0 0.4rem; }
+  h4 { font-size: 1rem; color: #f0f6fc; margin: 1rem 0 0.3rem; }
+  code { background: var(--bg-card); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; border: 1px solid var(--border); }
+  pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.82rem; margin: 0.6rem 0; line-height: 1.5; }
+  .note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+  .warning { background: rgba(210,153,29,0.08); border-left: 3px solid var(--orange); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+  .success { background: rgba(63,185,80,0.08); border-left: 3px solid var(--green); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.3rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.88rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.7rem; text-align: left; }
+  th { background: var(--bg-card); color: var(--accent); font-weight: 600; }
+  .arch-diagram { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; margin: 1rem 0; font-family: 'Courier New', monospace; font-size: 0.82rem; line-height: 1.4; white-space: pre; overflow-x: auto; }
+  .tag { display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); margin-right: 0.3rem; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+  .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.2rem; }
+  footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-dim); font-size: 0.85rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>從 <span>Zero 到 Hero</span></h1>
+  <p class="subtitle">Shawn 的 DevOps 全記錄 — 2026.05.10 → 05.13<br>
+  從裸機部署到全自管 K3s 叢集、微服務、監控、GitOps 的完整旅程</p>
+  <div style="margin-top:1rem;">
+    <span class="tag">K3s</span> <span class="tag">Kubernetes</span> <span class="tag">Docker</span> <span class="tag">Helm</span>
+    <span class="tag">ArgoCD</span> <span class="tag">Prometheus</span> <span class="tag">Grafana</span> <span class="tag">Loki</span>
+    <span class="tag">Next.js</span> <span class="tag">PostgreSQL</span> <span class="tag">Cloudflare</span>
+    <span class="tag">GitOps</span> <span class="tag">Telegram Bot</span>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<h2 class="section-title">📊 目前伺服器全貌</h2>
+
+<div class="stat-grid">
+  <div class="stat-card"><span class="stat-value">1</span><div class="stat-label">實體伺服器 (4C/8G/80G)</div></div>
+  <div class="stat-card"><span class="stat-value">6</span><div class="stat-label">K8s Namespaces</div></div>
+  <div class="stat-card"><span class="stat-value">25+</span><div class="stat-label">Running Pods</div></div>
+  <div class="stat-card"><span class="stat-value">4</span><div class="stat-label">外部 Domain</div></div>
+  <div class="stat-card"><span class="stat-value">11</span><div class="stat-label">Prometheus 告警規則</div></div>
+  <div class="stat-card"><span class="stat-value">2</span><div class="stat-label">Cron Jobs (備份+告警)</div></div>
+</div>
+
+<div class="arch-diagram">
+╔══════════════════════════════════════════════════════════════╗
+║                   Cloudflare 🟠 (Proxy + SSL)                ║
+╠══════════════════════════════════════════════════════════════╣
+║  shawnlin.online → korean-learning (prod)                   ║
+║  korean.shawnlin.online → korean-learning (prod)            ║
+║  korean-staging.shawnlin.online → korean-staging            ║
+║  devops.shawnlin.online → devops-docs                       ║
+║  grafana.shawnlin.online → monitoring/Grafana               ║
+║  argocd.shawnlin.online → argocd                            ║
+╠══════════════════════════════════════════════════════════════╣
+║              ingress-nginx (DaemonSet, hostNetwork)          ║
+║              Ports 80/443 → K8s Services                    ║
+╠══════════════════════════════════════════════════════════════╣
+║  ┌─────────────────┐  ┌────────────────┐  ┌──────────────┐  ║
+║  │ korean-learning │  │ korean-staging │  │  devops-docs │  ║
+║  │ (prod)          │  │                │  │  nginx:alpine│  ║
+║  │                 │  │                │  │  hostPath    │  ║
+║  │ frontend (3000) │  │ frontend (3000)│  └──────────────┘  ║
+║  │ api-gateway     │  │ api-gateway    │                    ║
+║  │ user-service    │  │ user-service   │  ┌──────────────┐  ║
+║  │ vocab-service   │  │ vocab-service  │  │  monitoring  │  ║
+║  │ quiz-service    │  │ quiz-service   │  │  Prometheus  │  ║
+║  │ postgres (10Gi) │  │ postgres (5Gi) │  │  Grafana     │  ║
+║  └─────────────────┘  └────────────────┘  │  Loki        │  ║
+║                                           │  Alertmanager│  ║
+║  ┌──────────────┐                         └──────────────┘  ║
+║  │   argocd     │                                            ║
+║  │  GitOps CD   │  ┌──────────────┐                          ║
+║  └──────────────┘  │ingress-nginx │                          ║
+║                    └──────────────┘                          ║
+╚══════════════════════════════════════════════════════════════╝
+</div>
+
+<!-- ============================================================ -->
+<h2 class="section-title">🗺️ 旅程時間線</h2>
+
+<div class="timeline">
+
+<!-- Phase 1 -->
+<div class="phase">
+  <h2>Phase 1：從零到裸機部署</h2>
+  <div class="date">📅 2026.05.10</div>
+  <p>一切從一台 <strong>Zeabur 提供的 Ubuntu 24.04 VPS</strong> 開始。伺服器上已經有 Zeabur 預裝的 k3s 和管理面板。</p>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li>在伺服器上直接用 <strong>PM2 + Nginx</strong> 部署韓文學習平台（Next.js 16）</li>
+    <li>設定 <strong>UFW 防火牆</strong>：只開放 22 (SSH)、80/443 (HTTP/HTTPS)</li>
+    <li>Nginx 設定安全 headers（X-Frame-Options、XSS Protection 等）</li>
+    <li>將域名 <strong>shawnlin.online</strong> 從 GoDaddy 遷移到 <strong>Cloudflare</strong>（免費 SSL + DDoS 保護）</li>
+  </ul>
+
+  <h4>遇到的坑</h4>
+  <ul>
+    <li>Port 80/443 被 Hermes Agent gateway 佔用 → 先用 8080/8443</li>
+    <li>Cloudflare 預設連 origin port 80，但 Nginx 在 8080 → Error 522</li>
+    <li>GoDaddy DNS 界面難用，果斷遷移到 Cloudflare</li>
+  </ul>
+
+  <div class="note"><strong>💡 為什麼這樣做：</strong>先從最簡單的 PM2+Nginx 開始，理解「應用程式 → Process Manager → Reverse Proxy → DNS → CDN」這條鏈路。每一步都親手操作過，才知道每個環節的作用。</div>
+</div>
+
+<!-- Phase 2 -->
+<div class="phase">
+  <h2>Phase 2：容器化 & 遷移到 K3s</h2>
+  <div class="date">📅 2026.05.11</div>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li>為 Next.js 專案寫 <strong>multi-stage Dockerfile</strong>（standalone output）</li>
+    <li>安裝 Docker、建立映像檔、匯入 k3s 的 containerd</li>
+    <li>建立 <code>korean-learning</code> namespace，隔離 Zeabur 系統</li>
+    <li>用 Helm 安裝 <strong>ingress-nginx</strong>（DaemonSet + hostNetwork）</li>
+    <li>移除 Zeabur 的 ingress controller，收回 port 80/443</li>
+    <li>從 Cloudflare Tunnel 切換到自管 Ingress</li>
+  </ul>
+
+  <h4>關鍵決策</h4>
+  <table>
+    <tr><th>決策</th><th>原因</th></tr>
+    <tr><td>用 k3s 而非 Docker Compose</td><td>學習真正的 K8s，且 Zeabur 已預裝 k3s</td></tr>
+    <tr><td>自管 ingress-nginx</td><td>全自管哲學：不依賴 Zeabur 或 Cloudflare Tunnel</td></tr>
+    <tr><td><code>imagePullPolicy: Never</code></td><td>無 remote registry，映像檔手動 import 到 containerd</td></tr>
+    <tr><td>DaemonSet + hostNetwork</td><td>單節點叢集，直接綁定 host port 最簡單</td></tr>
+  </table>
+
+  <div class="warning"><strong>⚠️ 踩坑：</strong><code>npm ci --omit=dev</code> 會移除 TailwindCSS → Next.js build 失敗。Dockerfile 的 builder stage 要用 <code>npm ci</code>（含 devDependencies）。</div>
+</div>
+
+<!-- Phase 3 -->
+<div class="phase">
+  <h2>Phase 3：微服務架構 & API Gateway</h2>
+  <div class="date">📅 2026.05.11–05.12</div>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li>將單體 Next.js 拆分為 <strong>5 個微服務</strong>：frontend、api-gateway、user-service、vocab-service、quiz-service</li>
+    <li>API Gateway 用 <strong>Express + http-proxy-middleware</strong> 做路由轉發</li>
+    <li>PostgreSQL StatefulSet 作為持久層</li>
+    <li>全部寫成 <strong>Helm Chart</strong>，一個 chart 管所有服務</li>
+  </ul>
+
+  <h4>架構</h4>
+  <pre>Browser → Cloudflare → Ingress → Frontend (Next.js :3000)
+                                    ↓ (rewrites)
+                              API Gateway (:4000)
+                           ┌────────┼────────┐
+                     /auth  ↓   /vocab ↓  /quiz ↓
+                  user-svc  vocab-svc  quiz-svc
+                   (:4001)   (:4002)   (:4003)
+                                    ↓
+                              PostgreSQL</pre>
+
+  <h4>踩坑三連發</h4>
+  <ol>
+    <li><strong>Next.js rewrite 指向 localhost</strong>：<code>next.config.ts</code> 的 <code>destination</code> 是 <code>http://localhost:4000</code>，在 K8s 裡 localhost 是 Pod 自己 → 改為 <code>http://api-gateway:4000</code>（K8s Service DNS）</li>
+    <li><strong>express.json() 吃掉 POST body</strong>：api-gateway 先 <code>express.json()</code> 再 proxy，導致 POST 請求 body 被消費 → 只在 health route 用 json parser</li>
+    <li><strong>http-proxy-middleware v3 path 被 strip</strong>：<code>app.use('/api/auth', proxy)</code> 會把 <code>/api/auth</code> 從路徑中移除 → 改用 <code>pathFilter</code> 保留完整路徑</li>
+  </ol>
+
+  <div class="success"><strong>✅ 成果：</strong>註冊、登入、單字查詢、測驗全部通過。API 從前端到資料庫的整條鏈路打通。</div>
+</div>
+
+<!-- Phase 4 -->
+<div class="phase">
+  <h2>Phase 4：Staging / Production 環境分離</h2>
+  <div class="date">📅 2026.05.12</div>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li>同一份 Helm chart，用 <strong>不同 values 檔</strong> 分離 staging 和 production</li>
+    <li>建立 <code>korean-staging</code> namespace，獨立資料庫 (5Gi PVC)</li>
+    <li>設定 Cloudflare DNS：<code>korean-staging.shawnlin.online</code></li>
+  </ul>
+
+  <h4>資源策略</h4>
+  <table>
+    <tr><th></th><th>Production</th><th>Staging</th></tr>
+    <tr><td>CPU requests</td><td>100–250m</td><td><strong>10m</strong> (極簡)</td></tr>
+    <tr><td>PostgreSQL PVC</td><td>10Gi</td><td>5Gi</td></tr>
+    <tr><td>Frontend Service</td><td>NodePort 30080</td><td>ClusterIP</td></tr>
+    <tr><td>imagePullPolicy</td><td>IfNotPresent</td><td>Never</td></tr>
+  </table>
+
+  <div class="warning"><strong>⚠️ 踩坑：</strong>單節點 CPU requests 達 96%，staging Pod 無法排程。解法：staging 全部降到 10m CPU request。瓶頸是 <strong>requests（排程）</strong>，不是 actual usage。Service type 設 ClusterIP 時不能有 nodePort → Helm template 加條件判斷。</div>
+</div>
+
+<!-- Phase 5 -->
+<div class="phase">
+  <h2>Phase 5：監控 & 告警</h2>
+  <div class="date">📅 2026.05.12–05.13</div>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li>部署 <strong>kube-prometheus-stack</strong>（Prometheus + Grafana + Alertmanager）</li>
+    <li>部署 <strong>Loki + Promtail</strong> 做 log 聚合（7 天保留）</li>
+    <li>設定 <strong>11 條 PrometheusRule 告警</strong>：Disk、Memory、CPU、Pod crashloop、Pod not-ready、Postgres down、PVC 容量</li>
+    <li>寫 <strong>alert-checker.py</strong>（每 5 分鐘透過 k8s API proxy 查 Prometheus）</li>
+    <li>寫 <strong>uptime-watchdog.py</strong>（每 2 分鐘檢查網站是否活著）</li>
+  </ul>
+
+  <h4>Grafana sidecar OOMKill 事件</h4>
+  <ul>
+    <li>Grafana 的 <code>grafana-sc-dashboard</code>、<code>grafana-sc-datasources</code> sidecar 被 OOMKill</li>
+    <li>原因：ResourceQuota 要求所有容器宣告 limits，但 Helm chart 預設 sidecar 沒有</li>
+    <li>初版設 32Mi memory limit → 不夠，sidecar 需要 ~100Mi+</li>
+    <li>最終設 128Mi，解決 CrashLoopBackOff</li>
+  </ul>
+
+  <div class="note"><strong>💡 學到：</strong>ResourceQuota 要求所有容器（含 init container 和 sidecar）都宣告 limits。Helm chart 的 sidecar 常常沒設，需要手動 patch。ReadWriteOnce PVC 在滾動更新時會衝突，需要 scale down 再 up。</div>
+</div>
+
+<!-- Phase 6 -->
+<div class="phase">
+  <h2>Phase 6：SRE 強化</h2>
+  <div class="date">📅 2026.05.13</div>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li><strong>PostgreSQL 自動備份</strong>：CronJob 每天備份到 <code>/opt/backups/postgres/</code>（prod 7天、staging 3天）</li>
+    <li><strong>Health probes</strong>：所有服務加上 liveness/readiness probe</li>
+    <li><strong>ResourceQuota</strong>：每個 namespace 設定資源上限</li>
+    <li><strong>Loki retention</strong>：7 天 log 保留，啟用 delete</li>
+    <li><strong>Zeabur 完全清除</strong>：移除 default NS 中所有 Zeabur 殘留（nats、cadvisor、fluent-bit 等）</li>
+    <li><strong>Telegram Alert 路由</strong>：告警訊息自動發到 Telegram Supergroup 的 #infra topic</li>
+  </ul>
+</div>
+
+<!-- Phase 7 -->
+<div class="phase">
+  <h2>Phase 7：GitOps — ArgoCD</h2>
+  <div class="date">📅 2026.05.13</div>
+
+  <h4>做了什麼</h4>
+  <ul>
+    <li>部署 <strong>ArgoCD v3.4.2</strong>，namespace <code>argocd</code></li>
+    <li>設定 Ingress + Cloudflare DNS：<code>argocd.shawnlin.online</code></li>
+    <li>建立兩個 ArgoCD Application：
+      <ul>
+        <li><code>korean-learning</code> (prod) — values.yaml + values/production.yaml</li>
+        <li><code>korean-staging</code> — values.yaml + values/staging.yaml</li>
+      </ul>
+    </li>
+    <li>設定 <code>ignoreDifferences</code> 保護 Secrets 不被覆寫</li>
+  </ul>
+
+  <div class="warning"><strong>⚠️ 踩坑：</strong>Cloudflare 代理 HTTPS 但 ArgoCD 預設強制 HTTPS → 308 redirect 無限迴圈。解法：<code>server.insecure=true</code> 讓 ArgoCD 接受 HTTP backend。ApplicationSet CRD 因 k3s annotation 大小限制無法安裝（262KB），不影響核心功能。</div>
+</div>
+
+<!-- Phase 8 -->
+<div class="phase">
+  <h2>Phase 8：DevOps 學習文件化</h2>
+  <div class="date">📅 2026.05.13</div>
+  <ul>
+    <li>建立 GitHub repo <strong>shawnlin0125/DevOps-docs</strong></li>
+    <li>每天 03:00 cron job 自動整理對話 → HTML → commit → push</li>
+    <li>K8s hostPath 掛載，網站即時更新：<strong>devops.shawnlin.online</strong></li>
+    <li>Telegram Supergroup 5 個 Topics：General、#korean、#infra、#gitops、#research</li>
+  </ul>
+</div>
+
+</div><!-- /timeline -->
+
+<!-- ============================================================ -->
+<h2 class="section-title">🧠 核心經驗教訓</h2>
+
+<h3>🔧 技術教訓</h3>
+
+<table>
+  <tr><th>#</th><th>問題</th><th>根因</th><th>解法</th></tr>
+  <tr>
+    <td>1</td>
+    <td>Next.js rewrite 失效</td>
+    <td>destination 寫 localhost 而非 K8s Service DNS</td>
+    <td><code>http://api-gateway:4000</code></td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>POST API 卡住</td>
+    <td>express.json() 在 proxy 之前吃掉 body</td>
+    <td>只在 health route 用 json parser</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>proxy 路徑被 strip</td>
+    <td>http-proxy-middleware v3 預設行為</td>
+    <td>用 pathFilter 保留路徑</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>Pod ErrImageNeverPull</td>
+    <td>Helm --set 蓋掉 image 為 Docker Hub 路徑 + imagePullPolicy: Never</td>
+    <td>helm upgrade 重設 image 為 local</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>CPU 排程失敗</td>
+    <td>單節點 requests 96%，新 Pod 無法排程</td>
+    <td>staging 用 10m CPU request</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>Grafana sidecar OOMKill</td>
+    <td>ResourceQuota 要求的 32Mi memory limit 不夠</td>
+    <td>提升到 128Mi</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td>ArgoCD 308 redirect loop</td>
+    <td>Cloudflare HTTPS → ArgoCD 強制 HTTPS</td>
+    <td>server.insecure=true</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>Port 80/443 被佔用</td>
+    <td>Zeabur ingress controller + Hermes gateway</td>
+    <td>移除 Zeabur、設定 ingress-nginx hostNetwork</td>
+  </tr>
+</table>
+
+<h3>🏗️ 架構原則</h3>
+<ol>
+  <li><strong>全自管</strong>：不依賴 PaaS，每個元件都要理解並親手部署</li>
+  <li><strong>漸進式</strong>：PM2 → Docker → K8s → Helm → GitOps，一步一步來</li>
+  <li><strong>真實專案驅動</strong>：用韓文學習平台當案例，不是憑空練習</li>
+  <li><strong>隔離</strong>：Namespace 隔離環境、ResourceQuota 防止資源爭搶</li>
+  <li><strong>可觀測</strong>：監控 + 告警 + Log 聚合，出事了才知道</li>
+  <li><strong>Git 是唯一真相來源</strong>：ArgoCD 確保叢集狀態 = Git 狀態</li>
+</ol>
+
+<h3>🛠️ 常用指令速查</h3>
+
+<pre>
+# === Docker & k3s 映像檔 ===
+sudo docker build -t app:latest .
+sudo docker save app:latest -o /tmp/app.tar
+sudo k3s ctr image import /tmp/app.tar
+sudo k3s ctr image ls | grep app
+
+# === Helm ===
+helm list -n korean-learning
+helm upgrade --install korean-staging ./helm/korean-learning -f values/staging.yaml -n korean-staging
+helm get values korean-staging -n korean-staging
+helm history korean-staging -n korean-staging
+
+# === kubectl 常用 ===
+sudo kubectl get pods -A
+sudo kubectl describe pod &lt;name&gt; -n &lt;ns&gt;
+sudo kubectl logs &lt;pod&gt; -n &lt;ns&gt; --tail=50
+sudo kubectl rollout restart deployment/&lt;name&gt; -n &lt;ns&gt;
+sudo kubectl set image deployment/&lt;name&gt; -n &lt;ns&gt; *=&lt;image&gt;:latest
+sudo kubectl top pods -A
+
+# === 緊急修復 ===
+# PVC 卡在 Terminating
+kubectl patch pvc &lt;name&gt; -n &lt;ns&gt; -p '{"metadata":{"finalizers":[]}}' --type=merge
+kubectl delete pvc &lt;name&gt; -n &lt;ns&gt; --force --grace-period=0
+
+# 強制刪除 stuck Pod
+kubectl delete pod &lt;name&gt; -n &lt;ns&gt; --force --grace-period=0
+
+# === Prometheus 告警查詢 ===
+kubectl get --raw /api/v1/namespaces/monitoring/services/http:monitoring-kube-prometheus-prometheus:9090/proxy/api/v1/alerts
+</pre>
+
+<!-- ============================================================ -->
+<h2 class="section-title">📂 關鍵檔案地圖</h2>
+
+<table>
+  <tr><th>路徑</th><th>用途</th></tr>
+  <tr><td><code>~/projects/korean-learning/</code></td><td>韓文學習平台主專案</td></tr>
+  <tr><td><code>~/projects/korean-learning/helm/korean-learning/</code></td><td>Helm Chart</td></tr>
+  <tr><td><code>~/projects/korean-learning/argocd/</code></td><td>ArgoCD Application 定義</td></tr>
+  <tr><td><code>~/projects/devops-docs/</code></td><td>DevOps 學習文件專案</td></tr>
+  <tr><td><code>~/.hermes/scripts/alert-checker.py</code></td><td>Prometheus 告警檢查</td></tr>
+  <tr><td><code>~/.hermes/scripts/uptime-watchdog.py</code></td><td>網站 uptime 監控</td></tr>
+  <tr><td><code>~/.hermes/config.yaml</code></td><td>Hermes Agent 設定</td></tr>
+  <tr><td><code>~/monitoring-values.yaml</code></td><td>kube-prometheus-stack Helm values</td></tr>
+  <tr><td><code>~/loki-values.yaml</code></td><td>Loki Helm values</td></tr>
+  <tr><td><code>/opt/backups/postgres/</code></td><td>資料庫自動備份目錄</td></tr>
+</table>
+
+<footer>
+  <p>📝 本文件由 Hermes Agent 在 2026-05-13 自動整理產生<br>
+  從 4 天、30+ 個對話 Session 中提取 DevOps 實戰經驗</p>
+  <p style="margin-top:0.3rem;">
+    <a href="https://github.com/shawnlin0125/DevOps-docs">GitHub Repo</a> ·
+    <a href="https://devops.shawnlin.online">線上閱讀</a>
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
