@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026-05-13 · Telegram 監控告警路由 & Cron Job 管理 — Shawn's DevOps Lab</title>
+<title>2026-05-13 · K3s 疑難排解、ArgoCD GitOps、Plugin-hub Go 重寫 — Shawn's DevOps Lab</title>
 <style>
   :root {
     --bg: #0d1117;
@@ -15,6 +15,7 @@
     --accent-green: #3fb950;
     --accent-orange: #d2991d;
     --accent-red: #f85149;
+    --accent-purple: #a371f7;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
@@ -33,47 +34,101 @@
   pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.85rem; margin: 0.8rem 0; }
   .note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
   .warning { background: rgba(210,153,29,0.08); border-left: 3px solid var(--accent-orange); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
-  .tag { display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); margin-right: 0.4rem; }
+  .danger { background: rgba(248,81,73,0.08); border-left: 3px solid var(--accent-red); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
+  .tag { display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); margin-right: 0.4rem; margin-bottom: 0.3rem; }
   footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; text-align: center; }
   table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
   th, td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
   th { background: var(--bg-card); color: var(--accent); }
+  .check { color: var(--accent-green); }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
     <a href="../index.html">← 回首頁</a>
-    <h1>Telegram 監控告警路由 & Cron Job 管理</h1>
-    <p class="date">📅 2026 年 5 月 13 日 · <span class="tag">Telegram Bot</span> <span class="tag">Cron Job</span> <span class="tag">Prometheus Alerts</span> <span class="tag">K3s Monitoring</span></p>
+    <h1>K3s 疑難排解、ArgoCD GitOps、Plugin-hub Go 重寫</h1>
+    <p class="date">📅 2026 年 5 月 13 日 · 
+      <span class="tag">K3s</span> <span class="tag">ArgoCD</span> <span class="tag">GitOps</span> <span class="tag">Go</span> 
+      <span class="tag">Telegram Bot</span> <span class="tag">Cron Job</span> <span class="tag">Prometheus</span>
+      <span class="tag">Grafana</span> <span class="tag">Docker</span> <span class="tag">Plugin-hub</span>
+    </p>
   </header>
 
+  <!-- ====== 1. DevOps-docs 專案 ====== -->
   <section>
     <h2>🧠 學到了什麼</h2>
 
-    <h3>1. 問題發現：Alert 傳錯 Topic</h3>
-    <p>當天發現 Prometheus Alert Checker 的告警訊息出現在 Telegram Supergroup 的 <strong>General</strong> topic，但應該去 <strong>#infra</strong>（基礎設施/監控專用 topic）。</p>
-    <p>根因：cron job 的 <code>deliver: "origin"</code> 設定會將輸出送到「建立 cron job 時所在的 topic」。當初 cron job 在 General (thread 1) 建立，所以 alert 一直送到那裡。</p>
+    <h3>1. DevOps-docs 專案：自動化學習筆記系統</h3>
+    <p>從零建立了一個 <strong>每日自動產生的 DevOps 學習頁面系統</strong>，包含 GitHub 託管、K3s 部署、Cloudflare DNS 和 Cron Job 排程。</p>
 
-    <div class="warning">
-      <strong>⚠️ 教訓：</strong>建立 cron job 時，務必確認 <code>deliver</code> 參數指向正確的目標 topic，不要盲目使用 <code>"origin"</code>。
+    <p><strong>專案架構：</strong></p>
+    <table>
+      <tr><th>元件</th><th>技術</th><th>說明</th></tr>
+      <tr><td>內容產生</td><td>Hermes Cron Job</td><td>每天 03:00 搜尋對話、產生 HTML</td></tr>
+      <tr><td>版本控制</td><td>GitHub (<code>shawnlin0125/DevOps-docs</code>)</td><td><code>gh</code> CLI 建立 repo、commit、push</td></tr>
+      <tr><td>靜態服務</td><td>nginx:alpine Docker 映像</td><td>serve <code>index.html</code> + <code>daily/*.html</code></td></tr>
+      <tr><td>部署平台</td><td>K3s (<code>devops-docs</code> namespace)</td><td>Deployment + Service + Ingress</td></tr>
+      <tr><td>DNS</td><td>Cloudflare</td><td>CNAME <code>devops.shawnlin.online</code></td></tr>
+    </table>
+
+    <p><strong>工作流程：</strong></p>
+    <ol>
+      <li>Cron job 搜尋昨天的 DevOps 對話</li>
+      <li>LLM 分析對話、提取知識點</li>
+      <li>產生 <code>daily/YYYY-MM-DD.html</code></li>
+      <li>更新 <code>index.html</code> 的 day-card 列表</li>
+      <li><code>git add</code> → <code>git commit</code> → <code>git push</code></li>
+      <li>K3s Deployment 自動重新部署（或 hostPath 直接讀取）</li>
+    </ol>
+
+    <h4>hostPath Volume 優化</h4>
+    <p>原始設計將 HTML 內嵌於 Docker 映像，每天更新需要 rebuild image。改為使用 <strong>hostPath volume mount</strong>：</p>
+    <pre>volumes:
+  - name: docs-content
+    hostPath:
+      path: /home/ubuntu/projects/devops-docs
+      type: Directory
+volumeMounts:
+  - name: docs-content
+    mountPath: /usr/share/nginx/html</pre>
+    <div class="note">
+      <strong>💡 關鍵學習：</strong>對頻繁更新的靜態內容，hostPath 直接掛載遠比每次 rebuild Docker 映像更高效。Cron job 只需要 <code>git pull</code> + 寫入檔案，nginx 就能立即服務最新內容。
     </div>
 
-    <h3>2. Telegram Topic 機制探索</h3>
-    <p>Telegram Supergroup 開啟 Forum 模式後，每個 topic 有獨立的 <code>message_thread_id</code>。Hermes Agent 使用 <code>telegram:chat_id:thread_id</code> 格式來路由訊息。</p>
+    <h4>gh CLI 使用</h4>
+    <pre># 安裝
+sudo snap install gh
+# 認證（需要 repo 權限的 token）
+gh auth login --with-token
+# 建立 repo 並 push
+gh repo create shawnlin0125/DevOps-docs --public --source=. --push</pre>
 
-    <p><strong>Topic 探索過程：</strong></p>
+    <div class="warning">
+      <strong>⚠️ 注意：</strong>GitHub token 只需要 <code>repo</code> scope 就能建立 repo 和 push。<code>gh auth</code> 會警告缺少 <code>read:org</code> scope，但不影響基本操作。
+    </div>
+  </section>
+
+  <!-- ====== 2. Telegram Alert Routing ====== -->
+  <section>
+    <h3>2. Telegram 監控告警路由修正</h3>
+    <p>發現 Prometheus Alert Checker 的告警訊息出現在 <strong>General</strong> topic，但應該去 <strong>#infra</strong>（基礎設施/監控專用 topic）。</p>
+
+    <p><strong>根因：</strong>cron job 的 <code>deliver: "origin"</code> 設定將輸出送到「建立 cron job 時所在的 topic」。當初在 General (thread 1) 建立，所以 alert 一直送到那裡。</p>
+
+    <p><strong>Telegram Topic 探索：</strong></p>
     <ol>
-      <li>先查 <code>~/.hermes/channel_directory.json</code> — 只有 General (thread 1)</li>
-      <li>用 <code>send_message</code> 嘗試 thread 2~10，發現 2、4、7、8 存在</li>
-      <li>發送不同內容的測試訊息，請使用者辨識每個 thread 對應的 topic 名稱</li>
+      <li>查 <code>~/.hermes/channel_directory.json</code> — 只有 General (thread 1)</li>
+      <li>用 <code>send_message</code> 測試 thread 2~10，發現 2、4、7、8 存在</li>
+      <li>發送測試訊息請使用者辨識每個 thread 對應的 topic 名稱</li>
     </ol>
 
     <p><strong>最終 Topic 地圖：</strong></p>
     <table>
       <tr><th>Thread ID</th><th>Topic 名稱</th><th>用途</th></tr>
       <tr><td>1</td><td>General</td><td>一般討論</td></tr>
-      <tr><td>2</td><td>#korean</td><td>韓文平台開發/部署/CI/CD</td></tr>
+      <tr><td>2</td><td>#korean</td><td>韓文平台開發/部署</td></tr>
       <tr><td>4</td><td>#infra</td><td>伺服器/k3s/安全/監控</td></tr>
       <tr><td>7</td><td>#gitops</td><td>ArgoCD/Flux</td></tr>
       <tr><td>8</td><td>#research</td><td>工具/架構/討論</td></tr>
@@ -83,63 +138,266 @@
       <strong>💡 關鍵發現：</strong>Telegram topic 的 thread_id <strong>不一定是連續的</strong>。刪除 topic 後重建可能跳號。不要假設 ID=2,3,4,5... 一定要逐個測試。
     </div>
 
-    <h3>3. Cron Job 路由修正</h3>
-    <p>使用 <code>cronjob</code> 工具更新現有 job 的 delivery target：</p>
-    <pre>cronjob(
-  action='update',
-  job_id='fe448223c4db',           # Prometheus Alert Checker
-  deliver='telegram:-1003966564424:4'  # #infra thread
-)</pre>
+    <p><strong>修正方式：</strong>使用 <code>cronjob(action='update')</code> 將 delivery target 改為 <code>telegram:-1003966564424:4</code>（#infra topic）。</p>
+  </section>
 
-    <p><strong>Alert Checker 架構：</strong></p>
-    <ul>
-      <li><code>no_agent: true</code> — 不經過 LLM，直接執行 Python script</li>
-      <li>script <code>alert-checker.py</code> 透過 <code>kubectl get --raw</code> 查詢 Prometheus API</li>
-      <li>有告警時輸出格式化文字 (exit code 1)，無告警時 exit 0 (silent)</li>
-      <li>cron scheduler 將 stdout 直接 deliver 到目標 topic</li>
-    </ul>
+  <!-- ====== 3. K3s Troubleshooting Marathon ====== -->
+  <section>
+    <h3>3. K3s 叢集疑難排解馬拉松（6 個問題修復）</h3>
+    <p>使用者要求檢查並修復 k3s 叢集上的所有問題，一次處理了 <strong>6 個不同層面的故障</strong>。</p>
 
-    <h3>4. Hermes Cron Job 管理要點</h3>
+    <h4>3.1 korean-staging：Rolling Update 卡住 (ErrImageNeverPull)</h4>
+    <p><strong>現象：</strong><code>api-gateway</code> 和 <code>user-service</code> deployment 有新 pod 處於 ImagePullBackOff。</p>
+    <p><strong>根因：</strong><code>imagePullPolicy: Never</code> 搭配不存在於本地的映像標籤 <code>shawnlin0125/*:af305049...</code>。舊 pod 仍正常運行（服務未中斷），但新 pod 無法啟動。</p>
+    <p><strong>修復：</strong>Deployment 自動 rollback，手動清理 orphan pods 和 8+ 個 stale ReplicaSet。</p>
+
+    <div class="warning">
+      <strong>⚠️ 教訓：</strong>使用 <code>imagePullPolicy: Never</code> 的部署，必須確保映像已透過 <code>k3s ctr images import</code> 匯入到 containerd。Rollout 前務必驗證映像存在。
+    </div>
+
+    <h4>3.2 ResourceQuota 超限</h4>
+    <p><strong>現象：</strong><code>korean-staging-quota</code> 的 CPU 使用率 2800m/3000m、Memory 1408Mi/1536Mi，新 pod（korean-learning、quiz-service、vocab-service）無法排程。</p>
+    <p><strong>根因：</strong>Stale ReplicaSet 佔用 quota 配額。</p>
+    <p><strong>修復：</strong>清理 stale RS 後，CPU 降至 2300m/3000m，Memory 降至 1152Mi/1536Mi。</p>
+
+    <h4>3.3 Grafana Init Containers 缺少 Resource Limits</h4>
+    <p><strong>現象：</strong>Grafana deployment 無法創建 pod。<code>monitoring-quota</code> 要求所有容器宣告 limits/requests，但 Helm chart 的 sidecar 和 init container 使用 <code>resources: {}</code>。</p>
+    <p><strong>修復：</strong>手動 patch deployment，為 <code>grafana-sc-dashboard</code>、<code>grafana-sc-datasources</code>（sidecar）和 <code>init-chown-data</code>（init container）加上 resource limits。</p>
+    <p><strong>關鍵步驟：</strong>需要先 scale down 到 0 再 scale up 到 1，因為 ReadWriteOnce PVC 無法同時被兩個 pod 掛載（舊 pod 的 init container <code>chown</code> 在 Permission denied 時卡住）。</p>
+
+    <div class="note">
+      <strong>💡 Kubernetes 知識點：</strong>使用 <code>ReadWriteOnce</code> PVC 時，更新 Deployment（rolling update）會先啟動新 pod。如果新舊 pod 在同一個 node 上（單節點 k3s），第二個 pod 無法掛載已綁定的 PVC，導致 init container 失敗。解決方案：先 scale down 到 0，釋放 PVC，再 scale up。
+    </div>
+
+    <h4>3.4 ArgoCD ApplicationSet CRD 遺失</h4>
+    <p><strong>現象：</strong><code>argocd-applicationset-controller</code> CrashLoopBackOff，錯誤 <code>no matches for kind "ApplicationSet"</code>。</p>
+    <p><strong>根因：</strong>ArgoCD 安裝時 <code>applicationsets.argoproj.io</code> CRD 因為 k3s 的 annotation 大小限制（262KB）未能成功建立。</p>
+    <p><strong>修復：</strong>手動 apply CRD manifest（需先 strip oversized annotations），然後刪除 crashing pod 觸發重啟。</p>
+
+    <div class="note">
+      <strong>💡 K3s 限制：</strong>k3s 對 Kubernetes 資源的 annotation 總大小有 262,144 位元組的限制（與 etcd 的預設值相關）。大型 CRD manifest 若 annotations 過多會失敗。解決方案：手動 strip 非必要的 metadata annotations。
+    </div>
+
+    <h4>3.5 Grafana Sidecar OOMKilled（32Mi → 128Mi）</h4>
+    <p><strong>現象：</strong>修復 #3 後，<code>grafana-sc-dashboard</code> 和 <code>grafana-sc-datasources</code> 持續 OOMKilled → CrashLoopBackOff。Prometheus 告警 <code>PodCrashLooping</code> 持續觸發。</p>
+    <p><strong>根因：</strong>初次設定的 memory limit <strong>32Mi</strong> 太小。k8s-sidecar 掃描 ConfigMap 時需要更多記憶體。</p>
+    <p><strong>修復：</strong>將 sidecar memory limit 提升至 <strong>128Mi</strong>（requests 16Mi、CPU 5m request / 10m limit）。Pod 恢復 3/3 Running，restart count 歸零。</p>
+
     <table>
-      <tr><th>參數</th><th>說明</th></tr>
-      <tr><td><code>no_agent: true</code></td><td>純 script 模式，輸出直接 delivery（watchdog 模式）</td></tr>
-      <tr><td><code>no_agent: false</code></td><td>LLM 驅動模式，每次執行 prompt（需要推理時用）</td></tr>
-      <tr><td><code>deliver: "origin"</code></td><td>送回建立時的來源 chat/topic</td></tr>
-      <tr><td><code>deliver: "telegram:chat_id:thread_id"</code></td><td>指定目標 topic</td></tr>
-      <tr><td><code>deliver: "local"</code></td><td>只存檔，不發送</td></tr>
+      <tr><th>Container</th><th>CPU Request</th><th>CPU Limit</th><th>Mem Request</th><th>Mem Limit</th></tr>
+      <tr><td>grafana (main)</td><td>50m</td><td>200m</td><td>128Mi</td><td>256Mi</td></tr>
+      <tr><td>grafana-sc-dashboard</td><td>5m</td><td>10m</td><td>16Mi</td><td><strong>128Mi</strong></td></tr>
+      <tr><td>grafana-sc-datasources</td><td>5m</td><td>10m</td><td>16Mi</td><td><strong>128Mi</strong></td></tr>
+      <tr><td>init-chown-data</td><td>10m</td><td>50m</td><td>16Mi</td><td>32Mi</td></tr>
+    </table>
+
+    <div class="warning">
+      <strong>⚠️ 教訓：</strong>sidecar 容器的資源 limit 不能太保守。k8s-sidecar 在掃描 ConfigMap/Secret 時有明顯的記憶體峰值。建議至少 128Mi，生產環境可設 256Mi。
+    </div>
+
+    <h4>3.6 Alert Checker Exit Code 修正</h4>
+    <p><strong>問題：</strong><code>alert-checker.py</code> 在發現告警時 exit code 為 1，導致 cron 系統標記為 "failed"。</p>
+    <p><strong>修復：</strong><code>sys.exit(1) → sys.exit(0)</code>。有告警時輸出內容到 stdout（exit 0），無告警時 silent。這樣 cron 不會誤報 failure。</p>
+
+    <h4>🔄 Auto-Fix Rule 建立</h4>
+    <div class="note">
+      <strong>🔄 新規則：</strong>使用者要求：如果同一錯誤出現 <strong>3 次</strong>，主動修復並記錄根因與解決方案，而非僅僅通知。這條規則已存入 Hermes 記憶體。
+    </div>
+  </section>
+
+  <!-- ====== 4. ArgoCD GitOps ====== -->
+  <section>
+    <h3>4. ArgoCD GitOps 部署實戰</h3>
+    <p>在單節點 k3s 上完成 <strong>ArgoCD 安裝、Ingress 設定、Cloudflare DNS、Git 倉庫連接、Application 建立</strong>的完整 GitOps 流程。</p>
+
+    <h4>4.1 安裝與 Ingress 設定</h4>
+    <pre># 安裝 ArgoCD（v3.4.2）
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.4.2/manifests/install.yaml
+
+# Ingress 設定（使用既有 ingress-nginx，hostNetwork port 8880/8443）
+kubectl apply -f k8s/argocd-ingress.yaml</pre>
+
+    <h4>4.2 308 Redirect Loop 問題解決</h4>
+    <p><strong>問題：</strong>透過 Cloudflare → ingress-nginx 存取 ArgoCD 時出現 308 無限 redirect。</p>
+    <p><strong>根因：</strong>ArgoCD 預設強制 HTTPS redirect，但 TLS 已在 Cloudflare 層處理（Cloudflare ↔ 伺服器是 HTTP）。</p>
+
+    <p><strong>三步修復：</strong></p>
+    <ol>
+      <li>設定 <code>argocd-cm</code> ConfigMap：<code>server.insecure: "true"</code></li>
+      <li>設定 <code>argocd-cmd-params-cm</code> ConfigMap：<code>server.insecure: "true"</code></li>
+      <li>移除 Ingress 的 <code>nginx.ingress.kubernetes.io/force-ssl-redirect</code> annotation</li>
+    </ol>
+
+    <div class="note">
+      <strong>💡 架構知識：</strong>當 TLS 在反向代理層（Cloudflare）終止時，後端服務（ArgoCD）應關閉自身的 HTTPS 強制跳轉。這適用於所有有 Cloudflare orange cloud 的服務。
+    </div>
+
+    <h4>4.3 Cloudflare DNS 設定</h4>
+    <p>使用 Cloudflare API 建立 CNAME 記錄：<code>argocd.shawnlin.online → shawnlin.online</code>（proxied / orange cloud）。</p>
+
+    <h4>4.4 Application 建立</h4>
+    <p>為 <strong>korean-learning</strong> 建立了兩個 ArgoCD Application：</p>
+    <table>
+      <tr><th>Application</th><th>用途</th><th>Chart Path</th><th>Values</th></tr>
+      <tr><td>korean-learning</td><td>Production</td><td><code>helm/korean-learning</code></td><td><code>values.yaml</code> + <code>values/production.yaml</code></td></tr>
+      <tr><td>korean-staging</td><td>Staging</td><td><code>helm/korean-learning</code></td><td><code>values.yaml</code> + <code>values/staging.yaml</code></td></tr>
+    </table>
+
+    <h4>4.5 ignoreDifferences 保護 Secrets</h4>
+    <pre>syncPolicy:
+  syncOptions:
+    - RespectIgnoreDifferences=true
+ignoreDifferences:
+  - group: ""
+    kind: Secret
+    name: postgres-secret
+    jsonPointers:
+      - /data/password
+      - /data/jwt-secret</pre>
+    <p>這個設定確保 ArgoCD <strong>不會覆寫</strong>已在叢集中手動設定的密碼。避免 Git repo 中的 placeholder 值覆蓋真實密碼。</p>
+
+    <div class="warning">
+      <strong>⚠️ 注意：</strong><code>ignoreDifferences</code> 保護的資源在 UI 上會永遠顯示 OutOfSync（因為實際值與 repo 不同）。這是預期行為，不是 bug。目前使用 <strong>Manual sync</strong> 策略，尚未啟用 auto-sync。
+    </div>
+
+    <h4>4.6 資源使用</h4>
+    <p>ArgoCD 在單節點 k3s 上非常輕量：7 個 pod，總計約 <strong>123Mi RAM + 11m CPU</strong>。對小型叢集完全可行。</p>
+  </section>
+
+  <!-- ====== 5. Plugin-hub Go Rewrite ====== -->
+  <section>
+    <h3>5. Plugin-hub Go 重寫：Python → Go 的資源優化之旅</h3>
+    <p>將 plugin-hub 平台從 <strong>Python/FastAPI</strong> 重寫為 <strong>Go (net/http stdlib)</strong>，動機是「AI 負責寫程式碼，語言選擇應以部署效率為優先，而非開發者偏好」。</p>
+
+    <h4>5.1 資源對比</h4>
+    <table>
+      <tr><th>指標</th><th>Python/FastAPI</th><th>Go (net/http)</th><th>改善</th></tr>
+      <tr><td>Docker 映像大小</td><td>255 MB</td><td>134 MB</td><td class="check">-47%</td></tr>
+      <tr><td>執行檔大小</td><td>N/A (interpreted)</td><td>8.3 MB (binary)</td><td class="check">-</td></tr>
+      <tr><td>閒置記憶體</td><td>~50 MB</td><td>&lt;10 MB</td><td class="check">-80%</td></tr>
     </table>
 
     <div class="note">
-      <strong>💡 最佳實踐：</strong>no_agent 模式的 script 應該在無事發生時 exit 0（silent），只有在需要通知時才輸出內容並 exit 1。這樣使用者不會被無意義的「一切正常」訊息打擾。
+      <strong>💡 語言選擇思考：</strong>Go 勝過 Rust（AI 迭代速度不足）和 Python（資源使用過高）。因為 AI 負責程式碼生成，語言選擇應該優化部署足跡（image size、RAM、startup time）而非開發者生產力。這是 AI-assisted development 時代的新思維。
     </div>
 
-    <h3>5. Token 安全性：工具層級遮蔽</h3>
-    <p>在探索過程中發現 Hermes 的 <code>read_file</code> 和 <code>execute_code</code> 工具會自動遮蔽敏感 token（如 <code>TELEGRAM_BOT_TOKEN</code>、API key），輸出顯示為 <code>***</code>。這是安全設計，但也意味著無法直接在工具中取用 token 來呼叫外部 API。替代方案：使用 Hermes 內建的 <code>send_message</code> 等封裝好的平台工具。</p>
+    <h4>5.2 排程架構決策</h4>
+    <p><strong>Platform 不處理排程。</strong>Plugin-hub 只是一個「總機」（switchboard）：發現、路由、開關 plugin。</p>
+    <table>
+      <tr><th>方案</th><th>記憶體</th><th>決策</th></tr>
+      <tr><td>Celery</td><td>150-300 MB</td><td class="accent-red">❌ 太重</td></tr>
+      <tr><td>Kafka</td><td>1-2 GB</td><td class="accent-red">❌ 太重</td></tr>
+      <tr><td>APScheduler (in-process)</td><td>~0 MB extra</td><td class="check">✅ 採用</td></tr>
+    </table>
+    <p>每個 vendor plugin 內部使用 APScheduler，透過 <code>start()</code>/<code>stop()</code> lifecycle hooks 管理排程。</p>
+
+    <h4>5.3 部署與驗證</h4>
+    <pre># 部署到 K3s
+namespace: plugin-hub
+image: plugin-hub:go-latest
+NodePort: 30081
+Ingress: hub.shawnlin.online
+
+# 驗證
+Dashboard: https://hub.shawnlin.online ✅
+API: https://hub.shawnlin.online/api/plugins ✅</pre>
+
+    <h4>5.4 未來規劃</h4>
+    <ul>
+      <li><strong>Wasm runtime (wazero)：</strong>未來 plugin 執行環境，目前仍使用 YAML-based config</li>
+      <li><strong>K8s CRD 解耦：</strong>plugin-hub 目前用 hardcoded <code>config/plugins.yaml</code>，未來改用 CRD 動態發現 plugin</li>
+      <li><strong>ArgoCD 整合：</strong>尚未為 plugin-hub 設定 auto-sync</li>
+    </ul>
+
+    <div class="danger">
+      <strong>⚠️ 已知問題：</strong>(1) <code>go-rewrite</code> branch 尚未合併到 main；(2) Test gate (<code>POST /api/plugins/{id}/test</code>) 返回空結果 — 134MB 映像中的 pytest subprocess 整合未完成；(3) vendor plugin 的 APScheduler 尚未實際實作（只有 comment placeholder）。
+    </div>
   </section>
 
+  <!-- ====== Tools & Commands ====== -->
   <section>
     <h2>🛠️ 涉及指令與工具</h2>
+    
+    <h3>K3s / Kubernetes</h3>
     <ul>
-      <li><code>cronjob(action='list')</code> — 列出所有排程任務</li>
+      <li><code>kubectl get pods -A | grep -v Running</code> — 快速找出所有異常 pod</li>
+      <li><code>kubectl describe pod &lt;name&gt; -n &lt;ns&gt;</code> — 查看 pod 事件和錯誤原因</li>
+      <li><code>kubectl get replicasets -n &lt;ns&gt;</code> — 列出 ReplicaSet（檢查 stale RS）</li>
+      <li><code>kubectl delete replicaset &lt;name&gt; -n &lt;ns&gt;</code> — 清理 stale ReplicaSet</li>
+      <li><code>kubectl scale deployment &lt;name&gt; -n &lt;ns&gt; --replicas=0</code> — 釋放 PVC 鎖定</li>
+      <li><code>kubectl get quota -n &lt;ns&gt;</code> — 檢查 ResourceQuota 使用率</li>
+      <li><code>kubectl patch deployment &lt;name&gt; -n &lt;ns&gt; --type='json' -p='[...]'</code> — JSON patch 更新 deployment</li>
+      <li><code>kubectl apply -f &lt;crd.yaml&gt;</code> — 手動安裝 CRD（k3s 需要 strip 大型 annotations）</li>
+      <li><code>k3s ctr images import &lt;image.tar&gt;</code> — 將 Docker 映像匯入 k3s containerd</li>
+      <li><code>kubectl get --raw /apis/argoproj.io/v1alpha1</code> — 驗證 CRD 是否註冊</li>
+    </ul>
+
+    <h3>ArgoCD</h3>
+    <ul>
+      <li><code>argocd login argocd.shawnlin.online --username admin --password ... --insecure</code> — CLI 登入</li>
+      <li><code>argocd repo add https://github.com/... --type git</code> — 連接 Git 倉庫</li>
+      <li><code>kubectl edit cm argocd-cm -n argocd</code> — 設定 <code>server.insecure: "true"</code></li>
+      <li><code>kubectl edit cm argocd-cmd-params-cm -n argocd</code> — 設定命令列參數</li>
+      <li><code>kubectl apply -f argocd/app-korean-learning.yaml</code> — 建立 Application</li>
+      <li><code>argocd app sync korean-learning</code> — 手動觸發同步</li>
+    </ul>
+
+    <h3>DevOps / 部署</h3>
+    <ul>
+      <li><code>gh (GitHub CLI)</code> — <code>snap install gh</code>、<code>gh auth login</code>、<code>gh repo create</code></li>
+      <li><code>git add / commit / push</code> — 版本控制</li>
+      <li><code>docker build -t devops-docs:latest .</code> — 建置映像</li>
+      <li><code>Cloudflare API</code> — 建立 CNAME record（<code>POST /zones/:id/dns_records</code>）</li>
+    </ul>
+
+    <h3>Hermes / Cron</h3>
+    <ul>
+      <li><code>cronjob(action='list')</code> — 列出所有排程</li>
       <li><code>cronjob(action='update', job_id=..., deliver=...)</code> — 更新 delivery 目標</li>
-      <li><code>send_message(target='telegram:-1003966564424:N')</code> — 發送到特定 topic</li>
-      <li><code>~/.hermes/channel_directory.json</code> — 已知的 channel/topic 快取</li>
-      <li><code>~/.hermes/logs/gateway.log</code> — 查看 inbound message 紀錄</li>
+      <li><code>cronjob(action='create', name=..., schedule=..., prompt=...)</code> — 建立新排程</li>
+      <li><code>send_message(target='telegram:chat_id:thread_id')</code> — 發送到特定 topic</li>
     </ul>
   </section>
 
+  <!-- ====== Files ====== -->
   <section>
     <h2>📂 相關檔案</h2>
-    <ul>
-      <li><code>~/.hermes/scripts/alert-checker.py</code> — Prometheus alert 檢查 script</li>
-      <li><code>~/.hermes/channel_directory.json</code> — Telegram channel 快取</li>
-      <li><code>~/.hermes/config.yaml</code> — Hermes 主設定檔</li>
-    </ul>
+    <table>
+      <tr><th>檔案路徑</th><th>用途</th></tr>
+      <tr><td><code>/home/ubuntu/projects/devops-docs/</code></td><td>DevOps 學習筆記專案根目錄</td></tr>
+      <tr><td><code>/home/ubuntu/projects/devops-docs/index.html</code></td><td>首頁（day-card 列表）</td></tr>
+      <tr><td><code>/home/ubuntu/projects/devops-docs/Dockerfile</code></td><td>nginx:alpine 映像</td></tr>
+      <tr><td><code>/home/ubuntu/projects/devops-docs/nginx.conf</code></td><td>nginx 設定</td></tr>
+      <tr><td><code>/home/ubuntu/projects/korean-learning/k8s/argocd-ingress.yaml</code></td><td>ArgoCD Ingress</td></tr>
+      <tr><td><code>/home/ubuntu/projects/korean-learning/argocd/app-korean-learning.yaml</code></td><td>Production Application</td></tr>
+      <tr><td><code>/home/ubuntu/projects/korean-learning/argocd/app-korean-staging.yaml</code></td><td>Staging Application</td></tr>
+      <tr><td><code>~/.hermes/scripts/alert-checker.py</code></td><td>Prometheus alert 檢查 script</td></tr>
+      <tr><td><code>~/.hermes/skills/devops/k3s-sre-hardening/scripts/alert-checker.py</code></td><td>Alert checker (skills 副本)</td></tr>
+      <tr><td><code>~/.hermes/channel_directory.json</code></td><td>Telegram channel/topic 快取</td></tr>
+      <tr><td><code>~/.hermes/config.yaml</code></td><td>Hermes 主設定</td></tr>
+    </table>
+  </section>
+
+  <!-- ====== Summary ====== -->
+  <section>
+    <h2>📊 當日摘要</h2>
+    <p>5 月 13 日是極其豐富的一天，橫跨 <strong>4 個工程領域</strong>：</p>
+    <table>
+      <tr><th>領域</th><th>成果</th><th>關鍵技能</th></tr>
+      <tr><td>🏗️ 自動化/DevOps</td><td>DevOps-docs 自動化學習系統上線</td><td>gh CLI、Docker、K3s、Cloudflare DNS、hostPath</td></tr>
+      <tr><td>📡 監控告警</td><td>Telegram Topic 路由修正</td><td>Topic discovery、Cron job delivery、exit code</td></tr>
+      <tr><td>🔧 K3s 維運</td><td>6 個叢集問題修復</td><td>Rollback、ResourceQuota、PVC locking、CRD、OOM</td></tr>
+      <tr><td>🚀 GitOps</td><td>ArgoCD 完整部署</td><td>Ingress redirect loop、ignoreDifferences、sync policy</td></tr>
+      <tr><td>⚡ 效能優化</td><td>Plugin-hub Go 重寫</td><td>Go binary、switchboard pattern、APScheduler</td></tr>
+    </table>
   </section>
 
   <footer>
-    <p>🚀 由 Hermes Agent 從真實對話中自動整理 · <a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent);">GitHub Repo</a></p>
-    <p style="margin-top:0.3rem;"><a href="../index.html" style="color:var(--accent);">← 回首頁</a> | 下一篇：敬請期待</p>
+    <div class="nav-row">
+      <a href="../index.html" style="color:var(--accent);">← 回首頁</a>
+      <a href="2026-05-14.html" style="color:var(--accent);">下一篇 →</a>
+    </div>
+    <p style="margin-top:1rem;">🚀 由 Hermes Agent 從真實對話中自動整理 · <a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent);">GitHub Repo</a></p>
   </footer>
 </div>
 </body>
