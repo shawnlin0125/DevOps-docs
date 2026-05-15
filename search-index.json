@@ -780,5 +780,109 @@
     ],
     "anchor": "kp18",
     "conversation": "K8s 基礎設施概念 & 資源評估框架"
+  },
+  {
+    "id": "2026-05-15-kp1",
+    "date": "2026-05-15",
+    "title": "session_search 的 FTS5 排名陷阱：limit=3 會截斷概念型對話",
+    "summary": "FTS5 全文搜尋以關鍵字密度排序，操作型對話（指令多）排名高於概念型對話。limit=3 時第 4+ 個對話會被截斷。解法：limit=15 + 兩階段搜尋（關鍵字廣撒 + 討論串補漏）。",
+    "tags": [
+      "session_search",
+      "FTS5",
+      "BM25",
+      "搜尋策略",
+      "cron"
+    ],
+    "anchor": "kp1",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
+  },
+  {
+    "id": "2026-05-15-kp2",
+    "date": "2026-05-15",
+    "title": "兩階段搜尋策略：關鍵字廣撒 + 討論串補漏，確保零漏網",
+    "summary": "單一關鍵字搜尋有盲區——自然語言對話不一定用標準術語。Phase 1 用 ~45 個 DevOps 關鍵字廣撒，Phase 2 針對 #infra、#gitops、#schedule 討論串補漏，合併後手動日期過濾 + 去重 + 排除 source=cron。",
+    "tags": [
+      "session_search",
+      "搜尋策略",
+      "Telegram",
+      "去重",
+      "cron"
+    ],
+    "anchor": "kp2",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
+  },
+  {
+    "id": "2026-05-15-kp3",
+    "date": "2026-05-15",
+    "title": "知識點粒度設計：一個獨立可學習的概念 = 一個 💡 卡片",
+    "summary": "將複合知識點拆分為最小可學習單元，例如「free -h available」和「K8s 資源評估三線框架」是兩個獨立 💡。每個 💡 有唯一 id 和錨點，可精確搜尋、獨立複習、跨頁引用。",
+    "tags": [
+      "知識管理",
+      "知識點粒度",
+      "原子性原則",
+      "學習設計"
+    ],
+    "anchor": "kp3",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
+  },
+  {
+    "id": "2026-05-15-kp4",
+    "date": "2026-05-15",
+    "title": "零依賴前端模糊搜尋：Token-based 比對取代 Fuse.js CDN",
+    "summary": "自建 token-based 模糊搜尋取代 Fuse.js CDN——將輸入分割為 tokens，逐一比對 title/summary/tags，case-insensitive。零外部依賴，offline 仍可運作。DevOps 術語精確，不需 Levenshtein 編輯距離。",
+    "tags": [
+      "前端",
+      "搜尋",
+      "JavaScript",
+      "Fuse.js",
+      "zero-dependency"
+    ],
+    "anchor": "kp4",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
+  },
+  {
+    "id": "2026-05-15-kp5",
+    "date": "2026-05-15",
+    "title": "JSON Sidecar 索引模式：結構化知識點層與 HTML 呈現層分離",
+    "summary": "每個 daily HTML 搭配 daily/YYYY-MM-DD.json，再用 Python glob+json.load 合併為 search-index.json。資料層（JSON）和呈現層（HTML）分離，搜尋重建不需要 parse HTML，避免結構耦合。",
+    "tags": [
+      "JSON",
+      "索引設計",
+      "資料層分離",
+      "Python",
+      "glob"
+    ],
+    "anchor": "kp5",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
+  },
+  {
+    "id": "2026-05-15-kp6",
+    "date": "2026-05-15",
+    "title": "Cron Job 的 delivery 路由：local vs Telegram topic 通知",
+    "summary": "排程預設 delivery=local 只存本地 log，使用者看不到。需設為 telegram:<chat_id>:<topic_id> 才能路由到 Telegram 特定討論串。Shawn's Lab 的 topic mapping: General=1, #infra=4, #gitops=7, #schedule=652。",
+    "tags": [
+      "cron",
+      "Telegram",
+      "delivery",
+      "通知路由",
+      "topic"
+    ],
+    "anchor": "kp6",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
+  },
+  {
+    "id": "2026-05-15-kp7",
+    "date": "2026-05-15",
+    "title": "Ops 診斷筆記格式：七欄結構捕捉解題思路而非只記錄指令",
+    "summary": "新格式從三欄（學到什麼/指令/檔案）升級為七欄（一句話/事發/目標/動手/驗證/原理/反思），重點是捕捉「為什麼這樣做」和「下次如何更好」，把學習從記憶指令提升到理解決策過程。",
+    "tags": [
+      "筆記格式",
+      "Ops診斷",
+      "學習設計",
+      "知識管理",
+      "反思"
+    ],
+    "anchor": "kp7",
+    "conversation": "DevOps Daily Doc 搜尋策略與格式大改造"
   }
 ]

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-15</title>
+<style>
+:root {
+  --bg: #0d1117; --bg-card: #161b22; --accent: #58a6ff;
+  --accent-green: #3fb950; --accent-orange: #d2991d;
+  --text: #c9d1d9; --text-secondary: #8b949e;
+  --border: #30363d; --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent-orange); font-size: 1.2rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.toc ol { margin: 0.5rem 0 0 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.4rem; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.5rem 0; }
+.kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: var(--text); }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.cmd-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.5rem; font-size: 0.85rem; }
+.cmd-table th { background: var(--bg-card); color: var(--accent); text-align: left; padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td { padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td:first-child { font-family: monospace; font-size: 0.82rem; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { font-family: monospace; font-size: 0.85rem; padding: 0.2rem 0; color: var(--text-secondary); }
+.file-list li::before { content: "📄 "; }
+nav.bottom-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+nav.bottom-nav a { color: var(--accent); text-decoration: none; }
+nav.bottom-nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h1>📘 DevOps 學習筆記 — 2026-05-15</h1>
+<p class="subtitle">May 15, 2026 · 1 個對話 · 7 個知識點</p>
+
+<details class="toc" open>
+<summary>📑 目錄</summary>
+<ol>
+  <li><a href="#conv1">DevOps Daily Doc 搜尋策略與格式大改造</a> — 7 知識點</li>
+</ol>
+</details>
+
+<!-- ========== Conversation 1 ========== -->
+<section id="conv1">
+<h2>🖥️ 對話一：DevOps Daily Doc 搜尋策略與格式大改造</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">08:32 AM · 修復 session_search 漏對話、重新設計知識點格式、建立 JSON 搜尋索引</p>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 session_search 的 FTS5 排名陷阱：limit=3 會截斷低關鍵字密度的概念型對話</h4>
+  <p>DevOps Daily Doc 排程原本使用 <code>session_search</code> 預設 <code>limit=3</code>，5/14 有 4+ 個 DevOps 對話時第 4 個被截斷。原因是 FTS5 全文搜尋引擎以關鍵字命中密度排序：操作型對話（指令多、關鍵字如 <code>kubectl</code>、<code>deploy</code> 密集）排名較高，概念型對話（如 K8s 基礎設施 Q&A）關鍵字密度較低被擠到後面。</p>
+  <pre><code># session_search 預設 limit=3（太容易截斷）
+# FTS5 排名機制：命中次數 × 欄位權重 + bm25 相似度
+# 操作型對話 > 概念型對話（關鍵字密度差異）
+
+# 解法：明確設 limit=15，加上兩階段搜尋
+# Phase 1: 廣撒關鍵字
+session_search(query="kubernetes OR k3s OR docker OR ...", limit=15)
+# Phase 2: 討論串補漏
+session_search(query='"#infra" OR "#gitops" OR "#schedule"', limit=15)</code></pre>
+  <p class="why">💭 原理：FTS5（SQLite 的全文搜尋擴充）使用 BM25 演算法對命中文件打分，關鍵字出現次數和欄位位置決定分數。操作型對話天然關鍵字多，搜尋時排名高；概念型對話要透過討論串分組搜尋來補漏。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 兩階段搜尋策略：關鍵字廣撒 + 討論串補漏，確保零漏網</h4>
+  <p>單一關鍵字搜尋即使 limit 設高，也可能漏掉某些對話（例如在 #schedule 討論串中談排程卻沒用到常見 DevOps 關鍵字）。兩階段搜尋先廣撒 DevOps 關鍵字，再針對已知 DevOps 討論串（#infra、#gitops、#schedule）各別搜尋，合併後手動日期過濾 + 去重 + 排除 source=cron。</p>
+  <pre><code># Phase 1: 擴充關鍵字清單（~45 個 DevOps 關鍵字）
+query = "kubernetes OR k3s OR docker OR helm OR kubectl OR pod OR "
+        "service OR namespace OR ingress OR nginx OR deploy OR 部署 OR "
+        "prometheus OR grafana OR alert OR monitoring OR cron OR argo OR "
+        "gitops OR cloudflare OR DNS OR SSL OR postgres OR backup OR "
+        "SRE OR github OR 基礎設施 OR 資源評估 OR 擴充 OR 網路 OR scale"
+sessions_phase1 = session_search(query=query, limit=15)
+
+# Phase 2: 討論串精準搜尋
+sessions_phase2 = []
+for thread in ["#infra", "#gitops", "#schedule", "排程"]:
+    sessions_phase2 += session_search(query=f'"{thread}"', limit=15)
+
+# 合併 + 日期過濾 + 去重 + 排除 cron
+all_sessions = sessions_phase1 + sessions_phase2
+yesterday_sessions = [s for s in all_sessions
+    if s.when.startswith("May 15, 2026")
+    and s.source != "cron"]
+unique_sessions = {s.session_id: s for s in yesterday_sessions}.values()</code></pre>
+  <p class="why">💭 原理：搜尋引擎不是萬能的 — 人類在 Telegram 討論串中用自然語言討論 DevOps，不一定會用標準術語。兩階段策略把「機器擅長的關鍵字匹配」和「人類已知的討論串邊界」結合，互補長短。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 知識點粒度設計：一個獨立可學習的概念 = 一個 💡 卡片</h4>
+  <p>原格式把「free -h 看 available 不是 free」和「K8s 資源評估三線框架」合併成一個知識點，但這兩個概念互相獨立，分開後各自可被搜尋、引用、複習。每個 💡 知識點是最小可學習單元，有唯一 id（如 <code>kp3</code>），可透過錨點直接連結。</p>
+  <pre><code># 不好的粒度（合併兩個獨立概念）
+💡 free -h 看 available + K8s 資源評估三線框架
+  → 搜尋 "free" 和搜尋 "資源評估" 都指向同一個知識點
+  → 無法獨立複習
+
+# 好的粒度（拆分為獨立 💡）
+💡 kpA: Linux free -h 要看 available 不是 free
+💡 kpB: K8s 資源評估三線框架（limits/requests/actual）
+  → 各自可被精確搜尋、獨立複習、跨頁引用</code></pre>
+  <p class="why">💭 原理：知識管理的「原子性」原則 — 每個知識點應該聚焦在一個可獨立理解的命題上。這讓搜尋索引更精確（搜尋「free」不會混入 K8s 資源評估），也讓複習更高效（一次只專注一個概念）。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 零依賴前端模糊搜尋：Token-based 比對取代 Fuse.js CDN</h4>
+  <p>在 index.html 實作搜尋功能時，選擇自建 token-based 模糊搜尋而非引入 Fuse.js CDN。將使用者輸入用空白分割為多個 token，逐一比對知識點的 title、summary、tags 欄位，case-insensitive。零外部依賴，offline 也能運作。</p>
+  <pre><code>function searchKPs(query, kps) {
+  if (!query.trim()) return [];
+  const tokens = query.toLowerCase().trim().split(/\s+/).filter(t => t.length > 0);
+  return kps.filter(kp => {
+    const haystack = [
+      kp.title || '', kp.summary || '', (kp.tags || []).join(' ')
+    ].join(' ').toLowerCase();
+    return tokens.every(token => haystack.includes(token));
+  });
+}</code></pre>
+  <p class="why">💭 原理：DevOps 術語通常是精確技術名詞（kubectl、ConfigMap、OOM Killer），不需要 Levenshtein 編輯距離等進階模糊比對。Token-based substring matching 足夠處理「config map → ConfigMap」這種空格差異，且 zero-dependency 確保頁面在無網路環境也能正常使用。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 JSON Sidecar 索引模式：每個 HTML 頁面搭配結構化 JSON，彙總為可搜尋索引</h4>
+  <p>每個 daily HTML 頁面產出一個對應的 <code>daily/YYYY-MM-DD.json</code>，內含結構化知識點陣列（id、title、summary、tags、anchor）。再用 Python 掃描所有 JSON 合併為 <code>search-index.json</code>，供 index.html 的 JS 搜尋引擎載入。這比直接 parse HTML 更可靠、更快速。</p>
+  <pre><code># daily/2026-05-15.json — 結構化知識點
+[{"id":"2026-05-15-kp1","date":"2026-05-15",
+  "title":"session_search FTS5 排名陷阱",
+  "summary":"limit=3 時概念型對話會被操作型對話擠出結果...",
+  "tags":["session_search","FTS5","cron","搜尋策略"],
+  "anchor":"kp1","conversation":"DevOps Daily Doc 改造"}]
+
+# 重建 search-index.json（Python）
+import json, glob
+all_kps = []
+for f in sorted(glob.glob("daily/*.json")):
+    with open(f) as fp: all_kps.extend(json.load(fp))
+with open("search-index.json", "w") as out:
+    json.dump(all_kps, out, ensure_ascii=False, indent=2)</code></pre>
+  <p class="why">💭 原理：這是經典的「資料層 / 呈現層分離」模式。HTML 是給人讀的呈現層，JSON 是給機器讀的資料層。搜尋索引從 JSON 重建而非 parse HTML，避免了 HTML 結構變動時搜尋壞掉的耦合風險。</p>
+</article>
+
+<article class="kp-card" id="kp6">
+  <h4>💡 Cron Job 的 delivery 目標設定：local vs Telegram topic routing</h4>
+  <p>排程任務的輸出預設 delivery=<code>local</code>（只存本地 log），使用者看不到。需設為 <code>telegram:&lt;chat_id&gt;:&lt;topic_id&gt;</code> 才能將結果送到 Telegram 指定討論串。DevOps Daily Doc 排程的 delivery 從 local 改為 <code>telegram:-1003966564424:652</code>（#schedule 討論串）。</p>
+  <pre><code># 查看排程 delivery 設定
+cat /home/ubuntu/.hermes/cron/jobs.json | jq '.[] | {id, schedule, deliver}'
+
+# DevOps Daily Doc 排程設定
+# Job ID: 8b8efe7cf28e
+# Schedule: 0 3 * * *
+# Deliver: telegram:-1003966564424:652  ← #schedule topic
+# Workdir: /home/ubuntu/projects/devops-docs
+
+# Telegram topic 對應（Shawn's DevOps Lab supergroup）
+# General=1, #korean=2, #infra=4, #gitops=7, #research=8, #schedule=652</code></pre>
+  <p class="why">💭 原理：排程系統的輸出路由是關鍵但容易被忽略的設定。local delivery 適合 debugging（不干擾使用者），但正式上線後需要將結果送到正確的通知管道。Telegram topic 機制讓一個 supergroup 內不同主題的訊息分流到專屬討論串，避免洗版。</p>
+</article>
+
+<article class="kp-card" id="kp7">
+  <h4>💡 Ops 診斷筆記格式：從「記錄學到什麼」升級為「重現解題思維」</h4>
+  <p>原格式只有 🧠 學到了什麼 / 🛠️ 指令 / 📂 檔案 三欄，缺乏「為什麼這樣做」和「下次如何做得更好」。新格式每個 💡 知識點有 7 欄：📋一句話 → 🔍事發 → 🎯目標 → 🔧動手 → ✅驗證 → 💡原理 → ⚠️反思。重點是捕捉解題思路和事後反思，而非只是記錄指令。</p>
+  <pre><code># 舊格式（平面記錄）
+🧠 學到了什麼: free -h 要看 available
+🛠️ 涉及指令: free -h
+📂 相關檔案: -
+
+# 新格式（Ops 診斷筆記 — 重現解題過程）
+📋 一句話: free -h 要看 available 不是 free
+🔍 事發: 伺服器記憶體不足告警，free -h 顯示 free 很低
+🎯 目標: 確認是否真的要擴充 RAM
+🔧 動手: free -h → 看 available 欄位（還有 2.5G）
+✅ 驗證: available > 應用需求 → 暫不需要擴充
+💡 原理: Linux 拿閒置 RAM 做 disk cache，free 低不代表不夠
+⚠️ 反思: 下次先看 available，不要只看 free 就下結論</code></pre>
+  <p class="why">💭 原理：學習的深度來自「為什麼」而非「做什麼」。診斷格式強制回答觸發情境（為什麼要做）、目標（要達成什麼）、原理（為什麼有效）、反思（下次如何更好），這四個問題是從「記住指令」到「真正學會」的關鍵跳躍。</p>
+</article>
+
+</section>
+
+<!-- ========== 本日指令速查表 ========== -->
+<section>
+<h2>🛠️ 本日指令速查表</h2>
+<table class="cmd-table">
+  <tr><th>指令</th><th>用途</th></tr>
+  <tr><td><code>session_search(query="...", limit=15)</code></td><td>全文搜尋歷史對話，limit 設 15 避免截斷</td></tr>
+  <tr><td><code>session_search(query='"#infra" OR "#gitops"', limit=15)</code></td><td>精準搜尋特定 Telegram 討論串</td></tr>
+  <tr><td><code>cat jobs.json | jq '.[] | {id, schedule, deliver}'</code></td><td>查看排程 delivery 路由目標</td></tr>
+  <tr><td><code>python3 -c "import json,glob; ... json.dump(all_kps, ...)"</code></td><td>重建 search-index.json 彙總索引</td></tr>
+  <tr><td><code>cd devops-docs && git add ... && git commit -m "..." && git push</code></td><td>發布每日學習筆記到 GitHub Pages</td></tr>
+</table>
+</section>
+
+<nav class="bottom-nav">
+  <a href="2026-05-14.html">← 05/14 · 上一天</a>
+  <a href="../index.html">🏠 回首頁</a>
+  <span style="color:var(--text-secondary);">下一頁 →</span>
+</nav>
+
+</body>
+</html>
