@@ -1,0 +1,187 @@
+[
+  {
+    "id": "2026-05-13-kp1",
+    "date": "2026-05-13",
+    "title": "ErrImageNeverPull：imagePullPolicy + Docker Hub 路徑的致命組合",
+    "summary": "Helm --set 覆蓋 image 為 Docker Hub 路徑，但 k3s containerd 只有本地 :latest → pod 永遠起不來，且消耗 ResourceQuota",
+    "tags": [
+      "Kubernetes",
+      "ErrImageNeverPull",
+      "imagePullPolicy",
+      "debugging"
+    ],
+    "anchor": "kp1",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp2",
+    "date": "2026-05-13",
+    "title": "ResourceQuota 耗盡：僵屍 ReplicaSet 偷偷吃 quota",
+    "summary": "8+ 個舊 ReplicaSet 消耗 CPU 2800m/3000m，新 rollout 全部 blocked。解法：kubectl delete replicaset 清理",
+    "tags": [
+      "Kubernetes",
+      "ResourceQuota",
+      "ReplicaSet",
+      "debugging"
+    ],
+    "anchor": "kp2",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp3",
+    "date": "2026-05-13",
+    "title": "Grafana sidecar OOMKilled：32Mi → 128Mi 除錯過程",
+    "summary": "monitoring-quota 要求所有容器宣告 limits，但 Grafana Helm chart 的 sidecar 預設 resources: {}。先補 32Mi → OOMKilled → 調到 128Mi 才穩定",
+    "tags": [
+      "Grafana",
+      "OOMKilled",
+      "ResourceQuota",
+      "monitoring"
+    ],
+    "anchor": "kp3",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp4",
+    "date": "2026-05-13",
+    "title": "ReadWriteOnce PVC lock：單節點 k3s 必須 scale down 再 up",
+    "summary": "Grafana PVC 使用 ReadWriteOnce，rolling update 時新舊 Pod 同節點搶 PVC → init container chown Permission denied",
+    "tags": [
+      "Kubernetes",
+      "PVC",
+      "ReadWriteOnce",
+      "debugging",
+      "k3s"
+    ],
+    "anchor": "kp4",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp5",
+    "date": "2026-05-13",
+    "title": "ArgoCD ApplicationSet CRD：k3s annotation 262KB 限制",
+    "summary": "kubectl apply 裝 ApplicationSet CRD 時超過 k3s 的 262144 bytes annotation 限制；用 --server-side 繞過 client-side validation",
+    "tags": [
+      "ArgoCD",
+      "CRD",
+      "k3s",
+      "ApplicationSet"
+    ],
+    "anchor": "kp5",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp6",
+    "date": "2026-05-13",
+    "title": "alert-checker.py exit code：alerts found ≠ error",
+    "summary": "alert-checker.py 發現 alert 時 sys.exit(1)，cron 系統判為 failure。改成 sys.exit(0)：找到 alert 是正常運作，不是錯誤",
+    "tags": [
+      "Python",
+      "cron",
+      "alert",
+      "debugging"
+    ],
+    "anchor": "kp6",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp7",
+    "date": "2026-05-13",
+    "title": "ArgoCD v3.4.2 在 k3s 部署",
+    "summary": "用官方 install.yaml 部署 ArgoCD 到 argocd namespace，7 個 pods 約 123Mi RAM + 11m CPU",
+    "tags": [
+      "ArgoCD",
+      "GitOps",
+      "k3s",
+      "部署"
+    ],
+    "anchor": "kp7",
+    "conversation": "ArgoCD GitOps 部署"
+  },
+  {
+    "id": "2026-05-13-kp8",
+    "date": "2026-05-13",
+    "title": "ArgoCD 308 redirect loop + Cloudflare TLS 修復",
+    "summary": "Cloudflare 做 TLS termination（HTTPS→HTTP），ArgoCD 強制 redirect HTTP→HTTPS 造成無限 redirect。解法：server.insecure=true",
+    "tags": [
+      "ArgoCD",
+      "Cloudflare",
+      "TLS",
+      "redirect loop"
+    ],
+    "anchor": "kp8",
+    "conversation": "ArgoCD GitOps 部署"
+  },
+  {
+    "id": "2026-05-13-kp9",
+    "date": "2026-05-13",
+    "title": "ArgoCD Application 的 ignoreDifferences：保護現有 Secret",
+    "summary": "用 ignoreDifferences 排除 postgres-secret 和 jwt-secret，避免 ArgoCD 把 k3s 中的實際密碼覆寫成 Git 裡的 placeholder",
+    "tags": [
+      "ArgoCD",
+      "Secret",
+      "GitOps",
+      "configuration"
+    ],
+    "anchor": "kp9",
+    "conversation": "ArgoCD GitOps 部署"
+  },
+  {
+    "id": "2026-05-13-kp10",
+    "date": "2026-05-13",
+    "title": "Python/FastAPI → Go 重寫：255MB → 134MB image",
+    "summary": "Plugin-hub 從 Python/FastAPI 重寫為 Go (net/http)，Docker image 縮小 47%，idle RAM ~50MB → <10MB，binary 只有 8.3MB",
+    "tags": [
+      "Go",
+      "Python",
+      "重寫",
+      "Docker",
+      "效能"
+    ],
+    "anchor": "kp10",
+    "conversation": "Plugin-hub Go 重寫"
+  },
+  {
+    "id": "2026-05-13-kp11",
+    "date": "2026-05-13",
+    "title": "Plugin 排程架構：APScheduler in-process vs Celery/Kafka",
+    "summary": "每個 vendor plugin 自己管理 APScheduler，不依賴 central message queue。Platform 只做 switchboard（routing + toggle），不做排程",
+    "tags": [
+      "APScheduler",
+      "Celery",
+      "架構",
+      "plugin"
+    ],
+    "anchor": "kp11",
+    "conversation": "Plugin-hub Go 重寫"
+  },
+  {
+    "id": "2026-05-13-kp12",
+    "date": "2026-05-13",
+    "title": "DevOps-docs 自動化系統架構",
+    "summary": "建立 DevOps-docs repo、Docker 化、部署到 k3s devops-docs namespace、cron job 每日凌晨 3:00 自動產出 HTML 學習筆記",
+    "tags": [
+      "DevOps-docs",
+      "自動化",
+      "cron",
+      "Docker",
+      "k3s"
+    ],
+    "anchor": "kp12",
+    "conversation": "DevOps-docs 自動化系統 & Telegram 告警路由"
+  },
+  {
+    "id": "2026-05-13-kp13",
+    "date": "2026-05-13",
+    "title": "Telegram Forum Topic 路由：thread_id 不連續",
+    "summary": "Telegram supergroup 的 forum topic ID 不是連續數字（1,2,4,7,8,652），不能猜，必須用 send_message list 查實際 ID",
+    "tags": [
+      "Telegram",
+      "Forum",
+      "Topic",
+      "API"
+    ],
+    "anchor": "kp13",
+    "conversation": "DevOps-docs 自動化系統 & Telegram 告警路由"
+  }
+]

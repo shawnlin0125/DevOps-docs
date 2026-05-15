@@ -1,0 +1,115 @@
+[
+  {
+    "id": "2026-05-11-kp1",
+    "date": "2026-05-11",
+    "title": "Next.js standalone Docker 多階段建置",
+    "summary": "用 multi-stage Dockerfile：build stage 跑 npm ci + next build，runtime stage 只複製 standalone 輸出 + static 檔案，最終 image 72.9MB",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "Next.js",
+      "最佳化"
+    ],
+    "anchor": "kp1",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp2",
+    "date": "2026-05-11",
+    "title": "k3s containerd 鏡像匯入流程",
+    "summary": "k3s 使用 containerd 而非 Docker 的 image store；Docker build 後需手動匯入",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "imagePullPolicy"
+    ],
+    "anchor": "kp2",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp3",
+    "date": "2026-05-11",
+    "title": "K8s Deployment + Service + Ingress 三層架構",
+    "summary": "Deployment 管理 Pod 生命週期，Service 提供穩定 ClusterIP，Ingress 處理外部 HTTP routing",
+    "tags": [
+      "Kubernetes",
+      "Deployment",
+      "Service",
+      "Ingress"
+    ],
+    "anchor": "kp3",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp4",
+    "date": "2026-05-11",
+    "title": "ingress-nginx Helm 安裝 + port conflict 解決",
+    "summary": "Helm 安裝 ingress-nginx 時遇到 80/443 被 Zeabur 佔用、8080 被系統 Nginx 佔用，最終用 8880/8443 + hostNetwork DaemonSet",
+    "tags": [
+      "ingress-nginx",
+      "Helm",
+      "DaemonSet",
+      "hostNetwork",
+      "port conflict"
+    ],
+    "anchor": "kp4",
+    "conversation": "ingress-nginx 部署與 port conflict"
+  },
+  {
+    "id": "2026-05-11-kp5",
+    "date": "2026-05-11",
+    "title": "Zeabur ingress controller 佔用 port 80/443",
+    "summary": "伺服器上 Zeabur 的 ingress controller（DaemonSet + hostNetwork）佔用了 80/443 port，導致標準 ingress-nginx 無法綁定",
+    "tags": [
+      "Zeabur",
+      "ingress controller",
+      "DaemonSet",
+      "port conflict"
+    ],
+    "anchor": "kp5",
+    "conversation": "ingress-nginx 部署與 port conflict"
+  },
+  {
+    "id": "2026-05-11-kp6",
+    "date": "2026-05-11",
+    "title": "Cloudflare Tunnel → Cloudflare Proxy 遷移策略",
+    "summary": "從 cloudflared tunnel 遷移到 Cloudflare DNS proxy（orange cloud），需要 Origin Rule 把流量導向正確的 origin port",
+    "tags": [
+      "Cloudflare",
+      "Tunnel",
+      "DNS",
+      "proxy"
+    ],
+    "anchor": "kp6",
+    "conversation": "ingress-nginx 部署與 port conflict"
+  },
+  {
+    "id": "2026-05-11-kp7",
+    "date": "2026-05-11",
+    "title": "K8s Pod 健康檢查：readiness probe",
+    "summary": "Deployment 設定 readiness probe 確保 Pod 真正 ready 後才接收流量",
+    "tags": [
+      "Kubernetes",
+      "probe",
+      "readiness",
+      "health check"
+    ],
+    "anchor": "kp7",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp8",
+    "date": "2026-05-11",
+    "title": "Helm values 覆蓋：production vs staging 參數化",
+    "summary": "用 values/production.yaml 和 values/staging.yaml 區分環境設定，避免手動改 YAML",
+    "tags": [
+      "Helm",
+      "values",
+      "環境分離",
+      "configuration"
+    ],
+    "anchor": "kp8",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  }
+]

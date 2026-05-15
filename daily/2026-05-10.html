@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-05-10 · 韓文學習平台首次部署 — Shawn's DevOps Lab</title>
+<style>:root{--bg:#0d1117;--bg-card:#161b22;--border:#30363d;--text:#c9d1d9;--text-dim:#8b949e;--accent:#58a6ff;--accent-green:#3fb950;--accent-orange:#d2991d;--accent-purple:#a371f7;--accent-red:#f85149}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+.container{max-width:860px;margin:0 auto;padding:2rem 1.5rem}
+header{border-bottom:1px solid var(--border);padding-bottom:1.5rem;margin-bottom:2rem}
+header a{color:var(--accent);text-decoration:none;font-size:.9rem}
+h1{font-size:1.6rem;color:#f0f6fc;margin-top:.5rem}
+.date{color:var(--text-dim);font-size:.9rem}
+section{margin-bottom:2rem}
+h2{font-size:1.2rem;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:.3rem;margin-bottom:.8rem}
+h3{font-size:1rem;color:#f0f6fc;margin:1.5rem 0 .5rem}
+.kp-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;margin-bottom:.6rem}
+.kp-card h4{color:var(--accent-green);margin:0 0 .3rem;font-size:.95rem}
+.kp-card p{color:var(--text-dim);font-size:.9rem;margin-bottom:.4rem}
+.kp-card .why{color:var(--accent-purple);font-size:.85rem;margin-top:.5rem;padding-left:.5rem;border-left:2px solid var(--accent-purple)}
+.kp-card pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.7rem 1rem;overflow-x:auto;font-size:.82rem;margin:.5rem 0;color:var(--text)}
+.tag{display:inline-block;font-size:.75rem;padding:.15rem .6rem;border-radius:12px;background:rgba(88,166,255,.12);color:var(--accent);border:1px solid rgba(88,166,255,.3);margin-right:.4rem;margin-bottom:.3rem}
+footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.85rem;text-align:center}
+.nav-row{display:flex;justify-content:space-between;align-items:center}
+.cmd-table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.85rem}
+.cmd-table td,.cmd-table th{border:1px solid var(--border);padding:.4rem .7rem;text-align:left}
+.cmd-table th{background:var(--bg-card);color:var(--accent-green)}
+.cmd-table code{background:var(--bg);padding:.1rem .3rem;border-radius:3px;font-size:.82em}</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <a href="../index.html">← 回首頁</a>
+    <h1>韓文學習平台首次部署：PM2 + Nginx + Cloudflare</h1>
+    <p class="date">📅 2026 年 5 月 10 日 · 
+      <span class="tag">Next.js</span><span class="tag">PM2</span><span class="tag">Nginx</span>
+      <span class="tag">Cloudflare</span><span class="tag">GitHub</span>
+    </p>
+  </header>
+
+  <section>
+    <h2>📑 目錄</h2>
+    <ul style="color:var(--text-dim);line-height:1.8">
+      <li><a href="#conv3612">韓文學習平台首次部署</a> (8 個知識點)</li>
+    </ul>
+  </section>
+
+  <section id="conv3612"><h3>📂 韓文學習平台首次部署</h3>
+<article class="kp-card" id="kp1">
+  <h4>💡 Next.js 16 standalone 模式輸出</h4>
+  <p>next.config.ts 設定 output: 'standalone' 後，next build 會產生自給自足的 .next/standalone 目錄，不需依賴專案目錄即可執行</p>
+  <pre><code># next.config.ts
+export default {
+  output: 'standalone',
+}</code></pre>
+  <p class="why">💭 standalone 模式把 runtime 依賴打包進 .next/standalone，Docker 多階段建置只需複製這個目錄 + public + .next/static，大幅縮小 image</p>
+  <div style="margin-top:.4rem"><span class="tag">Next.js</span><span class="tag">standalone</span><span class="tag">Docker</span><span class="tag">部署</span></div>
+</article>
+<article class="kp-card" id="kp2">
+  <h4>💡 PM2 管理 Next.js 進程</h4>
+  <p>用 PM2 process manager 管理 Node.js app，支援自動重啟、log 管理、開機啟動</p>
+  <pre><code>pm2 start npm --name korean-learning -- start</code></pre><pre><code>pm2 save</code></pre><pre><code>pm2 startup</code></pre>
+  <p class="why">💭 PM2 確保 Next.js server crash 後自動重啟，比 nohup/screen 更可靠；ecosystem.config.cjs 可宣告式定義多個 app</p>
+  <div style="margin-top:.4rem"><span class="tag">PM2</span><span class="tag">Next.js</span><span class="tag">process manager</span><span class="tag">部署</span></div>
+</article>
+<article class="kp-card" id="kp3">
+  <h4>💡 Nginx reverse proxy 到 Next.js（port conflict）</h4>
+  <p>Nginx 監聽 8080 port（80 被 Hermes gateway 佔用），反向代理到 localhost:3000</p>
+  <pre><code># /etc/nginx/sites-available/korean-learning
+server {
+    listen 8080;
+    server_name shawnlin.online;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+}</code></pre><pre><code>sudo ln -s /etc/nginx/sites-available/korean-learning /etc/nginx/sites-enabled/</code></pre><pre><code>sudo nginx -t &amp;&amp; sudo systemctl reload nginx</code></pre>
+  <p class="why">💭 80 port 被 Hermes gateway 佔用無法綁定，暫時用 8080；後續 Cloudflare 需要 Origin Rule 把流量導向 8080, 但 free plan 沒有這個功能</p>
+  <div style="margin-top:.4rem"><span class="tag">Nginx</span><span class="tag">reverse proxy</span><span class="tag">部署</span><span class="tag">port conflict</span></div>
+</article>
+<article class="kp-card" id="kp4">
+  <h4>💡 Cloudflare DNS + Proxy（orange cloud）</h4>
+  <p>從 GoDaddy 轉移 DNS 到 Cloudflare，設定 A record 和 CNAME，開啟 proxy 做 TLS termination</p>
+  <pre><code>curl -X POST &quot;https://api.cloudflare.com/client/v4/zones/ZONE/dns_records&quot; \
+  -H &quot;Authorization: Bearer TOKEN&quot; \
+  --data '{&quot;type&quot;:&quot;A&quot;,&quot;name&quot;:&quot;@&quot;,&quot;content&quot;:&quot;43.167.10.119&quot;,&quot;proxied&quot;:true}'</code></pre>
+  <p class="why">💭 GoDaddy DNS 有錯誤改用 Cloudflare free tier；Proxy 模式隱藏 origin IP + 免費 TLS 憑證，不需管理 Let's Encrypt</p>
+  <div style="margin-top:.4rem"><span class="tag">Cloudflare</span><span class="tag">DNS</span><span class="tag">TLS</span><span class="tag">proxy</span></div>
+</article>
+<article class="kp-card" id="kp5">
+  <h4>💡 Cloudflare Error 522：origin port 問題</h4>
+  <p>Cloudflare 預設走 80/443 連 origin，但 80 port 被 Hermes 佔用，導致 Error 522</p>
+  
+  <p class="why">💭 Free plan 沒有 Origin Rules，無法 redirect 到 8080。替代方案：Workers rewrite port，或把 Hermes 移到其他 port 釋放 80</p>
+  <div style="margin-top:.4rem"><span class="tag">Cloudflare</span><span class="tag">Error 522</span><span class="tag">debugging</span><span class="tag">port</span></div>
+</article>
+<article class="kp-card" id="kp6">
+  <h4>💡 Self-signed SSL vs Cloudflare TLS</h4>
+  <p>自簽憑證只適合內網測試；對外服務用 Cloudflare Flexible SSL 處理 TLS，origin 跑 HTTP 即可</p>
+  <pre><code>sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/korean-learning.key -out /etc/ssl/korean-learning.crt</code></pre>
+  <p class="why">💭 Cloudflare Flexible SSL：user↔Cloudflare 加密，Cloudflare↔origin HTTP，不需 origin 管理憑證</p>
+  <div style="margin-top:.4rem"><span class="tag">SSL</span><span class="tag">TLS</span><span class="tag">Cloudflare</span><span class="tag">憑證</span></div>
+</article>
+<article class="kp-card" id="kp7">
+  <h4>💡 GitHub repo + PAT 認證設定</h4>
+  <p>建立 repo shawnlin0125/korean-learning，用 Personal Access Token 做 HTTPS git 操作</p>
+  <pre><code>git config --global user.name &quot;shawnlin0125&quot;</code></pre><pre><code>git config --global user.email &quot;shawnlin0125@gmail.com&quot;</code></pre><pre><code>git remote add origin https://github.com/shawnlin0125/korean-learning.git</code></pre>
+  <p class="why">💭 GitHub 已停用密碼認證，push/pull 需 PAT 或 SSH key；PAT 設 repo scope 最少權限</p>
+  <div style="margin-top:.4rem"><span class="tag">GitHub</span><span class="tag">git</span><span class="tag">PAT</span><span class="tag">認證</span></div>
+</article>
+<article class="kp-card" id="kp8">
+  <h4>💡 shadcn/ui + TailwindCSS + zustand 技術棧選擇</h4>
+  <p>Next.js 16 + TypeScript + TailwindCSS v4 + shadcn/ui + zustand，韓文學習平台前端技術</p>
+  <pre><code>npx create-next-app@latest korean-learning --typescript --tailwind</code></pre><pre><code>npx shadcn@latest add button card progress badge tooltip tabs</code></pre><pre><code>npm install zustand</code></pre>
+  <p class="why">💭 shadcn/ui 是 copy-paste 組件庫非 npm package，可完全自訂；zustand 比 Redux 輕量適合中小型 app</p>
+  <div style="margin-top:.4rem"><span class="tag">Next.js</span><span class="tag">shadcn/ui</span><span class="tag">TailwindCSS</span><span class="tag">zustand</span></div>
+</article></section>
+
+  <section>
+    <h2>🛠️ 本日指令速查表</h2>
+    <table class="cmd-table">
+      <tr><th>指令（首行）</th></tr>
+      <tr><td><code># next.config.ts</code></td></tr><tr><td><code>pm2 start npm --name korean-learning -- start</code></td></tr><tr><td><code>pm2 save</code></td></tr><tr><td><code>pm2 startup</code></td></tr><tr><td><code># /etc/nginx/sites-available/korean-learning</code></td></tr><tr><td><code>sudo ln -s /etc/nginx/sites-available/korean-learning /etc/nginx/sites-enabled/</code></td></tr><tr><td><code>sudo nginx -t &amp;&amp; sudo systemctl reload nginx</code></td></tr><tr><td><code>curl -X POST &quot;https://api.cloudflare.com/client/v4/zones/ZONE/dns_records&quot; \</code></td></tr><tr><td><code>sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/korean-learning.key -out /</code></td></tr><tr><td><code>git config --global user.name &quot;shawnlin0125&quot;</code></td></tr><tr><td><code>git config --global user.email &quot;shawnlin0125@gmail.com&quot;</code></td></tr><tr><td><code>git remote add origin https://github.com/shawnlin0125/korean-learning.git</code></td></tr><tr><td><code>npx create-next-app@latest korean-learning --typescript --tailwind</code></td></tr><tr><td><code>npx shadcn@latest add button card progress badge tooltip tabs</code></td></tr><tr><td><code>npm install zustand</code></td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>📂 涉及檔案</h2>
+    <ul style="color:var(--text-dim);line-height:1.8">
+      <li><code>/home/ubuntu/projects/korean-learning/next.config.ts</code></li><li><code>/home/ubuntu/projects/korean-learning/package.json</code></li><li><code>/home/ubuntu/projects/korean-learning/ecosystem.config.cjs</code></li><li><code>/etc/nginx/sites-available/korean-learning</code></li><li><code>/etc/ssl/korean-learning.crt</code></li><li><code>/etc/ssl/korean-learning.key</code></li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="nav-row">
+      <span></span>
+      <a href="2026-05-11.html" style="color:var(--accent)">05/11 →</a>
+    </div>
+    <p style="margin-top:1rem">🚀 每天凌晨 3:00 自動更新 · Powered by Hermes Agent</p>
+    <p><a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent)">GitHub Repo</a></p>
+  </footer>
+</div>
+</body>
+</html>

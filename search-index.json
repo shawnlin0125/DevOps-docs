@@ -1,5 +1,514 @@
 [
   {
+    "id": "2026-05-10-kp1",
+    "date": "2026-05-10",
+    "title": "Next.js 16 standalone 模式輸出",
+    "summary": "next.config.ts 設定 output: 'standalone' 後，next build 會產生自給自足的 .next/standalone 目錄，不需依賴專案目錄即可執行",
+    "tags": [
+      "Next.js",
+      "standalone",
+      "Docker",
+      "部署"
+    ],
+    "anchor": "kp1",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp2",
+    "date": "2026-05-10",
+    "title": "PM2 管理 Next.js 進程",
+    "summary": "用 PM2 process manager 管理 Node.js app，支援自動重啟、log 管理、開機啟動",
+    "tags": [
+      "PM2",
+      "Next.js",
+      "process manager",
+      "部署"
+    ],
+    "anchor": "kp2",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp3",
+    "date": "2026-05-10",
+    "title": "Nginx reverse proxy 到 Next.js（port conflict）",
+    "summary": "Nginx 監聽 8080 port（80 被 Hermes gateway 佔用），反向代理到 localhost:3000",
+    "tags": [
+      "Nginx",
+      "reverse proxy",
+      "部署",
+      "port conflict"
+    ],
+    "anchor": "kp3",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp4",
+    "date": "2026-05-10",
+    "title": "Cloudflare DNS + Proxy（orange cloud）",
+    "summary": "從 GoDaddy 轉移 DNS 到 Cloudflare，設定 A record 和 CNAME，開啟 proxy 做 TLS termination",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "TLS",
+      "proxy"
+    ],
+    "anchor": "kp4",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp5",
+    "date": "2026-05-10",
+    "title": "Cloudflare Error 522：origin port 問題",
+    "summary": "Cloudflare 預設走 80/443 連 origin，但 80 port 被 Hermes 佔用，導致 Error 522",
+    "tags": [
+      "Cloudflare",
+      "Error 522",
+      "debugging",
+      "port"
+    ],
+    "anchor": "kp5",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp6",
+    "date": "2026-05-10",
+    "title": "Self-signed SSL vs Cloudflare TLS",
+    "summary": "自簽憑證只適合內網測試；對外服務用 Cloudflare Flexible SSL 處理 TLS，origin 跑 HTTP 即可",
+    "tags": [
+      "SSL",
+      "TLS",
+      "Cloudflare",
+      "憑證"
+    ],
+    "anchor": "kp6",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp7",
+    "date": "2026-05-10",
+    "title": "GitHub repo + PAT 認證設定",
+    "summary": "建立 repo shawnlin0125/korean-learning，用 Personal Access Token 做 HTTPS git 操作",
+    "tags": [
+      "GitHub",
+      "git",
+      "PAT",
+      "認證"
+    ],
+    "anchor": "kp7",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp8",
+    "date": "2026-05-10",
+    "title": "shadcn/ui + TailwindCSS + zustand 技術棧選擇",
+    "summary": "Next.js 16 + TypeScript + TailwindCSS v4 + shadcn/ui + zustand，韓文學習平台前端技術",
+    "tags": [
+      "Next.js",
+      "shadcn/ui",
+      "TailwindCSS",
+      "zustand"
+    ],
+    "anchor": "kp8",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-11-kp1",
+    "date": "2026-05-11",
+    "title": "Next.js standalone Docker 多階段建置",
+    "summary": "用 multi-stage Dockerfile：build stage 跑 npm ci + next build，runtime stage 只複製 standalone 輸出 + static 檔案，最終 image 72.9MB",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "Next.js",
+      "最佳化"
+    ],
+    "anchor": "kp1",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp2",
+    "date": "2026-05-11",
+    "title": "k3s containerd 鏡像匯入流程",
+    "summary": "k3s 使用 containerd 而非 Docker 的 image store；Docker build 後需手動匯入",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "imagePullPolicy"
+    ],
+    "anchor": "kp2",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp3",
+    "date": "2026-05-11",
+    "title": "K8s Deployment + Service + Ingress 三層架構",
+    "summary": "Deployment 管理 Pod 生命週期，Service 提供穩定 ClusterIP，Ingress 處理外部 HTTP routing",
+    "tags": [
+      "Kubernetes",
+      "Deployment",
+      "Service",
+      "Ingress"
+    ],
+    "anchor": "kp3",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp4",
+    "date": "2026-05-11",
+    "title": "ingress-nginx Helm 安裝 + port conflict 解決",
+    "summary": "Helm 安裝 ingress-nginx 時遇到 80/443 被 Zeabur 佔用、8080 被系統 Nginx 佔用，最終用 8880/8443 + hostNetwork DaemonSet",
+    "tags": [
+      "ingress-nginx",
+      "Helm",
+      "DaemonSet",
+      "hostNetwork",
+      "port conflict"
+    ],
+    "anchor": "kp4",
+    "conversation": "ingress-nginx 部署與 port conflict"
+  },
+  {
+    "id": "2026-05-11-kp5",
+    "date": "2026-05-11",
+    "title": "Zeabur ingress controller 佔用 port 80/443",
+    "summary": "伺服器上 Zeabur 的 ingress controller（DaemonSet + hostNetwork）佔用了 80/443 port，導致標準 ingress-nginx 無法綁定",
+    "tags": [
+      "Zeabur",
+      "ingress controller",
+      "DaemonSet",
+      "port conflict"
+    ],
+    "anchor": "kp5",
+    "conversation": "ingress-nginx 部署與 port conflict"
+  },
+  {
+    "id": "2026-05-11-kp6",
+    "date": "2026-05-11",
+    "title": "Cloudflare Tunnel → Cloudflare Proxy 遷移策略",
+    "summary": "從 cloudflared tunnel 遷移到 Cloudflare DNS proxy（orange cloud），需要 Origin Rule 把流量導向正確的 origin port",
+    "tags": [
+      "Cloudflare",
+      "Tunnel",
+      "DNS",
+      "proxy"
+    ],
+    "anchor": "kp6",
+    "conversation": "ingress-nginx 部署與 port conflict"
+  },
+  {
+    "id": "2026-05-11-kp7",
+    "date": "2026-05-11",
+    "title": "K8s Pod 健康檢查：readiness probe",
+    "summary": "Deployment 設定 readiness probe 確保 Pod 真正 ready 後才接收流量",
+    "tags": [
+      "Kubernetes",
+      "probe",
+      "readiness",
+      "health check"
+    ],
+    "anchor": "kp7",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-11-kp8",
+    "date": "2026-05-11",
+    "title": "Helm values 覆蓋：production vs staging 參數化",
+    "summary": "用 values/production.yaml 和 values/staging.yaml 區分環境設定，避免手動改 YAML",
+    "tags": [
+      "Helm",
+      "values",
+      "環境分離",
+      "configuration"
+    ],
+    "anchor": "kp8",
+    "conversation": "Next.js Docker 化 & K8s 部署"
+  },
+  {
+    "id": "2026-05-12-kp1",
+    "date": "2026-05-12",
+    "title": "Helm 多環境部署：values 分層覆蓋",
+    "summary": "values.yaml 放預設值，values/staging.yaml 和 values/production.yaml 覆蓋環境差異（DB size、replicas、domain）",
+    "tags": [
+      "Helm",
+      "values",
+      "環境分離",
+      "configuration"
+    ],
+    "anchor": "kp1",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp2",
+    "date": "2026-05-12",
+    "title": "ResourceQuota：CPU 96% 危機與 staging 降配策略",
+    "summary": "單節點 k3s CPU requests 達 1450m/1500m（96%），staging 部署失敗。解決：staging 服務只用 10m CPU request",
+    "tags": [
+      "Kubernetes",
+      "ResourceQuota",
+      "CPU",
+      "容量規劃"
+    ],
+    "anchor": "kp2",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp3",
+    "date": "2026-05-12",
+    "title": "nodePort 條件化：ClusterIP service 不能指定 nodePort",
+    "summary": "Helm template 中 nodePort 欄位必須用 {{ if eq .Values.serviceType \"NodePort\" }} 包住，不然 ClusterIP 模式會報錯",
+    "tags": [
+      "Helm",
+      "template",
+      "Kubernetes",
+      "Service",
+      "debugging"
+    ],
+    "anchor": "kp3",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp4",
+    "date": "2026-05-12",
+    "title": "K8s 資源評估：kubectl top + describe node",
+    "summary": "用 kubectl top 看實際用量、kubectl describe node 看 Allocated resources（request/limit 分配比例）",
+    "tags": [
+      "Kubernetes",
+      "kubectl",
+      "資源評估",
+      "monitoring"
+    ],
+    "anchor": "kp4",
+    "conversation": "伺服器資源評估"
+  },
+  {
+    "id": "2026-05-12-kp5",
+    "date": "2026-05-12",
+    "title": "CPU overcommit 不危險，RAM overcommit 會死人",
+    "summary": "CPU overcommit（limits 總和 > 實體核數）只是 throttle；RAM overcommit 會觸發 OOM Killer 無差別殺 Pod",
+    "tags": [
+      "Kubernetes",
+      "overcommit",
+      "OOM",
+      "資源管理"
+    ],
+    "anchor": "kp5",
+    "conversation": "伺服器資源評估"
+  },
+  {
+    "id": "2026-05-12-kp6",
+    "date": "2026-05-12",
+    "title": "Staging `imagePullPolicy: Never` 的風險",
+    "summary": "Helm --set 覆蓋 image 路徑為 Docker Hub 時，k3s containerd 找不到本地 image → ErrImageNeverPull",
+    "tags": [
+      "Kubernetes",
+      "imagePullPolicy",
+      "ErrImageNeverPull",
+      "debugging"
+    ],
+    "anchor": "kp6",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp7",
+    "date": "2026-05-12",
+    "title": "PostgreSQL PVC 大小規劃：prod 10Gi vs staging 5Gi",
+    "summary": "Production 和 staging 的 PostgreSQL PVC 分開設定，避免 staging 佔用過多資源",
+    "tags": [
+      "PostgreSQL",
+      "PVC",
+      "storage",
+      "容量規劃"
+    ],
+    "anchor": "kp7",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-13-kp1",
+    "date": "2026-05-13",
+    "title": "ErrImageNeverPull：imagePullPolicy + Docker Hub 路徑的致命組合",
+    "summary": "Helm --set 覆蓋 image 為 Docker Hub 路徑，但 k3s containerd 只有本地 :latest → pod 永遠起不來，且消耗 ResourceQuota",
+    "tags": [
+      "Kubernetes",
+      "ErrImageNeverPull",
+      "imagePullPolicy",
+      "debugging"
+    ],
+    "anchor": "kp1",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp2",
+    "date": "2026-05-13",
+    "title": "ResourceQuota 耗盡：僵屍 ReplicaSet 偷偷吃 quota",
+    "summary": "8+ 個舊 ReplicaSet 消耗 CPU 2800m/3000m，新 rollout 全部 blocked。解法：kubectl delete replicaset 清理",
+    "tags": [
+      "Kubernetes",
+      "ResourceQuota",
+      "ReplicaSet",
+      "debugging"
+    ],
+    "anchor": "kp2",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp3",
+    "date": "2026-05-13",
+    "title": "Grafana sidecar OOMKilled：32Mi → 128Mi 除錯過程",
+    "summary": "monitoring-quota 要求所有容器宣告 limits，但 Grafana Helm chart 的 sidecar 預設 resources: {}。先補 32Mi → OOMKilled → 調到 128Mi 才穩定",
+    "tags": [
+      "Grafana",
+      "OOMKilled",
+      "ResourceQuota",
+      "monitoring"
+    ],
+    "anchor": "kp3",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp4",
+    "date": "2026-05-13",
+    "title": "ReadWriteOnce PVC lock：單節點 k3s 必須 scale down 再 up",
+    "summary": "Grafana PVC 使用 ReadWriteOnce，rolling update 時新舊 Pod 同節點搶 PVC → init container chown Permission denied",
+    "tags": [
+      "Kubernetes",
+      "PVC",
+      "ReadWriteOnce",
+      "debugging",
+      "k3s"
+    ],
+    "anchor": "kp4",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp5",
+    "date": "2026-05-13",
+    "title": "ArgoCD ApplicationSet CRD：k3s annotation 262KB 限制",
+    "summary": "kubectl apply 裝 ApplicationSet CRD 時超過 k3s 的 262144 bytes annotation 限制；用 --server-side 繞過 client-side validation",
+    "tags": [
+      "ArgoCD",
+      "CRD",
+      "k3s",
+      "ApplicationSet"
+    ],
+    "anchor": "kp5",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp6",
+    "date": "2026-05-13",
+    "title": "alert-checker.py exit code：alerts found ≠ error",
+    "summary": "alert-checker.py 發現 alert 時 sys.exit(1)，cron 系統判為 failure。改成 sys.exit(0)：找到 alert 是正常運作，不是錯誤",
+    "tags": [
+      "Python",
+      "cron",
+      "alert",
+      "debugging"
+    ],
+    "anchor": "kp6",
+    "conversation": "K3s 叢集疑難排解（6 個 issue）"
+  },
+  {
+    "id": "2026-05-13-kp7",
+    "date": "2026-05-13",
+    "title": "ArgoCD v3.4.2 在 k3s 部署",
+    "summary": "用官方 install.yaml 部署 ArgoCD 到 argocd namespace，7 個 pods 約 123Mi RAM + 11m CPU",
+    "tags": [
+      "ArgoCD",
+      "GitOps",
+      "k3s",
+      "部署"
+    ],
+    "anchor": "kp7",
+    "conversation": "ArgoCD GitOps 部署"
+  },
+  {
+    "id": "2026-05-13-kp8",
+    "date": "2026-05-13",
+    "title": "ArgoCD 308 redirect loop + Cloudflare TLS 修復",
+    "summary": "Cloudflare 做 TLS termination（HTTPS→HTTP），ArgoCD 強制 redirect HTTP→HTTPS 造成無限 redirect。解法：server.insecure=true",
+    "tags": [
+      "ArgoCD",
+      "Cloudflare",
+      "TLS",
+      "redirect loop"
+    ],
+    "anchor": "kp8",
+    "conversation": "ArgoCD GitOps 部署"
+  },
+  {
+    "id": "2026-05-13-kp9",
+    "date": "2026-05-13",
+    "title": "ArgoCD Application 的 ignoreDifferences：保護現有 Secret",
+    "summary": "用 ignoreDifferences 排除 postgres-secret 和 jwt-secret，避免 ArgoCD 把 k3s 中的實際密碼覆寫成 Git 裡的 placeholder",
+    "tags": [
+      "ArgoCD",
+      "Secret",
+      "GitOps",
+      "configuration"
+    ],
+    "anchor": "kp9",
+    "conversation": "ArgoCD GitOps 部署"
+  },
+  {
+    "id": "2026-05-13-kp10",
+    "date": "2026-05-13",
+    "title": "Python/FastAPI → Go 重寫：255MB → 134MB image",
+    "summary": "Plugin-hub 從 Python/FastAPI 重寫為 Go (net/http)，Docker image 縮小 47%，idle RAM ~50MB → <10MB，binary 只有 8.3MB",
+    "tags": [
+      "Go",
+      "Python",
+      "重寫",
+      "Docker",
+      "效能"
+    ],
+    "anchor": "kp10",
+    "conversation": "Plugin-hub Go 重寫"
+  },
+  {
+    "id": "2026-05-13-kp11",
+    "date": "2026-05-13",
+    "title": "Plugin 排程架構：APScheduler in-process vs Celery/Kafka",
+    "summary": "每個 vendor plugin 自己管理 APScheduler，不依賴 central message queue。Platform 只做 switchboard（routing + toggle），不做排程",
+    "tags": [
+      "APScheduler",
+      "Celery",
+      "架構",
+      "plugin"
+    ],
+    "anchor": "kp11",
+    "conversation": "Plugin-hub Go 重寫"
+  },
+  {
+    "id": "2026-05-13-kp12",
+    "date": "2026-05-13",
+    "title": "DevOps-docs 自動化系統架構",
+    "summary": "建立 DevOps-docs repo、Docker 化、部署到 k3s devops-docs namespace、cron job 每日凌晨 3:00 自動產出 HTML 學習筆記",
+    "tags": [
+      "DevOps-docs",
+      "自動化",
+      "cron",
+      "Docker",
+      "k3s"
+    ],
+    "anchor": "kp12",
+    "conversation": "DevOps-docs 自動化系統 & Telegram 告警路由"
+  },
+  {
+    "id": "2026-05-13-kp13",
+    "date": "2026-05-13",
+    "title": "Telegram Forum Topic 路由：thread_id 不連續",
+    "summary": "Telegram supergroup 的 forum topic ID 不是連續數字（1,2,4,7,8,652），不能猜，必須用 send_message list 查實際 ID",
+    "tags": [
+      "Telegram",
+      "Forum",
+      "Topic",
+      "API"
+    ],
+    "anchor": "kp13",
+    "conversation": "DevOps-docs 自動化系統 & Telegram 告警路由"
+  },
+  {
     "id": "2026-05-14-kp1",
     "date": "2026-05-14",
     "title": "K8s ConfigMap 驅動的 Plugin 載入機制",

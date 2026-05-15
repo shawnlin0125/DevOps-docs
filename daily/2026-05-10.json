@@ -1,0 +1,114 @@
+[
+  {
+    "id": "2026-05-10-kp1",
+    "date": "2026-05-10",
+    "title": "Next.js 16 standalone 模式輸出",
+    "summary": "next.config.ts 設定 output: 'standalone' 後，next build 會產生自給自足的 .next/standalone 目錄，不需依賴專案目錄即可執行",
+    "tags": [
+      "Next.js",
+      "standalone",
+      "Docker",
+      "部署"
+    ],
+    "anchor": "kp1",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp2",
+    "date": "2026-05-10",
+    "title": "PM2 管理 Next.js 進程",
+    "summary": "用 PM2 process manager 管理 Node.js app，支援自動重啟、log 管理、開機啟動",
+    "tags": [
+      "PM2",
+      "Next.js",
+      "process manager",
+      "部署"
+    ],
+    "anchor": "kp2",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp3",
+    "date": "2026-05-10",
+    "title": "Nginx reverse proxy 到 Next.js（port conflict）",
+    "summary": "Nginx 監聽 8080 port（80 被 Hermes gateway 佔用），反向代理到 localhost:3000",
+    "tags": [
+      "Nginx",
+      "reverse proxy",
+      "部署",
+      "port conflict"
+    ],
+    "anchor": "kp3",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp4",
+    "date": "2026-05-10",
+    "title": "Cloudflare DNS + Proxy（orange cloud）",
+    "summary": "從 GoDaddy 轉移 DNS 到 Cloudflare，設定 A record 和 CNAME，開啟 proxy 做 TLS termination",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "TLS",
+      "proxy"
+    ],
+    "anchor": "kp4",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp5",
+    "date": "2026-05-10",
+    "title": "Cloudflare Error 522：origin port 問題",
+    "summary": "Cloudflare 預設走 80/443 連 origin，但 80 port 被 Hermes 佔用，導致 Error 522",
+    "tags": [
+      "Cloudflare",
+      "Error 522",
+      "debugging",
+      "port"
+    ],
+    "anchor": "kp5",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp6",
+    "date": "2026-05-10",
+    "title": "Self-signed SSL vs Cloudflare TLS",
+    "summary": "自簽憑證只適合內網測試；對外服務用 Cloudflare Flexible SSL 處理 TLS，origin 跑 HTTP 即可",
+    "tags": [
+      "SSL",
+      "TLS",
+      "Cloudflare",
+      "憑證"
+    ],
+    "anchor": "kp6",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp7",
+    "date": "2026-05-10",
+    "title": "GitHub repo + PAT 認證設定",
+    "summary": "建立 repo shawnlin0125/korean-learning，用 Personal Access Token 做 HTTPS git 操作",
+    "tags": [
+      "GitHub",
+      "git",
+      "PAT",
+      "認證"
+    ],
+    "anchor": "kp7",
+    "conversation": "韓文學習平台首次部署"
+  },
+  {
+    "id": "2026-05-10-kp8",
+    "date": "2026-05-10",
+    "title": "shadcn/ui + TailwindCSS + zustand 技術棧選擇",
+    "summary": "Next.js 16 + TypeScript + TailwindCSS v4 + shadcn/ui + zustand，韓文學習平台前端技術",
+    "tags": [
+      "Next.js",
+      "shadcn/ui",
+      "TailwindCSS",
+      "zustand"
+    ],
+    "anchor": "kp8",
+    "conversation": "韓文學習平台首次部署"
+  }
+]

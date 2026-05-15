@@ -1,0 +1,101 @@
+[
+  {
+    "id": "2026-05-12-kp1",
+    "date": "2026-05-12",
+    "title": "Helm 多環境部署：values 分層覆蓋",
+    "summary": "values.yaml 放預設值，values/staging.yaml 和 values/production.yaml 覆蓋環境差異（DB size、replicas、domain）",
+    "tags": [
+      "Helm",
+      "values",
+      "環境分離",
+      "configuration"
+    ],
+    "anchor": "kp1",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp2",
+    "date": "2026-05-12",
+    "title": "ResourceQuota：CPU 96% 危機與 staging 降配策略",
+    "summary": "單節點 k3s CPU requests 達 1450m/1500m（96%），staging 部署失敗。解決：staging 服務只用 10m CPU request",
+    "tags": [
+      "Kubernetes",
+      "ResourceQuota",
+      "CPU",
+      "容量規劃"
+    ],
+    "anchor": "kp2",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp3",
+    "date": "2026-05-12",
+    "title": "nodePort 條件化：ClusterIP service 不能指定 nodePort",
+    "summary": "Helm template 中 nodePort 欄位必須用 {{ if eq .Values.serviceType \"NodePort\" }} 包住，不然 ClusterIP 模式會報錯",
+    "tags": [
+      "Helm",
+      "template",
+      "Kubernetes",
+      "Service",
+      "debugging"
+    ],
+    "anchor": "kp3",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp4",
+    "date": "2026-05-12",
+    "title": "K8s 資源評估：kubectl top + describe node",
+    "summary": "用 kubectl top 看實際用量、kubectl describe node 看 Allocated resources（request/limit 分配比例）",
+    "tags": [
+      "Kubernetes",
+      "kubectl",
+      "資源評估",
+      "monitoring"
+    ],
+    "anchor": "kp4",
+    "conversation": "伺服器資源評估"
+  },
+  {
+    "id": "2026-05-12-kp5",
+    "date": "2026-05-12",
+    "title": "CPU overcommit 不危險，RAM overcommit 會死人",
+    "summary": "CPU overcommit（limits 總和 > 實體核數）只是 throttle；RAM overcommit 會觸發 OOM Killer 無差別殺 Pod",
+    "tags": [
+      "Kubernetes",
+      "overcommit",
+      "OOM",
+      "資源管理"
+    ],
+    "anchor": "kp5",
+    "conversation": "伺服器資源評估"
+  },
+  {
+    "id": "2026-05-12-kp6",
+    "date": "2026-05-12",
+    "title": "Staging `imagePullPolicy: Never` 的風險",
+    "summary": "Helm --set 覆蓋 image 路徑為 Docker Hub 時，k3s containerd 找不到本地 image → ErrImageNeverPull",
+    "tags": [
+      "Kubernetes",
+      "imagePullPolicy",
+      "ErrImageNeverPull",
+      "debugging"
+    ],
+    "anchor": "kp6",
+    "conversation": "Staging/Production 環境分離"
+  },
+  {
+    "id": "2026-05-12-kp7",
+    "date": "2026-05-12",
+    "title": "PostgreSQL PVC 大小規劃：prod 10Gi vs staging 5Gi",
+    "summary": "Production 和 staging 的 PostgreSQL PVC 分開設定，避免 staging 佔用過多資源",
+    "tags": [
+      "PostgreSQL",
+      "PVC",
+      "storage",
+      "容量規劃"
+    ],
+    "anchor": "kp7",
+    "conversation": "Staging/Production 環境分離"
+  }
+]
