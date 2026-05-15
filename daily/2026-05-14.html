@@ -1,332 +1,362 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026-05-14 · Plugin-Hub 統一代理架構、Cron Job 除錯、基礎設施總覽 — Shawn's DevOps Lab</title>
+<title>DevOps 學習筆記 — 2026-05-14</title>
 <style>
-  :root {
-    --bg: #0d1117;
-    --bg-card: #161b22;
-    --border: #30363d;
-    --text: #c9d1d9;
-    --text-dim: #8b949e;
-    --accent: #58a6ff;
-    --accent-green: #3fb950;
-    --accent-orange: #d2991d;
-    --accent-red: #f85149;
-    --accent-purple: #a371f7;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
-  header a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
-  h1 { font-size: 1.6rem; color: #f0f6fc; margin-top: 0.5rem; }
-  .date { color: var(--text-dim); font-size: 0.9rem; }
-  section { margin-bottom: 2rem; }
-  h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 0.8rem; }
-  h3 { font-size: 1rem; color: #f0f6fc; margin: 1.5rem 0 0.5rem; }
-  h4 { font-size: 0.92rem; color: var(--accent-green); margin: 1rem 0 0.4rem; }
-  p { margin-bottom: 0.8rem; }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
-  li { margin-bottom: 0.3rem; }
-  code { background: var(--bg-card); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; border: 1px solid var(--border); }
-  pre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.85rem; margin: 0.8rem 0; }
-  .note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
-  .warning { background: rgba(210,153,29,0.08); border-left: 3px solid var(--accent-orange); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
-  .danger { background: rgba(248,81,73,0.08); border-left: 3px solid var(--accent-red); padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; }
-  .tag { display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); margin-right: 0.4rem; margin-bottom: 0.3rem; }
-  footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; text-align: center; }
-  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
-  th, td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
-  th { background: var(--bg-card); color: var(--accent); }
-  .check { color: var(--accent-green); }
-  .nav-row { display: flex; justify-content: space-between; align-items: center; }
+:root {
+  --bg: #0d1117; --bg-card: #161b22; --accent: #58a6ff;
+  --accent-green: #3fb950; --accent-orange: #d2991d;
+  --text: #c9d1d9; --text-secondary: #8b949e;
+  --border: #30363d; --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent-orange); font-size: 1.2rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.toc ol { margin: 0.5rem 0 0 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.4rem; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.5rem 0; }
+.kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: var(--text); }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.cmd-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.5rem; font-size: 0.85rem; }
+.cmd-table th { background: var(--bg-card); color: var(--accent); text-align: left; padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td { padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td:first-child { font-family: monospace; font-size: 0.82rem; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { font-family: monospace; font-size: 0.85rem; padding: 0.2rem 0; color: var(--text-secondary); }
+.file-list li::before { content: "📄 "; }
+nav.bottom-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+nav.bottom-nav a { color: var(--accent); text-decoration: none; }
+nav.bottom-nav a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <a href="../index.html">← 回首頁</a>
-    <h1>Plugin-Hub 統一代理架構 · Cron Job 除錯 · 基礎設施總覽</h1>
-    <p class="date">📅 2026 年 5 月 14 日 · 
-      <span class="tag">Plugin-Hub</span> <span class="tag">Go</span> <span class="tag">K3s</span> <span class="tag">代理架構</span>
-      <span class="tag">Cron Job</span> <span class="tag">Telegram</span> <span class="tag">排程</span>
-      <span class="tag">基礎設施</span> <span class="tag">Docker</span>
-    </p>
-  </header>
 
-  <!-- ====== 學到了什麼 ====== -->
-  <section>
-    <h2>🧠 學到了什麼</h2>
+<h1>📘 DevOps 學習筆記 — 2026-05-14</h1>
+<p class="subtitle">May 14, 2026 · 4 個對話 · 18 個知識點</p>
 
-    <!-- ====== 1. Plugin-Hub 統一代理架構 ====== -->
-    <h3>1. Plugin-Hub 架構簡化：從 Pool 到統一代理</h3>
-    <p>對 plugin-hub 進行了一次<strong>重大架構簡化</strong>——移除「Pool」概念（proxy-high / proxy-normal），改為統一的單一 Deployment 代理模型。核心思想：<strong>當一個 plugin 被啟用，它應該在所有代理實例上都可用</strong>，無需手動指派到特定部署。</p>
+<details class="toc" open>
+<summary>📑 目錄</summary>
+<ol>
+  <li><a href="#conv1">Plugin-Hub K8s 代理架構簡化</a> — 4 知識點</li>
+  <li><a href="#conv2">基礎設施總覽 & Cron Job 修正</a> — 4 知識點</li>
+  <li><a href="#conv3">排程架構討論 & Plugin 排程設計</a> — 3 知識點</li>
+  <li><a href="#conv4">K8s 基礎設施概念 & 資源評估框架</a> — 7 知識點</li>
+</ol>
+</details>
 
-    <h4>1.1 變更前後的架構對比</h4>
-    <table>
-      <tr><th>維度</th><th>舊架構 (Pool)</th><th>新架構 (Unified)</th></tr>
-      <tr><td>代理 Deployment</td><td>2 個（proxy-high + proxy-normal）</td><td>1 個（ticket-proxy）</td></tr>
-      <tr><td>Plugin 指派</td><td>手動選擇部署池（dashboard dropdown）</td><td>啟用即全局生效（無指派）</td></tr>
-      <tr><td>ConfigMap</td><td>3 個（assignments, proxy-high-plugins, proxy-normal-plugins）</td><td>1 個（proxy-plugins）</td></tr>
-      <tr><td>反向代理路由</td><td>依 pool 多路分流</td><td>單一 proxy → ticket-proxy 服務</td></tr>
-      <tr><td>觀念模型</td><td>容量分池、手動指派</td><td>總機模式（switchboard），啟用即上線</td></tr>
-    </table>
+<!-- ========== Conversation 1 ========== -->
+<section id="conv1">
+<h2>🖥️ 對話一：Plugin-Hub K8s 代理架構簡化</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">07:49 AM · 統一代理模型，移除池化路由，單一 ticket-proxy Deployment</p>
 
-    <h4>1.2 程式碼變更</h4>
-    <p><strong>handler.go 重寫：</strong></p>
-    <ul>
-      <li>移除 <code>AssignmentStore</code>、<code>Proxies</code> map、pool-based 路由邏輯（刪除 ~268 行）</li>
-      <li>新增 <code>/api/load-plugins</code> 端點：回傳以逗號分隔的已啟用 vendor ID 清單（供 proxy pod 經由 ConfigMap 讀取）</li>
-      <li><code>ProxyToVendor</code> 改為檢查 registry 的 <code>enabled</code> 狀態，而非查詢 assignment map</li>
-      <li>反向代理簡化：所有 <code>/api/v1/{vendor}/*</code> 請求統一路由到 <code>ticket-proxy</code> 服務</li>
-    </ul>
+<article class="kp-card" id="kp1">
+  <h4>💡 K8s ConfigMap 驅動的 Plugin 載入機制</h4>
+  <p>Plugin-Hub 使用 ConfigMap <code>proxy-plugins</code> 的 <code>LOAD_PLUGINS</code> 環境變數來控制 ticket-proxy 載入哪些 vendor plugin。Hub Admin 的 <code>/api/load-plugins</code> 端點回傳逗號分隔的已啟用 vendor ID 列表，運維人員據此更新 ConfigMap 並重啟 proxy pods。</p>
+  <pre><code># /api/load-plugins 回傳格式（純文字，逗號分隔）
+ticketmaster,line,shopee
 
-    <pre>// 新邏輯：檢查 enabled，而非 assignment
-func (s *Server) ProxyToVendor(w http.ResponseWriter, r *http.Request) {
-    vendorID := chi.URLParam(r, "vendor")
-    if !s.Registry.IsEnabled(vendorID) {
+# proxy-plugins ConfigMap 結構
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-plugins
+  namespace: plugin-hub
+data:
+  LOAD_PLUGINS: "ticketmaster,line,shopee"</code></pre>
+  <p class="why">💭 原理：ConfigMap 是 K8s 中的宣告式設定載體。Proxy pod 啟動時讀取 <code>LOAD_PLUGINS</code> 環境變數，動態載入對應的 Go plugin 模組。這將「哪些 plugin 啟用」的狀態從程式碼中分離到 ConfigMap，無需重新 build image。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 Docker 鏡像導入 k3s containerd 的工作流</h4>
+  <p>k3s 使用 containerd 而非 Docker 作為容器執行時。本地構建的 Docker 鏡像需要先 <code>docker save</code> 匯出為 tar，再透過 <code>k3s ctr images import</code> 匯入 containerd。</p>
+  <pre><code># 完整工作流
+sudo docker build -t plugin-hub:go-latest .
+sudo docker save plugin-hub:go-latest -o /tmp/plugin-hub.tar
+sudo k3s ctr images import /tmp/plugin-hub.tar
+
+# 確認鏡像已匯入
+sudo k3s ctr images ls | grep plugin-hub
+
+# 重啟 deployment 使用新鏡像（需搭配 imagePullPolicy: Never）
+sudo kubectl -n plugin-hub rollout restart deployment hub-admin</code></pre>
+  <p class="why">💭 原理：containerd 有自己的鏡像儲存和命名空間，與 Docker 的 <code>/var/lib/docker</code> 完全獨立。<code>imagePullPolicy: Never</code> 告訴 kubelet 不要從 registry 拉取，直接使用本地 containerd 中的鏡像 — 適合單節點開發/測試環境。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 單一代理架構 vs 池化路由 — 架構簡化取捨</h4>
+  <p>舊架構有 proxy-high 和 proxy-normal 兩個 Deployment，vendor 透過 <code>AssignmentStore</code>（YAML 後端）分配到不同池。新架構移除池概念，所有已啟用 vendor 載入到單一 <code>ticket-proxy</code> Deployment 的所有 pod。</p>
+  <p>簡化內容：刪除 <code>hub-assignments</code> ConfigMap、移除 Assignment API（GET/POST <code>/api/assignments</code>）、dashboard 移除部署下拉選單、handler.go 重構為單一上游。</p>
+  <p class="why">💭 原理：當所有 vendor plugin 的總資源需求在單一 pod 可承受範圍內，池化路由帶來的複雜度（多 Deployment 管理、分配邏輯、ConfigMap 同步）超過其價值。簡化後的操作模型：Enable vendor → 更新 ConfigMap → 重啟 proxy → 所有實例生效。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 Go Reverse Proxy Handler 重構：從多上游到單上游</h4>
+  <p><code>handler.go</code> 的 <code>ProxyToVendor</code> 函數被重構：移除 <code>AssignmentStore</code> 查詢和池選擇邏輯，改為直接檢查 registry 中 vendor 是否啟用 → 反向代理到單一 <code>ticket-proxy</code> Service。</p>
+  <pre><code>// 重構後的核心邏輯（偽代碼）
+func (h *Handler) ProxyToVendor(w http.ResponseWriter, r *http.Request) {
+    vendorID := chi.URLParam(r, "vendorID")
+    if !h.registry.IsEnabled(vendorID) {
         http.Error(w, "vendor not enabled", 404)
         return
     }
-    // 單一反向代理到 ticket-proxy
-    s.proxy.ServeHTTP(w, r)
-}</pre>
+    // 單一上游，不再查 AssignmentStore
+    h.reverseProxy(w, r, "ticket-proxy.plugin-hub.svc.cluster.local:8000")
+}</code></pre>
+  <p class="why">💭 原理：反向代理的精髓是透明轉發。當後端只有一個 Service 時，不需要路由表 — 直接寫死目標位址即可。這比維護 YAML-backed 分配表更可靠（無狀態、無同步問題）。</p>
+</article>
+</section>
 
-    <p><strong>新增 EnabledVendors() 方法（registry.go）：</strong></p>
-    <pre>func (r *Registry) EnabledVendors() []string {
-    var ids []string
-    for _, p := range r.plugins {
-        if p.Enabled {
-            ids = append(ids, p.ID)
-        }
-    }
-    return ids
-}</pre>
+<!-- ========== Conversation 2 ========== -->
+<section id="conv2">
+<h2>🔧 對話二：基礎設施總覽 & Cron Job 修正</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">09:53 AM · 排程 bug 修正、6 個服務總覽、ArgoCD 密碼查詢</p>
 
-    <p><strong>Dashboard 簡化：</strong>移除部署選擇下拉選單，改為顯示 <code>LOAD_PLUGINS = ticketmaster</code> 資訊列。</p>
+<article class="kp-card" id="kp5">
+  <h4>💡 Cron Job 排程：搜尋「今天」vs「昨天」的陷阱</h4>
+  <p>「DevOps Daily Learning Doc」排程在凌晨 3:00 執行時，prompt 指示搜尋「今天」的對話 — 但凌晨 3 點還沒有任何對話，永遠回傳 <code>[SILENT]</code>。修正為搜尋「昨天」（執行日期減一天）。</p>
+  <pre><code># 正確的日期計算（Python）
+from datetime import datetime, timedelta
+yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")</code></pre>
+  <p class="why">💭 原理：排程的執行時間和資料的時間窗口必須對齊。凌晨排程的「今天」是資料真空期 — 這不是排程失敗，而是邏輯錯誤。任何凌晨產生日報/摘要的排程都要處理這個時間差。</p>
+</article>
 
-    <h4>1.3 K8s 清單變更</h4>
-    <ul>
-      <li><strong>刪除</strong> <code>deploy-proxy-high.yaml</code>、<code>deploy-proxy-normal.yaml</code></li>
-      <li><strong>新建</strong> <code>deploy-proxy.yaml</code>：單一 Deployment (2 replicas)、單一 ConfigMap (<code>proxy-plugins</code>)、單一 Service</li>
-      <li><strong>更新</strong> <code>deploy-admin.yaml</code>：移除 <code>PROXY_SVC_PROXY_HIGH/NORMAL</code> 環境變數和 <code>hub-assignments</code> ConfigMap 掛載</li>
-    </ul>
+<article class="kp-card" id="kp6">
+  <h4>💡 kubectl 從 K8s Secret 讀取密碼</h4>
+  <p>ArgoCD 初始密碼儲存在 K8s Secret <code>argocd-initial-admin-secret</code> 中，以 base64 編碼。使用 <code>kubectl get secret -o jsonpath</code> 可直接解碼取出。</p>
+  <pre><code># 讀取 ArgoCD admin 密碼
+kubectl -n argocd get secret argocd-initial-admin-secret   -o jsonpath="{.data.password}" | base64 -d
 
-    <div class="note">
-      <strong>💡 架構思維：</strong>當所有代理實例功能相同時，不需要「池」的概念。Hub 只做兩件事：(1) 管理 plugin 的啟用/停用狀態，(2) 作為反向代理總機將請求路由到下游。這讓部署模型從「N 種部署 × 手動指派」簡化為「1 種部署 × 自動加載」。
-    </div>
+# ArgoCD 登入資訊
+# URL: https://argocd.shawnlin.online
+# 帳號: admin</code></pre>
+  <p class="why">💭 原理：K8s Secret 的 <code>.data</code> 欄位是 base64 編碼（不是加密）。<code>jsonpath</code> 可以直接提取特定欄位，搭配 <code>base64 -d</code> 解碼。注意：任何人能執行 kubectl 就能讀取 Secret — 生產環境需搭配 RBAC 限制。</p>
+</article>
 
-    <h4>1.4 部署與驗證</h4>
-    <pre># 建置 Docker 映像（Go binary: 7.86MB）
-docker build -t plugin-hub:go-latest .
-docker save plugin-hub:go-latest | sudo k3s ctr images import -
+<article class="kp-card" id="kp7">
+  <h4>💡 單節點 k3s 的 6 個公開服務總覽</h4>
+  <p>透過 <code>kubectl get ingress -A</code> 和 <code>kubectl get svc -A</code> 盤點所有對外服務。所有服務共用一台 2 vCPU / 7.5G RAM 的單節點 k3s，經 Cloudflare 代理。</p>
+  <pre><code># 查詢所有 Ingress
+sudo kubectl get ingress -A
 
-# 套用新清單
-kubectl apply -f k8s/
-kubectl -n plugin-hub rollout restart deployment/hub-admin
+# 服務列表
+# shawnlin.online          → korean-learning (prod)
+# korean-staging.shawnlin.online → korean-staging
+# argocd.shawnlin.online   → argocd (v3.4.2)
+# devops.shawnlin.online   → devops-docs
+# grafana.shawnlin.online  → monitoring
+# hub.shawnlin.online      → plugin-hub</code></pre>
+  <p class="why">💭 原理：定期盤點對外暴露的服務是 SRE 基本動作。Ingress 資源是對外流量的入口 — 清點 Ingress 就等於清點攻擊面。Cloudflare 橙色雲（proxied）模式隱藏了真實來源 IP，提供免費的 DDoS 防護和 CDN。</p>
+</article>
 
-# 驗證
-curl https://hub.shawnlin.online/api/health         # plugins_total: 1 ✅
-curl https://hub.shawnlin.online/api/load-plugins    # ticketmaster ✅
-curl https://hub.shawnlin.online/api/assignments     # 405 Method Not Allowed ✅</pre>
+<article class="kp-card" id="kp8">
+  <h4>💡 Telegram 超級群組 Forum Topic 路由機制</h4>
+  <p>「Shawn's DevOps Lab」Telegram 超級群組（chat_id: <code>-1003966564424</code>）使用 Forum 模式，每個主題有獨立 thread ID。Cron job 的 <code>deliver</code> 欄位可指定 <code>telegram:chat_id:thread_id</code> 將結果送到指定主題。</p>
+  <pre><code># Topic 對照表
+# General   → thread 1
+# #korean   → thread 2
+# #infra    → thread 4
+# #gitops   → thread 7
+# #research → thread 8
+# #schedule → thread 652
 
-    <div class="warning">
-      <strong>⚠️ 待辦：</strong>(1) <code>deploy-proxy.yaml</code> 已存在 repo 但 ticket-proxy 的 Docker 映像尚未建置並匯入 k3s（目前只有 hub-admin 在運行）；(2) <code>/api/load-plugins</code> 回傳清單，但目前尚無自動化機制將結果寫入 ConfigMap——需手動或未來 controller 處理；(3) Dashboard 仍會 fetch <code>/api/assignments</code>（JS 層面），現在回傳 405，不影響功能但應清理。
-    </div>
-  </section>
+# Cron job deliver 設定範例
+# "deliver": "telegram:-1003966564424:652"  → #schedule 主題</code></pre>
+  <p class="why">💭 原理：Telegram Forum Topic 本質上是同一群組內的訊息分流機制。每個 topic 有自己的 thread_id，bot 發送訊息時帶上 <code>message_thread_id</code> 參數即可路由到指定主題。這讓不同類型的通知（警報、部署、排程結果）各自有獨立的討論空間。</p>
+</article>
+</section>
 
-  <!-- ====== 2. Cron Job 除錯 ====== -->
-  <section>
-    <h3>2. Cron Job 除錯：DevOps Daily Learning Doc 排程修正</h3>
-    <p>發現並修復了一個<strong>關鍵 bug</strong>：每日 03:00 執行的「DevOps Daily Learning Doc」cron job 始終回傳 <code>[SILENT]</code>，導致從未實際產生學習頁面。</p>
+<!-- ========== Conversation 3 ========== -->
+<section id="conv3">
+<h2>⏰ 對話三：排程架構討論 & Plugin 排程設計</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">09:54 AM · Cron job 檢視、APScheduler 選擇、delivery 通知問題</p>
 
-    <h4>2.1 問題根因</h4>
-    <p>Cron job 在凌晨 3:00 執行時，prompt 指示搜尋<strong>「今天的」</strong>對話。但在 03:00 還沒有當天的任何對話，導致永遠找不到內容，直接輸出 <code>[SILENT]</code> 並跳過。</p>
+<article class="kp-card" id="kp9">
+  <h4>💡 Plugin 排程架構：APScheduler vs Celery/Kafka 的選擇</h4>
+  <p>Plugin-Hub 平台本身不處理排程，每個 vendor plugin 內部自行管理 APScheduler 實例，透過 <code>start()</code>/<code>stop()</code> 生命週期 hook 控制。Celery 和 Kafka 被評估為「太重」— 需要額外的 message broker（Redis/RabbitMQ），在單節點 k3s 上增加不必要的資源消耗。</p>
+  <pre><code># APScheduler 整合模式（Python plugin 範例）
+from apscheduler.schedulers.background import BackgroundScheduler
 
-    <div class="danger">
-      <strong>🐛 Bug：</strong>排程任務的時間語意錯誤——在一天的開始搜尋「今天」的內容是不可能的。必須搜尋「昨天」的內容。
-    </div>
+class TicketMasterPlugin:
+    def start(self):
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.add_job(self.check_tickets, 'interval', minutes=5)
+        self.scheduler.start()
 
-    <h4>2.2 修正內容</h4>
-    <ol>
-      <li><strong>Prompt 修正：</strong>將「搜尋今天的對話」改為「搜尋<strong>昨天（執行日期減一天）</strong>的對話」</li>
-      <li><strong>Delivery 目標變更：</strong>從 <code>local</code>（無通知）改為 <code>telegram:-1003966564424:652</code>（#schedule topic），確保完成通知送達</li>
-    </ol>
+    def stop(self):
+        self.scheduler.shutdown()</code></pre>
+  <p class="why">💭 原理：APScheduler 是 in-process 排程器（~0 額外 RAM），排程狀態隨 plugin 生命週期。Celery 需要獨立的 broker（Redis）和 worker 程序，Kafka 更重。在資源有限的單節點環境，in-process 排程是最務實的選擇。取捨：in-process 排程不支援跨實例協調（只有一個 pod 沒差）。</p>
+</article>
 
-    <pre># Cron job 設定（修正後）
-Job ID: 8b8efe7cf28e
-Name: DevOps Daily Learning Doc
-Schedule: 0 3 * * *
-Deliver: telegram:-1003966564424:652  (原為 local)
-Prompt: 搜尋昨天（執行日期減一天）的對話...</pre>
+<article class="kp-card" id="kp10">
+  <h4>💡 Cron Job 的 deliver 欄位：local vs Telegram topic</h4>
+  <p>Hermes cron job 的 <code>deliver</code> 欄位決定了執行結果的傳送方式。<code>local</code> 表示結果只存在 cron_output 目錄（無通知），<code>telegram:chat_id:thread_id</code> 則將結果送到指定的 Telegram 主題。</p>
+  <pre><code># 三種 deliver 模式
+# "deliver": "local"                             → 僅存檔，無通知
+# "deliver": "telegram:-1003966564424:4"         → 送到 #infra 主題
+# "deliver": "telegram:-1003966564424:652"       → 送到 #schedule 主題
 
-    <h4>2.3 Delivery 通知問題</h4>
-    <p>修正後手動觸發測試，cron job 成功執行（<code>last_status: ok</code>，<code>last_delivery_error: null</code>），但使用者<strong>未收到即時完成通知</strong>。這是一個已知的 delivery pipeline 問題——cron 完成後的訊息未即時推送。目前尚未解決，等待觀察下一次 03:00 自動執行。</p>
+# 現有排程 deliver 設定
+# Uptime Watchdog (e7258a5033a4):    origin (每 2 分鐘)
+# Alert Checker (fe448223c4db):      telegram:...#4 (每 5 分鐘)
+# DevOps Daily Doc (8b8efe7cf28e):   telegram:...#652 (每日 03:00)</code></pre>
+  <p class="why">💭 原理：不同排程有不同的通知需求。高優先級警報應送到專用 alert 主題（即時推送），低優先級日報送到 schedule 主題（不干擾日常討論）。<code>local</code> 模式適合純副作用排程（如備份），不需要人為介入。</p>
+</article>
 
-    <div class="note">
-      <strong>💡 Cron Job 設計原則：</strong>(1) 時間敏感任務必須考慮執行時間點的上下文——凌晨任務應查詢「前一天」資料；(2) Delivery target 應設為使用者會查看的頻道，而非 <code>local</code>（無通知）；(3) 排程任務的 prompt 中明確寫入日期計算邏輯（而非依賴 LLM 推斷），避免語意歧異。
-    </div>
-  </section>
+<article class="kp-card" id="kp11">
+  <h4>💡 手動觸發 Cron Job 進行測試</h4>
+  <p>修改排程 prompt 後，可以手動觸發 cron job 來驗證修正是否生效，而不需要等到下一個排程時間。Hermes 支援即時觸發排程。</p>
+  <pre><code># 觸發後驗證產出
+ls -la /home/ubuntu/projects/devops-docs/daily/2026-05-13.html
+# 確認檔案大小 > 0（非空）
 
-  <!-- ====== 3. 基礎設施總覽 ====== -->
-  <section>
-    <h3>3. 伺服器基礎設施完整總覽</h3>
-    <p>對單節點 k3s 叢集上的<strong>所有服務進行了一次完整盤點</strong>，記錄了 URL、namespace、用途。</p>
+# 檢查 git log 確認 commit
+cd /home/ubuntu/projects/devops-docs
+git log --oneline -3</code></pre>
+  <p class="why">💭 原理：Cron job 的 prompt 是程式碼，修改後需要測試。手動觸發是 smoke test — 不保證所有邊界情況正確，但能快速確認核心邏輯（日期計算、搜尋、輸出）是否正常。這也是 CI/CD 思維：變更後立即驗證，不等排程自動執行。</p>
+</article>
+</section>
 
-    <h4>3.1 公開服務清單</h4>
-    <table>
-      <tr><th>服務</th><th>URL</th><th>Namespace</th><th>說明</th></tr>
-      <tr><td>Korean Learning (prod)</td><td><code>shawnlin.online</code> / <code>korean.shawnlin.online</code></td><td>korean-learning</td><td>韓文學習平台（正式環境）</td></tr>
-      <tr><td>Korean Learning (staging)</td><td><code>korean-staging.shawnlin.online</code></td><td>korean-staging</td><td>韓文學習平台（預發布）</td></tr>
-      <tr><td>ArgoCD</td><td><code>argocd.shawnlin.online</code></td><td>argocd</td><td>GitOps 持續部署</td></tr>
-      <tr><td>DevOps Docs</td><td><code>devops.shawnlin.online</code></td><td>devops-docs</td><td>每日 DevOps 學習筆記</td></tr>
-      <tr><td>Grafana</td><td><code>grafana.shawnlin.online</code></td><td>monitoring</td><td>監控儀表板</td></tr>
-      <tr><td>Plugin Hub</td><td><code>hub.shawnlin.online</code></td><td>plugin-hub</td><td>Plugin 管理中樞</td></tr>
-    </table>
+<!-- ========== Conversation 4 ========== -->
+<section id="conv4">
+<h2>🏗️ 對話四：K8s 基礎設施概念 & 資源評估框架</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">11:12 AM · OSI 模型、kubelet 機制、Pod 分佈、資源評估三線框架</p>
 
-    <h4>3.2 基礎設施規格</h4>
-    <table>
-      <tr><th>項目</th><th>規格</th></tr>
-      <tr><td>伺服器</td><td>Ubuntu 24.04, 43.167.10.119</td></tr>
-      <tr><td>硬體</td><td>4C8G, 單節點</td></tr>
-      <tr><td>Kubernetes</td><td>K3s v1.32.4</td></tr>
-      <tr><td>Ingress</td><td>ingress-nginx (hostNetwork, port 8880/8443)</td></tr>
-      <tr><td>DNS / CDN</td><td>Cloudflare（orange cloud proxied）</td></tr>
-      <tr><td>監控</td><td>Prometheus + Loki + Grafana（k3s-monitoring-stack）</td></tr>
-      <tr><td>GitOps</td><td>ArgoCD v3.4.2</td></tr>
-      <tr><td>CI/CD</td><td>Hermes Cron Jobs（排程任務）</td></tr>
-    </table>
+<article class="kp-card" id="kp12">
+  <h4>💡 OSI L1-L7 在 K8s 中的對應：從 CNI 到 Ingress</h4>
+  <p>OSI 七層模型簡化為 TCP/IP 四層後，可以清楚對應 K8s 中的網路元件：L2/L3（網路層）= CNI overlay（Flannel/Calico），L3 = Pod IP，L4（傳輸層）= Service（ClusterIP/NodePort，kube-proxy 處理 IP+Port 負載平衡），L7（應用層）= Ingress（host/path 路由，HTTP 層面）。</p>
+  <p>關鍵區分：<strong>L4 負載平衡</strong>只看 IP+Port（kube-proxy 用 iptables/IPVS 規則），<strong>L7 負載平衡</strong>看 HTTP 內容（Ingress controller 解析 Host header 和 URL path 來路由）。</p>
+  <p class="why">💭 原理：理解網路分層可以幫助除錯。Pod 之間不通 → 檢查 CNI（L2/L3）；Service 不通 → 檢查 kube-proxy（L4）；Ingress 路徑不對 → 檢查 Ingress rule（L7）。分層觀念讓除錯可以逐層排查。</p>
+</article>
 
-    <div class="note">
-      <strong>💡 架構洞察：</strong>單節點 k3s 已穩定運行 <strong>6 個公開服務</strong>，全部透過 Cloudflare orange cloud + 單一 ingress-nginx 暴露。ArgoCD 負責 GitOps 部署，Prometheus + Grafana 提供監控，Hermes Cron Jobs 處理自動化排程。這是一個生產可用的微型 PaaS。
-    </div>
-  </section>
+<article class="kp-card" id="kp13">
+  <h4>💡 kubelet 的 Pull 模型：不是 SSH 推播，而是主動拉取</h4>
+  <p>K8s 的 Control Plane 不會 SSH 到 Node 下指令。kubelet 持續 watch API Server，主動發現自己被分配到的 Pod，然後呼叫 containerd 執行。整個控制鏈：<code>kubectl → API Server (HTTPS) → etcd 寫入狀態 → Scheduler 選定 Node → kubelet 觀察到變更 → containerd 執行容器</code>。</p>
+  <pre><code># 三層控制模型
+# 1. Control Plane → Node：kubelet pull（watch API Server）
+# 2. Controller → Resources：Reconciliation Loop（比較期望 vs 實際）
+# 3. User → K8s：kubectl / REST API
 
-  <!-- ====== 4. Cron Job 架構全覽 ====== -->
-  <section>
-    <h3>4. Cron Job 排程系統全覽</h3>
-    <p>整理了三條常駐排程任務的完整設定。</p>
+# k3s 特殊之處：所有元件打包為單一二進位檔
+# etcd 被 SQLite 取代（可選切換到 PostgreSQL: --datastore-endpoint）</code></pre>
+  <p class="why">💭 原理：Pull 模型是 K8s 可擴展性的關鍵 — API Server 不需要知道所有 Node 的位址或狀態，kubelet 自己來報到和拉任務。這與傳統 SSH 推播模式（Ansible、Capistrano）根本不同：Node 多了可以自己重新連接，Control Plane 不需要維護 Node 連線池。</p>
+</article>
 
-    <table>
-      <tr><th>Job ID</th><th>名稱</th><th>排程</th><th>Deliver</th><th>狀態</th></tr>
-      <tr><td><code>8b8efe7cf28e</code></td><td>DevOps Daily Learning Doc</td><td>每天 03:00</td><td>telegram:#schedule</td><td class="check">✅ 已修正</td></tr>
-      <tr><td><code>—</code></td><td>Uptime Watchdog</td><td>每 2 分鐘</td><td>telegram:#infra</td><td class="check">✅ 正常</td></tr>
-      <tr><td><code>—</code></td><td>Prometheus Alert Checker</td><td>每 5 分鐘</td><td>telegram:#infra</td><td class="check">✅ 正常</td></tr>
-    </table>
+<article class="kp-card" id="kp14">
+  <h4>💡 K8s 宣告式 vs Docker Compose 命令式</h4>
+  <p>Docker Compose 是命令式（imperative）— 你告訴系統「做什麼」（啟動容器、停止容器）。K8s 是宣告式（declarative）— 你宣告「期望狀態」（3 個 replica、用這個 image），Controller 不斷比對實際狀態並修正差異（Reconciliation Loop）。</p>
+  <p>Pod 是拋棄式的：Pod 死掉後，新 Pod 有新名稱和新 IP，Service 自動更新 endpoints。Deployment Controller 持續比較 current state vs desired state，發現差異就修正。</p>
+  <p class="why">💭 原理：宣告式模型的核心是 <strong>Reconciliation Loop</strong> — 不是一次性指令，而是持續監控。這意味著即使手動刪除一個 Pod，Controller 會立刻建立新的來補足 replica 數量。Docker Compose 如果容器掛了，你需要重跑 <code>docker-compose up</code>。</p>
+</article>
 
-    <div class="warning">
-      <strong>⚠️ 教訓：</strong>Cron job 的 delivery 設定直接影響使用者體驗。設為 <code>local</code> 的排程任務執行後<strong>完全無感知</strong>，只有手動查詢才能看到結果。所有需要人類關注的排程任務都應設定 delivery target。
-    </div>
-  </section>
+<article class="kp-card" id="kp15">
+  <h4>💡 資源評估三線框架（保守/警戒/危險）</h4>
+  <p>針對 2 vCPU / 7.5G RAM / 79G SSD 的單節點 k3s，建立三線資源評估標準：</p>
+  <table class="cmd-table">
+    <tr><th>資源</th><th>🟢 保守線 (Safe)</th><th>🟡 警戒線 (Warning)</th><th>🔴 危險線 (Critical)</th></tr>
+    <tr><td>CPU (load/cores)</td><td>&lt; 0.7</td><td>0.7–2.0</td><td>&gt; 2.0</td></tr>
+    <tr><td>RAM (實際使用)</td><td>&lt; 60%</td><td>60%–80%</td><td>&gt; 80%</td></tr>
+    <tr><td>Disk (使用率)</td><td>&lt; 60%</td><td>60%–80%</td><td>&gt; 80%</td></tr>
+    <tr><td>RAM (K8s limits)</td><td>&lt; 70%</td><td>70%–90%</td><td>&gt; 90%</td></tr>
+  </table>
+  <p><strong>資源耗盡順序</strong>：RAM 最先掛（OOM Kill）→ Disk 滿 → CPU 瓶頸 → Network（最少見）。目前伺服器狀態：CPU load 0.20/2 cores (~10%)，RAM 56%（available 3.9G），Disk 43% — 全部在保守線內。</p>
+  <p class="why">💭 原理：<strong>RAM 是單節點的第一瓶頸</strong>。CPU 可以超量分配（throttle），但 RAM 超量會觸發 OOM Killer 殺程序。K8s limits 總和 87% 接近實際 RAM，表示所有 Pod 同時達到 limit 時會觸發 OOM — 需要監控的是 limits 總和 vs 實體 RAM，不是 requests。</p>
+</article>
 
-  <!-- ====== 5. 學習筆記系統迭代 ====== -->
-  <section>
-    <h3>5. DevOps 學習筆記系統的自我迭代</h3>
-    <p>這一天的工作正好展示了<strong>自動化系統的自我修復能力</strong>：用 cron job 發現 cron job 的問題，修正後產生昨天的學習頁面。</p>
+<article class="kp-card" id="kp16">
+  <h4>💡 free -h 要看 available 不是 free</h4>
+  <p>Linux 會把閒置 RAM 用作磁碟快取（disk cache），所以 <code>free -h</code> 的 <code>free</code> 欄位通常很小。<code>available</code> 欄位才是真正可分配給新程序的記憶體（含可回收的快取）。</p>
+  <pre><code>$ free -h
+               total   used   free   shared   buff/cache   available
+Mem:           7.5Gi   4.1Gi  210Mi   250Mi      3.4Gi        3.9Gi
+Swap:          1.9Gi   214Mi  1.7Gi
+# ↑ free 只有 210M，但 available 有 3.9G — 系統其實很充裕</code></pre>
+  <p class="why">💭 原理：Linux 的記憶體管理哲學是「閒置 RAM 是浪費」，所以會積極使用未分配的 RAM 作為 page cache。當程序需要更多記憶體時，kernel 可以立即丟棄乾淨的 cache page 來騰出空間。<code>available</code> = <code>free</code> + 可回收的 cache/buffer。</p>
+</article>
 
-    <h4>5.1 發現問題</h4>
-    <p>使用者手動檢查時發現 5/14 凌晨的排程沒有產生 5/13 的學習頁面。cron job 回傳 <code>[SILENT]</code>。</p>
+<article class="kp-card" id="kp17">
+  <h4>💡 K8s 資源超額分配（Overcommit）的風險</h4>
+  <p>K8s 允許 CPU limits 總和超過實體核心數（本伺服器 6550m / 2000m = 436% overcommit）。CPU overcommit 相對安全（kernel 用 CFS 公平排程），但記憶體 limits overcommit 很危險 — 一旦所有 Pod 同時觸及 limit，OOM Killer 會殺程序，可能造成級聯故障。</p>
+  <pre><code># 當前 K8s 資源分配
+# CPU  Requests: 1135m (75%)  Limits: 6550m (436% overcommit)
+# Mem  Requests: 2224Mi (33%) Limits: 5732Mi (87%)
+# ↑ Mem limits 87% 接近實體 RAM，headroom 僅 13%
 
-    <h4>5.2 診斷與修正（同一天內完成）</h4>
-    <ol>
-      <li>查詢 cron job 執行記錄 → 確認執行了但回傳 SILENT</li>
-      <li>分析 prompt → 發現「搜尋今天」的語意錯誤</li>
-      <li>修正 prompt → 改為「搜尋昨天（執行日期減一天）」</li>
-      <li>手動觸發測試 → 成功產生 <code>2026-05-13.html</code>（25KB，5 大主題）</li>
-      <li>更新 index.html → 插入新 day-card</li>
-      <li>Git commit + push → 部署到 K3s</li>
-    </ol>
+# 檢查 OOM 事件
+sudo dmesg -T | grep -i oom
 
-    <div class="note">
-      <strong>💡 元學習：</strong>自動化系統的 bug 往往在邊界條件下才暴露——這裡是「凌晨 3 點沒有當天對話」這個邊界。設計排程任務時，必須考慮執行時間點的上下文，並對所有邊界條件做防禦性設計。
-    </div>
-  </section>
+# 檢查 K8s 資源分配
+sudo kubectl describe nodes | grep -A 8 "Allocated"</code></pre>
+  <p class="why">💭 原理：CPU 是 <strong>compressible resource</strong>（可壓縮）— 用滿了只會變慢，不會 crash。記憶體是 <strong>incompressible resource</strong>（不可壓縮）— 用滿了 kernel 必須殺程序。記憶體 overcommit 必須謹慎：理想的 limits 總和應 &lt; 實體 RAM 的 80%（保留 kernel/buffer 空間）。</p>
+</article>
 
-  <!-- ====== 指令與工具 ====== -->
-  <section>
-    <h2>🛠️ 涉及指令與工具</h2>
+<article class="kp-card" id="kp18">
+  <h4>💡 單節點 k3s 加入 Worker Node 的方法</h4>
+  <p>從單節點 k3s 擴充到多節點，只需在新的 Worker Node 上執行一行指令。Master 的 token 可從 <code>/var/lib/rancher/k3s/server/token</code> 取得。</p>
+  <pre><code># 在 Master 節點取得 token
+sudo cat /var/lib/rancher/k3s/server/token
 
-    <h3>Plugin-Hub / Go</h3>
-    <ul>
-      <li><code>docker build -t plugin-hub:go-latest .</code> — 建置 Go binary 映像（7.86MB）</li>
-      <li><code>docker save plugin-hub:go-latest | sudo k3s ctr images import -</code> — 匯入映像到 k3s containerd</li>
-      <li><code>kubectl -n plugin-hub rollout restart deployment/hub-admin</code> — 滾動重啟</li>
-      <li><code>curl https://hub.shawnlin.online/api/health</code> — 健康檢查</li>
-      <li><code>curl https://hub.shawnlin.online/api/load-plugins</code> — 已啟用 vendor 清單</li>
-    </ul>
+# 在新的 Worker Node 執行（Ubuntu/Debian）
+curl -sfL https://get.k3s.io | K3S_URL=https://43.167.10.119:6443   K3S_TOKEN=&lt;master-token&gt; sh -
 
-    <h3>K3s / Kubernetes</h3>
-    <ul>
-      <li><code>kubectl get ingress -A</code> — 查看所有 Ingress 資源</li>
-      <li><code>kubectl get svc -A</code> — 查看所有 Service</li>
-      <li><code>kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d</code> — 提取 Secret</li>
-      <li><code>kubectl delete cm hub-assignments -n plugin-hub</code> — 清理舊 ConfigMap</li>
-      <li><code>kubectl delete svc ticket-proxy-high ticket-proxy-normal -n plugin-hub</code> — 清理舊 Service</li>
-    </ul>
+# 驗證節點加入
+sudo kubectl get nodes
+# NAME               STATUS   ROLES                  AGE
+# vm-1-243-ubuntu    Ready    control-plane,master   30d
+# new-worker-node    Ready    &lt;none&gt;                 1m</code></pre>
+  <p class="why">💭 原理：k3s 的設計目標是極簡安裝。Worker node 只需要知道 Master 的 API Server URL 和 token 即可加入叢集。加入後，kube-scheduler 自動開始將 Pod 分配到新節點（根據資源和親和性規則）。擴充瓶頸從「單機資源不足」轉移到「網路延遲和 CNI 跨節點通訊」。</p>
+</article>
+</section>
 
-    <h3>Cron Job / Hermes</h3>
-    <ul>
-      <li><code>cronjob(action='list')</code> — 列出所有排程</li>
-      <li><code>cronjob(action='update', job_id=..., prompt=...)</code> — 更新排程 prompt</li>
-      <li><code>cronjob(action='update', job_id=..., deliver=...)</code> — 更新 delivery 目標</li>
-      <li><code>cronjob(action='run', job_id=...)</code> — 手動觸發排程</li>
-      <li><code>session_search(query='...')</code> — 搜尋歷史對話</li>
-    </ul>
+<!-- ========== 指令速查表 ========== -->
+<section>
+<h2>🛠️ 本日指令速查表</h2>
+<table class="cmd-table">
+  <tr><th>指令</th><th>用途</th><th>來源對話</th></tr>
+  <tr><td><code>kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d</code></td><td>從 K8s Secret 提取 ArgoCD 密碼</td><td>對話二</td></tr>
+  <tr><td><code>sudo kubectl get ingress -A</code></td><td>列出所有對外 Ingress</td><td>對話二</td></tr>
+  <tr><td><code>sudo docker build -t plugin-hub:go-latest . && sudo docker save plugin-hub:go-latest -o /tmp/plugin-hub.tar && sudo k3s ctr images import /tmp/plugin-hub.tar</code></td><td>Docker 建置 + 匯入 k3s containerd</td><td>對話一</td></tr>
+  <tr><td><code>free -h</code></td><td>記憶體使用（看 available 欄位）</td><td>對話四</td></tr>
+  <tr><td><code>sudo dmesg -T | grep -i oom</code></td><td>檢查 OOM Kill 事件</td><td>對話四</td></tr>
+  <tr><td><code>sudo kubectl describe nodes | grep -A 8 "Allocated"</code></td><td>查看 K8s 資源分配</td><td>對話四</td></tr>
+  <tr><td><code>sudo cat /var/lib/rancher/k3s/server/token</code></td><td>取得 k3s master token（加入 worker node 用）</td><td>對話四</td></tr>
+  <tr><td><code>uptime</code></td><td>CPU load average vs cores 快速檢查</td><td>對話四</td></tr>
+</table>
+</section>
 
-    <h3>Git</h3>
-    <ul>
-      <li><code>git add k8s/ internal/ main.go README.md</code> — 暫存變更</li>
-      <li><code>git commit -m "unify proxy: single Deployment, all pods load all enabled vendors"</code> — plugin-hub commit <code>24d2a59</code></li>
-      <li><code>git commit -m "README: update to unified proxy model"</code> — ticket-vendor commit <code>cd88aae</code></li>
-      <li><code>git push origin go-rewrite</code> — 推送 plugin-hub 分支</li>
-      <li><code>git commit -m "docs: add daily learning 2026-05-13"</code> — DevOps-docs commit <code>097c480</code></li>
-    </ul>
-  </section>
+<!-- ========== 涉及檔案 ========== -->
+<section>
+<h2>📂 涉及檔案</h2>
+<ul class="file-list">
+  <li>plugin-hub/internal/handler/handler.go — ProxyToVendor 重構</li>
+  <li>plugin-hub/internal/registry/registry.go — 新增 EnabledVendors()</li>
+  <li>plugin-hub/main.go — 路由簡化</li>
+  <li>plugin-hub/k8s/deploy-proxy.yaml — 新單一 Deployment（取代 proxy-high/normal）</li>
+  <li>plugin-hub/k8s/deploy-admin.yaml — 移除 AssignmentStore 相關設定</li>
+  <li>/home/ubuntu/.hermes/cron/jobs.json — DevOps Daily Doc 排程 prompt 修正</li>
+</ul>
+</section>
 
-  <!-- ====== 相關檔案 ====== -->
-  <section>
-    <h2>📂 相關檔案</h2>
-    <table>
-      <tr><th>檔案路徑</th><th>用途</th></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/internal/handler/handler.go</code></td><td>核心 handler 重寫（移除 pool 路由）</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/internal/registry/registry.go</code></td><td>新增 EnabledVendors() 方法</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/main.go</code></td><td>移除 assignment 路由，新增 load-plugins</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/internal/handler/dashboard.html</code></td><td>Dashboard 簡化（移除部署下拉選單）</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/k8s/deploy-proxy.yaml</code></td><td>新建：統一代理 Deployment</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/k8s/deploy-admin.yaml</code></td><td>更新：移除 assignment ConfigMap</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/k8s/deploy-proxy-high.yaml</code></td><td>已刪除</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/k8s/deploy-proxy-normal.yaml</code></td><td>已刪除</td></tr>
-      <tr><td><code>/home/ubuntu/projects/plugin-hub/README.md</code></td><td>架構文件更新</td></tr>
-      <tr><td><code>/home/ubuntu/projects/ticket-vendor/README.md</code></td><td>Vendor 上線流程更新</td></tr>
-      <tr><td><code>/home/ubuntu/projects/devops-docs/daily/2026-05-13.html</code></td><td>由修正後的 cron job 產生的學習頁面</td></tr>
-      <tr><td><code>/home/ubuntu/projects/devops-docs/index.html</code></td><td>首頁索引</td></tr>
-      <tr><td><code>~/.hermes/config.yaml</code></td><td>Hermes cron job 設定</td></tr>
-    </table>
-  </section>
+<!-- ========== 底部導航 ========== -->
+<nav class="bottom-nav">
+  <a href="2026-05-13.html">← 前一天 (May 13)</a>
+  <a href="../index.html">📚 回到索引</a>
+  <a href="2026-05-15.html">後一天 (May 15) →</a>
+</nav>
 
-  <!-- ====== 摘要 ====== -->
-  <section>
-    <h2>📊 當日摘要</h2>
-    <p>5 月 14 日是<strong>架構簡化與系統維運</strong>的一天，橫跨 3 個工程領域：</p>
-    <table>
-      <tr><th>領域</th><th>成果</th><th>關鍵技能</th></tr>
-      <tr><td>🏗️ 架構簡化</td><td>Plugin-Hub 從 Pool 模型改為統一代理</td><td>反向代理路由、ConfigMap 管理、Go handler 重寫</td></tr>
-      <tr><td>🔧 排程維運</td><td>修復 DevOps Daily Doc cron job 的 SILENT bug</td><td>Cron job prompt 設計、delivery target 設定、邊界條件思考</td></tr>
-      <tr><td>📡 基礎設施</td><td>完整盤點 6 個公開服務與底層架構</td><td>K3s 資源清查、Cloudflare DNS、Telegram topic 映射</td></tr>
-    </table>
-  </section>
-
-  <footer>
-    <div class="nav-row">
-      <a href="2026-05-13.html" style="color:var(--accent);">← 上一篇</a>
-      <a href="../index.html" style="color:var(--accent);">回首頁</a>
-      <span style="color:var(--text-dim);">下一篇 →</span>
-    </div>
-    <p style="margin-top:1rem;">🚀 由 Hermes Agent 從真實對話中自動整理 · <a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent);">GitHub Repo</a></p>
-  </footer>
-</div>
 </body>
 </html>
