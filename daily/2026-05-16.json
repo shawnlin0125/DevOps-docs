@@ -1,0 +1,115 @@
+[
+  {
+    "id": "2026-05-16-kp1",
+    "date": "2026-05-16",
+    "title": "Tomcat 升級腳本的九步安全流程：關→載→備→搬→切→權→啟→測→退",
+    "summary": "將 Tomcat 升級流程從手動三步驟（下載→覆蓋→重啟）優化為九步安全流程，包含優雅關閉、設定備份、symlink 原子切換、curl smoke test (12 retry)、以及失敗時自動回滾。每一步都有明確的成功/失敗路徑。",
+    "tags": [
+      "Tomcat",
+      "bash",
+      "腳本",
+      "升級",
+      "回滾",
+      "VM",
+      "CI/CD"
+    ],
+    "anchor": "kp1",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  },
+  {
+    "id": "2026-05-16-kp2",
+    "date": "2026-05-16",
+    "title": "set -euo pipefail：bash 防禦性程式設計的三大守護",
+    "summary": "-e (exit on error) 任何指令失敗立即終止、-u (undefined) 參考未定義變數報錯、-o pipefail pipe 中任一段失敗整條失敗。比原腳本只靠 $? 逐行檢查更簡潔且不易漏掉錯誤。",
+    "tags": [
+      "bash",
+      "set -e",
+      "pipefail",
+      "防禦性程式設計",
+      "腳本",
+      "錯誤處理"
+    ],
+    "anchor": "kp2",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  },
+  {
+    "id": "2026-05-16-kp3",
+    "date": "2026-05-16",
+    "title": "catalina.sh 優雅關閉 vs systemctl：VM 上 Tomcat 管理的兩種選擇",
+    "summary": "catalina.sh shutdown.sh 透過 TCP socket 發送 SHUTDOWN 指令到 Tomcat shutdown port (預設 8005)，比 systemctl 更直接可控（適合腳本化），但缺少 process 生命週期追蹤。systemctl 提供 journal 記錄和 restart policy，但多一層狀態機。",
+    "tags": [
+      "Tomcat",
+      "catalina.sh",
+      "systemctl",
+      "VM",
+      "服務管理",
+      "優雅關閉"
+    ],
+    "anchor": "kp3",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  },
+  {
+    "id": "2026-05-16-kp4",
+    "date": "2026-05-16",
+    "title": "Symlink 原子切換：ln -sfn 實現 Tomcat 版本秒級切換，附帶自動回滾",
+    "summary": "使用 symlink 指向不同版本的 Tomcat 目錄（/usr/share/tomcat → apache-tomcat-9.0.113），升級只需 ln -sfn 切換指向。舊版本目錄原封不動保留，smoke test 失敗時回滾只需 symlink 指回去再重啟。ln -sfn 的 -n 參數防止 dereference 到目錄內。",
+    "tags": [
+      "Tomcat",
+      "symlink",
+      "ln",
+      "原子切換",
+      "藍綠部署",
+      "回滾"
+    ],
+    "anchor": "kp4",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  },
+  {
+    "id": "2026-05-16-kp5",
+    "date": "2026-05-16",
+    "title": "curl retry smoke test + 自動回滾：讓腳本自己判斷升級成功與否",
+    "summary": "用 curl -sf (silent + fail-on-HTTP-error) 對 HEALTH_URL 做 12 次重試（每次間隔 5 秒，總等待 60 秒），給 Tomcat 充足啟動時間（大型 WAR 可能要 30-40 秒），避免因短暫啟動延遲就誤判失敗。12 次都失敗才觸發回滾。",
+    "tags": [
+      "curl",
+      "smoke test",
+      "retry",
+      "健康檢查",
+      "Tomcat",
+      "驗證"
+    ],
+    "anchor": "kp5",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  },
+  {
+    "id": "2026-05-16-kp6",
+    "date": "2026-05-16",
+    "title": "Docker Compose 模擬 Tomcat 升級：不用 VM 也能本地測試升級流程",
+    "summary": "用 docker-compose.yml + TOMCAT_VERSION 環境變數控制版本，配合 ROOT.war 測試應用，在本地 Docker 反覆練習 9.0.112→9.0.113 的完整升級流程。Docker 測試 30 秒一輪 vs VM 測試 5-10 分鐘一輪，是 CI/CD 前最有效的低風險練習場。",
+    "tags": [
+      "Docker",
+      "docker-compose",
+      "Tomcat",
+      "測試",
+      "本地開發",
+      "CI/CD"
+    ],
+    "anchor": "kp6",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  },
+  {
+    "id": "2026-05-16-kp7",
+    "date": "2026-05-16",
+    "title": "GitHub Actions workflow_dispatch：一鍵從 GitHub UI 觸發 SSH 遠端 Tomcat 升級",
+    "summary": "使用 workflow_dispatch 讓使用者從 GitHub Actions 頁面輸入 Tomcat 版本號，appleboy/ssh-action 自動 SSH 進 VM 執行升級腳本。比手動 SSH 安全、比定時排程可控、所有執行記錄留在 Actions log。gh CLI 驗證失敗時用 curl + token 直接呼叫 GitHub REST API 作為 fallback。",
+    "tags": [
+      "GitHub Actions",
+      "CI/CD",
+      "workflow_dispatch",
+      "SSH",
+      "Tomcat",
+      "GitHub API"
+    ],
+    "anchor": "kp7",
+    "conversation": "Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD"
+  }
+]

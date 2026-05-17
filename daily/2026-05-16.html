@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-16</title>
+<style>
+:root {
+  --bg: #0d1117; --bg-card: #161b22; --accent: #58a6ff;
+  --accent-green: #3fb950; --accent-orange: #d2991d;
+  --text: #c9d1d9; --text-secondary: #8b949e;
+  --border: #30363d; --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent-orange); font-size: 1.2rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.toc ol { margin: 0.5rem 0 0 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.4rem; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.5rem 0; }
+.kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: var(--text); }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.cmd-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.5rem; font-size: 0.85rem; }
+.cmd-table th { background: var(--bg-card); color: var(--accent); text-align: left; padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td { padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td:first-child { font-family: monospace; font-size: 0.82rem; }
+.file-list { list-style: none; padding: 0; }
+.file-list li { font-family: monospace; font-size: 0.85rem; padding: 0.2rem 0; color: var(--text-secondary); }
+.file-list li::before { content: "📄 "; }
+nav.bottom-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+nav.bottom-nav a { color: var(--accent); text-decoration: none; }
+nav.bottom-nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h1>📘 DevOps 學習筆記 — 2026-05-16</h1>
+<p class="subtitle">May 16, 2026 · 1 個對話 · 7 個知識點</p>
+
+<details class="toc" open>
+<summary>📑 目錄</summary>
+<ol>
+  <li><a href="#conv1">Tomcat 版本升級實踐：Bash 腳本最佳化 + Docker 測試 + GitHub Actions CI/CD</a> — 7 知識點</li>
+</ol>
+</details>
+
+<!-- ========== Conversation 1 ========== -->
+<section id="conv1">
+<h2>🖥️ 對話：Tomcat 升級腳本最佳化 + CI/CD 管線實作</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">11:59 AM · Shawn 想將公司 Tomcat 升級流程整合進 CI/CD，從手工 bash 腳本一路做到 GitHub Actions 自動化部署</p>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 Tomcat 升級腳本的九步安全流程：關 → 載 → 備 → 搬 → 切 → 權 → 啟 → 測 → 退</h4>
+  <p>原本的 Tomcat 升級腳本只有下載→覆蓋→重啟三個步驟，沒有關閉舊服務、沒有 smoke test、沒有回滾。優化後設計成 9 步安全流程：stop old Tomcat → download new version → backup configs → migrate custom JARs → atomic symlink switch → fix permissions → start new → curl smoke test（12 次重試）→ auto-rollback on failure。每一步有明確的成功/失敗路徑。<code>set -euo pipefail</code> 確保任何指令失敗立即終止，不再靠單一 <code>$?</code> 判斷。</p>
+  <pre><code>#!/bin/bash
+set -euo pipefail
+# 用法: ./upgrade_tomcat.sh 9.0.113
+TOMCAT_VERSION="${1:?請指定 Tomcat 版本，例如: ./upgrade_tomcat.sh 9.0.113}"
+BASE_DIR=/usr/share
+BACKUP_DIR=/root/tomcat-backup-files
+TOMCAT_USER=tomcat
+SHUTDOWN_WAIT=30
+STARTUP_WAIT=60
+HEALTH_URL="http://localhost:8080/"
+
+# Step 1: 優雅關閉舊 Tomcat（用 catalina.sh 而非 systemctl）
+echo "[1/9] 關閉 Tomcat..."
+$OLD_HOME/bin/shutdown.sh
+sleep $SHUTDOWN_WAIT
+# 強制檢查 process 是否還在
+if pgrep -f "java.*tomcat" > /dev/null; then
+    echo "強制關閉殘留 process..." && pkill -f "java.*tomcat"
+fi
+
+# Step 2-4: 下載 → 備份 → 搬移自訂檔（fontrip.jar, setenv.sh, server.xml, ROOT.war）
+
+# Step 5: 原子 symlink 切換
+ln -sfn "$BASE_DIR/apache-tomcat-$TOMCAT_VERSION" "$BASE_DIR/tomcat"
+
+# Step 6-7: 權限修正 → 啟動
+chown -R $TOMCAT_USER:$TOMCAT_USER "$BASE_DIR/tomcat"
+su - $TOMCAT_USER -c "$BASE_DIR/tomcat/bin/startup.sh"
+
+# Step 8: curl smoke test（12 次重試，每次間隔 5 秒）
+for i in $(seq 1 12); do
+    if curl -sf "$HEALTH_URL" > /dev/null 2>&1; then
+        echo "✅ 升級成功！Tomcat $TOMCAT_VERSION 正常運作" && exit 0
+    fi
+    echo "重試 $i/12..." && sleep 5
+done
+
+# Step 9: 自動回滾
+echo "❌ Smoke test 失敗，執行回滾..."
+rollback  # ← 函式定義在腳本前方</code></pre>
+  <p class="why">💭 原理：要讓自動化升級「可信任」，關鍵不是腳本寫得多聰明，而是每一種異常都有對應處理路徑。九步流程中每一步失敗後，你可以明確知道卡在哪裡（關不掉？下載失敗？啟動了但 port 沒開？），而不是一團黑箱。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 <code>set -euo pipefail</code>：bash 防禦性程式設計的三大守護</h4>
+  <p>原腳本只用 <code>if [ $? -ne 0 ]</code> 檢查上一個指令的 exit code，一次只能檢查一個指令，大量重複程式碼且容易漏掉。新增 <code>set -euo pipefail</code> 三合一防禦後，所有未處理的失敗都會自動中斷腳本，大幅減少錯誤蔓延的風險。</p>
+  <pre><code># 三面盾牌的各自作用
+set -e   # exit on error：任何指令回傳非 0 就立刻終止（除非被 if/while/|| 包住）
+set -u   # undefined variable：參考到未定義變數就報錯，防止 typo 靜默變成空字串
+set -o pipefail  # pipe 中任一段失敗就視為整條管線失敗
+
+# 原腳本的模式（只靠 $? 一個一個查）
+curl -O "$DOWNLOAD_URL"
+if [ $? -ne 0 ]; then echo "下載失敗"; exit 1; fi
+tar -xzf "$ARCHIVE"
+if [ $? -ne 0 ]; then echo "解壓失敗"; exit 1; fi
+
+# 新腳本（set -euo pipefail 自動檢查所有行）
+curl -O "$DOWNLOAD_URL"   # 失敗 → 自動 exit
+tar -xzf "$ARCHIVE"       # 失敗 → 自動 exit
+cp -r "$CONF_DIR"/* ...   # 失敗 → 自動 exit
+
+# 例外處理：預期可能失敗的指令用 || true 或 if 包住
+pgrep -f "java.*tomcat" > /dev/null && echo "還在跑" || true  # 找不到不算錯誤</code></pre>
+  <p class="why">💭 原理：bash 的設計哲學是「容錯優先」，所以預設不會因為單行失敗就退出。但在 DevOps 自動化腳本中，一個步驟失敗卻繼續跑下去往往導致更嚴重的後果（例如沒下載成功卻去覆蓋 symlink）。<code>set -euo pipefail</code> 把 bash 從「容錯模式」切換成「零容忍模式」，任何未處理的錯誤都立即停損。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 catalina.sh 優雅關閉 vs systemctl：VM 上 Tomcat 管理的兩種選擇</h4>
+  <p>Shawn 選擇用 <code>catalina.sh shutdown.sh</code> 而非 <code>systemctl stop tomcat</code> 來關閉 Tomcat。原因是：catalina.sh 由 Tomcat 發行版自帶，不受 OS service manager 狀態影響；而 systemd 需要在 unit file 中正確設定 <code>ExecStop</code>、<code>TimeoutStopSec</code>，且在某些 VM 上 Tomcat 可能不是 systemd 管理（直接手動啟動），systemctl 根本管不到。</p>
+  <pre><code># 方法 A：catalina.sh（直接、跨環境通用）
+$TOMCAT_HOME/bin/shutdown.sh          # 發送 SHUTDOWN 指令到監聽 port
+sleep 30                               # 等它優雅關閉
+if pgrep -f "java.*tomcat" > /dev/null; then
+    pkill -f "java.*tomcat"            # timeout 後強制殺
+fi
+
+# 方法 B：systemctl（需要 unit file 正確設定）
+sudo systemctl stop tomcat
+# 前提：/etc/systemd/system/tomcat.service 存在且 Type=forking
+# systemctl 底層也是對 catalina.sh 發訊號，但多了狀態管理
+
+# 關鍵差異
+# catalina.sh → 直接控制，適合腳本化，但不在意 process 生命週期追蹤
+# systemctl   → OS 層管理，有 journal 記錄、restart policy、dependency 控制
+# Shawn 偏好 catalina.sh 因為「我不想多一層 systemd 的狀態機來干擾」</code></pre>
+  <p class="why">💭 原理：catalina.sh 的 shutdown 是透過 TCP socket 發送預設密碼字串給 Tomcat 的 SHUTDOWN port（預設 8005），Tomcat 收到後開始優雅關閉（完成現有 request → 釋放資源 → 退出）。systemctl 則是送 SIGTERM 給整個 process group。兩者底層機制不同，但在腳本化場景中 catalina.sh 更可控（你能直接判斷 TCP 是否回應），systemd 需要多一層 journalctl 排查。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 Symlink 原子切換：<code>ln -sfn</code> 實現 Tomcat 版本的秒級切換，附帶自動回滾</h4>
+  <p>升級的關鍵是「可回退」。使用 symlink 指向不同版本的 Tomcat 目錄（<code>/usr/share/tomcat → apache-tomcat-9.0.113</code>），升級時只需 <code>ln -sfn</code> 將 symlink 指向新目錄，舊版本目錄原封不動保留。萬一 smoke test 失敗，回滾只需把 symlink 指回去，再重啟舊版 —— 不需要重新下載、解壓、搬移。</p>
+  <pre><code># 目錄結構
+/usr/share/
+  tomcat → apache-tomcat-9.0.112   # symlink（目前執行中）
+  tomcat9 → apache-tomcat-9.0.112  # 相容性 symlink
+  apache-tomcat-9.0.112/           # 舊版本（保留作為回滾備份）
+  apache-tomcat-9.0.113/           # 新版本（剛下載解壓完成）
+
+# 原子切換（-n 避免 dereference 到舊目錄裡）
+ln -sfn /usr/share/apache-tomcat-9.0.113 /usr/share/tomcat
+ln -sfn /usr/share/apache-tomcat-9.0.113 /usr/share/tomcat9
+
+# 如果 smoke test 失敗，回滾只需要：
+ln -sfn /usr/share/apache-tomcat-9.0.112 /usr/share/tomcat
+ln -sfn /usr/share/apache-tomcat-9.0.112 /usr/share/tomcat9
+# 然後重啟舊版 Tomcat（它還在原目錄裡，完全沒被動過）
+
+# 注意：ln -sfn 的 -n 參數
+# 沒有 -n：如果 tomcat/ 已經是一個指向目錄的 symlink，
+#         ln -sf 會把新 symlink 建在 tomcat/ 裡面而非取代 tomcat 本身
+# 有 -n：把 symlink 本身當成一般檔案處理，直接覆蓋</code></pre>
+  <p class="why">💭 原理：symlink 只是一個指標，切換 symlink 是原子操作（只改一個 inode 的指向），不用搬移任何檔案。這是 Linux 系統管理中最經典的「藍綠部署」模式：保持至少兩個版本的完整目錄，透過 symlink 切換 runtime 指向，出問題秒級回退。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 curl retry smoke test + 自動回滾：讓腳本「自己判斷升級成功與否」</h4>
+  <p>手動升級時，你會開瀏覽器看網站有沒有起來。自動化腳本需要同等的「感知能力」。用 <code>curl -sf</code>（silent + fail-on-HTTP-error）對 <code>HEALTH_URL</code> 做 12 次重試，每次間隔 5 秒（共 60 秒等待期）。12 次都失敗才觸發回滾 —— 給 Tomcat 充足啟動時間（大型 WAR 可能需要 30-40 秒），同時避免因短暫啟動延遲就誤判失敗。</p>
+  <pre><code>HEALTH_URL="${HEALTH_URL:-http://localhost:8080/}"
+
+# 12 次重試，每次 5 秒，總等待 60 秒
+smoke_test() {
+    for i in $(seq 1 12); do
+        if curl -sf "$HEALTH_URL" > /dev/null 2>&1; then
+            echo "✅ Smoke test 通過（第 $i 次嘗試）"
+            return 0
+        fi
+        echo "⏳ 等待 Tomcat 啟動... ($i/12)"
+        sleep 5
+    done
+    return 1  # 12 次都失敗
+}
+
+if ! smoke_test; then
+    echo "❌ Smoke test 失敗，執行自動回滾..."
+    rollback
+    exit 1
+fi
+
+echo "🎉 升級完成！Tomcat $TOMCAT_VERSION 正式上線"
+
+# curl -sf 參數解釋：
+# -s: silent，不顯示進度條
+# -f: fail，HTTP 4xx/5xx 時回傳 exit code 22（非 0）</code></pre>
+  <p class="why">💭 原理：自動化升級的「信任門檻」在於驗證步驟 —— 不是「我跑了啟動指令」就算成功，而是「外部可觀測到服務正常回應」。retry loop 解決了 Tomcat 啟動時間不確定的問題（不同硬體、不同 WAR 大小啟動時間差異大），60 秒總等待期是一個合理的 trade-off：太短誤判失敗、太長浪費時間。回滾函式在確認升級失敗後自動執行，不需要人工介入到一半才發現。</p>
+</article>
+
+<article class="kp-card" id="kp6">
+  <h4>💡 Docker Compose 模擬 Tomcat 升級：不用 VM 也能本地測試升級流程</h4>
+  <p>實際 VM 測試成本高（需要 SSH 進去、可能影響線上的 service），所以先在本地用 Docker 驗證整個升級流程。docker-compose.yml 用 <code>TOMCAT_VERSION</code> 環境變數控制版本，配合一個簡單的 ROOT.war 測試應用（含 health check JSP），可以在自己電腦上反覆練習「9.0.112 → 9.0.113」的完整流程。測試完後清理容器即可。</p>
+  <pre><code># docker/docker-compose.yml（簡化版）
+version: '3.8'
+services:
+  tomcat:
+    image: tomcat:${TOMCAT_VERSION:-9.0.112}-jdk11
+    ports:
+      - "8888:8080"   # 避開 host 上已被 nginx 佔用的 8080
+    volumes:
+      - ./ROOT.war:/usr/local/tomcat/webapps/ROOT.war
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+
+# 測試流程（本地 Docker 模擬 VM 升級）
+TOMCAT_VERSION=9.0.112 docker compose up -d     # 啟動舊版
+curl -s http://localhost:8888/                    # 確認 HTTP 200
+
+TOMCAT_VERSION=9.0.112 docker compose down       # 關閉舊版
+TOMCAT_VERSION=9.0.113 docker compose up -d     # 啟動新版
+curl -sI http://localhost:8888/ | grep "Server"   # 確認版本
+# 預期輸出: Server: Apache-Coyote/1.1  (Tomcat 9.0.113)
+
+docker compose down -v  # 清理
+
+# Docker 測試 vs 真實 VM 測試
+# Docker: 30 秒一輪，可重複，不影響任何線上服務
+# VM:    5-10 分鐘一輪，需要 SSH，出錯可能需手動救援</code></pre>
+  <p class="why">💭 原理：Docker 測試提供了一個「可拋棄的 VM 分身」。你可以在上面犯任何錯（路徑打錯、權限炸掉、JAR 衝突）而不影響真正的伺服器。這是在正式 CI/CD 之前最有效的「低風險練習場」——先在 Docker 把腳本練熟，確認所有步驟都能跑通，再搬到 GitHub Actions 中去操作真實 VM。</p>
+</article>
+
+<article class="kp-card" id="kp7">
+  <h4>💡 GitHub Actions workflow_dispatch：一鍵從 GitHub UI 觸發 SSH 遠端 Tomcat 升級</h4>
+  <p>最終 CI/CD 方案：在 GitHub repo 新增 <code>.github/workflows/upgrade-tomcat.yml</code>，使用 <code>workflow_dispatch</code> 讓使用者從 GitHub Actions 頁面輸入 Tomcat 版本號，點「Run workflow」後自動 SSH 進 VM 執行升級腳本。比手動 SSH 安全（不需要記 IP + 指令），比定時排程可控（什麼時候升級由人決定），且所有執行記錄留在 GitHub Actions log 中。</p>
+  <pre><code># .github/workflows/upgrade-tomcat.yml
+name: Upgrade Tomcat
+on:
+  workflow_dispatch:
+    inputs:
+      tomcat_version:
+        description: 'Tomcat 版本（例如 9.0.113）'
+        required: true
+        type: string
+        default: '9.0.113'
+      target_host:
+        description: '目標 VM IP 或 hostname'
+        required: true
+        type: string
+        default: 'your-vm-ip'
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: SSH into VM and run upgrade script
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ github.event.inputs.target_host }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /opt/scripts
+            sudo ./upgrade_tomcat.sh ${{ github.event.inputs.tomcat_version }}
+
+# 使用方式：
+# 1. 在 GitHub repo Settings → Secrets 設定 VM_USER 和 VM_SSH_KEY
+# 2. 進到 Actions tab → 選「Upgrade Tomcat」→ Run workflow
+# 3. 輸入版本號 → 點擊 Run → 等待完成
+# 4. 成功/失敗結果都留在 Actions log 裡，可回溯
+
+# gh CLI fallback（當 gh auth login 失敗時的替代方案）
+# Shawn 的 GITHUB_TOKEN 無法透過 gh auth 驗證時，
+# 改直接用 curl + token 呼叫 GitHub REST API 建立 repo
+curl -X POST https://api.github.com/user/repos \
+  -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github+json" \
+  -d '{"name":"tomcat-upgrade-practice","private":false}'</code></pre>
+  <p class="why">💭 原理：workflow_dispatch 是 GitHub Actions 的「手動觸發器」，恰好適合升級這類「需要人決定時機，但執行過程應該全自動」的任務。appleboy/ssh-action 在 GitHub runner 和你的 VM 之間建立 SSH 連線，把 script 內容在 VM 上執行。它的核心價值是「入口在 GitHub UI，執行在 VM」——你不需要記 VM IP、不需要開 terminal，但執行權和記錄都在你掌控中。</p>
+</article>
+
+</section>
+
+<!-- ========== 本日指令速查表 ========== -->
+<section>
+<h2>🛠️ 本日指令速查表</h2>
+<table class="cmd-table">
+  <tr><th>指令</th><th>用途</th></tr>
+  <tr><td><code>set -euo pipefail</code></td><td>bash 嚴格模式：任何失敗立即終止、未定義變數報錯、pipe 失敗也報錯</td></tr>
+  <tr><td><code>./upgrade_tomcat.sh 9.0.113</code></td><td>參數化 Tomcat 升級腳本，自動執行 9 步安全流程</td></tr>
+  <tr><td><code>$TOMCAT_HOME/bin/shutdown.sh</code></td><td>Tomcat 優雅關閉（透過 TCP shutdown port 發送指令）</td></tr>
+  <tr><td><code>ln -sfn /path/new /path/symlink</code></td><td>原子切換 symlink（-n 防止 dereference 到舊目錄內）</td></tr>
+  <tr><td><code>for i in $(seq 1 12); do curl -sf "$URL" && break; sleep 5; done</code></td><td>retry smoke test：12 次重試 curl，每次間隔 5 秒</td></tr>
+  <tr><td><code>TOMCAT_VERSION=9.0.113 docker compose up -d</code></td><td>用 Docker Compose 環境變數控制 Tomcat 版本進行本地測試</td></tr>
+  <tr><td><code>gh workflow run upgrade-tomcat.yml -f tomcat_version=9.0.113</code></td><td>從 CLI 觸發 GitHub Actions workflow（替代 UI 點擊）</td></tr>
+  <tr><td><code>curl -X POST https://api.github.com/user/repos -H "Authorization: token \$GITHUB_TOKEN" -d '{"name":"..."}'</code></td><td>gh CLI 驗證失敗時的 fallback：直接用 curl + token 呼叫 GitHub REST API</td></tr>
+</table>
+</section>
+
+<nav class="bottom-nav">
+  <a href="2026-05-15.html">← 05/15 · 上一天</a>
+  <a href="../index.html">🏠 回首頁</a>
+  <span style="color:var(--text-secondary);">下一頁 →</span>
+</nav>
+
+</body>
+</html>
