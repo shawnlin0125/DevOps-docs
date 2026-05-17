@@ -1,0 +1,167 @@
+[
+  {
+    "id": "2026-05-17-kp1",
+    "date": "2026-05-17",
+    "title": "systemctl stop 會讓 Restart=always 失效：管理員手動停止標記的陷阱",
+    "summary": "systemctl stop 標記服務為「管理員主動停止」，從此 Restart=always 不再觸發，直到下一次 systemctl start。如果 start 因 stop 未完成而失敗，服務永久停擺。systemctl restart 是原子操作，不會寫入此標記。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "restart",
+      "gateway",
+      "Linux"
+    ],
+    "anchor": "kp1",
+    "conversation": "Shawn 調查 5/16 Gateway 崩潰 20 小時的根因，發現是 systemctl stop && sleep 3 && start 導致 Restart=always 被禁用"
+  },
+  {
+    "id": "2026-05-17-kp2",
+    "date": "2026-05-17",
+    "title": "RestartForceExitStatus=75：應用程式用 exit code 告訴 systemd「這是計畫內重啟」",
+    "summary": "systemd 透過 RestartForceExitStatus 設定特定 exit code（如 75=EX_TEMPFAIL）也觸發自動重啟。應用程式完成 graceful drain 後可用 exit 75 退出，systemd 自動接手重啟，不會被誤判為 crash。",
+    "tags": [
+      "systemd",
+      "exit code",
+      "restart",
+      "gateway",
+      "Linux"
+    ],
+    "anchor": "kp2",
+    "conversation": "深入分析 Hermes Gateway 的 systemd service unit 配置，發現 Exit code 75 和 SIGUSR1 協作的優雅重啟機制"
+  },
+  {
+    "id": "2026-05-17-kp3",
+    "date": "2026-05-17",
+    "title": "SIGUSR1 優雅重啟：drain → exit 75 → systemd 自動重啟的完整流程",
+    "summary": "應用程式的優雅重啟流程：收到 SIGUSR1 → 通知所有活躍 session → 等待 drain timeout → 標記中斷 session 為 resume_pending → 清理 subprocess → exit(75) → systemd 偵測到 exit 75 自動重啟。",
+    "tags": [
+      "SIGUSR1",
+      "graceful restart",
+      "systemd",
+      "drain",
+      "gateway"
+    ],
+    "anchor": "kp3",
+    "conversation": "從 hermes_cli/gateway.py 和 gateway/run.py 原始碼追溯完整的 SIGUSR1 → drain → exit 75 重啟機制"
+  },
+  {
+    "id": "2026-05-17-kp4",
+    "date": "2026-05-17",
+    "title": "Gateway drain timeout：在重啟過程中保存進行中的 session",
+    "summary": "重啟時不直接砍 process，而是用 restart_drain_timeout 給 agent 時間完成工作。逾時後強制中斷，將 session 標記為 resume_pending。Gateway 重啟後自動恢復這些 session。5/16 事故中 sleep 3 遠不足以完成 74 秒 drain。",
+    "tags": [
+      "drain",
+      "timeout",
+      "session",
+      "resilience",
+      "gateway"
+    ],
+    "anchor": "kp4",
+    "conversation": "分析 Gateway 5/16 崩潰：74 秒 drain vs 3 秒 sleep 的落差導致 start 失敗"
+  },
+  {
+    "id": "2026-05-17-kp5",
+    "date": "2026-05-17",
+    "title": "Cron delivery 從 Telegram 遷移到 Discord：deliver 欄位格式轉換",
+    "summary": "Cron job 的 deliver 欄位支援多平台格式：telegram:chat_id:thread_id 或 discord:channel_id。修改 delivery 不影響排程本身。同一個 job 可以隨時切換通知目標。",
+    "tags": [
+      "cron",
+      "delivery",
+      "Telegram",
+      "Discord",
+      "DevOps"
+    ],
+    "anchor": "kp5",
+    "conversation": "Shawn 要求將所有 cron job（Uptime Watchdog、Alert Checker、DevOps Daily Learning Doc）通知從 Telegram 遷移到 Discord #hermes-schedule"
+  },
+  {
+    "id": "2026-05-17-kp6",
+    "date": "2026-05-17",
+    "title": "Cron job grace period：錯過執行窗口後的 fast-forward 機制",
+    "summary": "Cron job 錯過排程時間後有 2 小時 grace period。2 小時內恢復可補執行；超過則 fast-forward 到下一個排程時間。可用 hermes cron run 手動強制補執行。這是一個務實的 fail-forward 設計。",
+    "tags": [
+      "cron",
+      "grace period",
+      "fast-forward",
+      "排程",
+      "DevOps"
+    ],
+    "anchor": "kp6",
+    "conversation": "5/17 03:00 DevOps 學習筆記因 Gateway 關閉錯過，超過 2h grace，被 fast-forward 到 5/18 03:00；手動用 hermes cron run 補執行"
+  },
+  {
+    "id": "2026-05-17-kp7",
+    "date": "2026-05-17",
+    "title": "Config YAML 的 ambiguous match 陷阱：相同 key 出現多次時 patch 失敗",
+    "summary": "YAML 設定檔中若多個平台段落有相同 key（如 free_response_channels: ''），用字串比對的 patch 工具無法區分。解法：提供更多前後文確保唯一匹配，或改用 env var 做平台特定覆蓋。",
+    "tags": [
+      "config",
+      "YAML",
+      "patch",
+      "ambiguous",
+      "DevOps"
+    ],
+    "anchor": "kp7",
+    "conversation": "嘗試 patch config.yaml 設定 Discord free_response_channels 時失敗，因 free_response_channels: '' 在 telegram/discord/mattermost 三處出現"
+  },
+  {
+    "id": "2026-05-17-kp8",
+    "date": "2026-05-17",
+    "title": "Discord free_response_channels：兩種設定方式，env var 比 config patch 更安全",
+    "summary": "讓 Bot 在特定 Discord 頻道不需 @mention 即可回應：方法一（env var DISCORD_FREE_RESPONSE_CHANNELS）或方法二（config.yaml discord.free_response_channels）。env var 沒有 ambiguous match 問題，推薦優先使用。需 gateway restart 生效。",
+    "tags": [
+      "Discord",
+      "free_response",
+      "config",
+      "env var",
+      "bot"
+    ],
+    "anchor": "kp8",
+    "conversation": "Shawn 想讓 Hermes Bot 在 #hermes-general 頻道不需 @mention 就自動回應"
+  },
+  {
+    "id": "2026-05-17-kp9",
+    "date": "2026-05-17",
+    "title": "Bash function 定義順序陷阱：rollback() 被呼叫時尚未定義",
+    "summary": "Bash 是逐行執行的直譯語言，函數必須在被呼叫之前定義。在 set -e 模式下，呼叫未定義函數會直接退出。好習慣是把所有函數定義放在腳本最前面。",
+    "tags": [
+      "bash",
+      "function",
+      "順序",
+      "shell scripting",
+      "bug"
+    ],
+    "anchor": "kp9",
+    "conversation": "審查 upgrade_tomcat.sh 時發現 rollback() 定義在底部但在前面就被呼叫，bash 會在執行時報錯"
+  },
+  {
+    "id": "2026-05-17-kp10",
+    "date": "2026-05-17",
+    "title": "Bash 變數命名一致性：TARGET_FOLDER vs NEW_HOME 指向同一個概念",
+    "summary": "腳本中同時存在 TARGET_FOLDER 和 NEW_HOME 指向同一個概念（新版 Tomcat 目錄）。不一致的命名增加維護難度。bash 沒有 compile-time check，變數語意全靠人維護。統一名稱減少認知負擔。",
+    "tags": [
+      "bash",
+      "變數命名",
+      "code quality",
+      "shell scripting",
+      "maintainability"
+    ],
+    "anchor": "kp10",
+    "conversation": "在 Tomcat 升級腳本中發現兩個不同變數名稱指向相同概念，建議統一為 NEW_HOME"
+  },
+  {
+    "id": "2026-05-17-kp11",
+    "date": "2026-05-17",
+    "title": "5-phase DevOps 部署工作流：修 bug → 客製化 → secrets → 測試 → 部署",
+    "summary": "標準化部署流程分成五個 phase：Phase 1 修 bug、Phase 2 環境客製化、Phase 3 設定 secrets、Phase 4 Docker sandbox 測試、Phase 5 GitHub Actions 部署。每個 phase 有明確交付物，失敗隔離設計讓出錯時只需回頭修正那個 phase。",
+    "tags": [
+      "workflow",
+      "deployment",
+      "CI/CD",
+      "DevOps",
+      "phase"
+    ],
+    "anchor": "kp11",
+    "conversation": "Shawn 確認 Tomcat 升級腳本的後續工作流程，從昨天的腳本最佳化進展到今天的 5-phase 部署規劃"
+  }
+]
