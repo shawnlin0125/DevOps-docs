@@ -1162,5 +1162,80 @@
     ],
     "anchor": "kp11",
     "conversation": "Shawn 確認 Tomcat 升級腳本的後續工作流程，從昨天的腳本最佳化進展到今天的 5-phase 部署規劃"
+  },
+  {
+    "id": "2026-05-18-kp12",
+    "date": "2026-05-18",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程：get pods → describe → logs → get events",
+    "summary": "四步驟系統性排查 Pod 失敗：kubectl get pods 看 Status、kubectl describe pod 看 Events、kubectl logs 看應用層錯誤、kubectl get events 補足 scheduler 層級事件。對應 K8s 三層架構逐層排查。",
+    "tags": [
+      "kubectl",
+      "Pod",
+      "debug",
+      "Kubernetes",
+      "排查"
+    ],
+    "anchor": "kp12",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-18-kp13",
+    "date": "2026-05-18",
+    "title": "k3s containerd 鏡像管理完整流程：docker build → docker save → ctr import → kubectl apply → rollout restart",
+    "summary": "k3s 內建 containerd 而非 Docker daemon，imagePullPolicy: Never 時需手動匯入鏡像。完整流程：docker build、docker save 匯出 tar、sudo k3s ctr images import 匯入 containerd、kubectl apply 更新、rollout restart 重建 Pod。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "鏡像"
+    ],
+    "anchor": "kp13",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-18-kp14",
+    "date": "2026-05-18",
+    "title": "Linux 資源監控三指令：uptime、free -h、df -h，快速判斷 CPU/RAM/Disk 瓶頸",
+    "summary": "uptime 看 load average vs CPU 核心數判斷 CPU 壅塞；free -h 看 available 而非 free 判斷 RAM 是否足夠；df -h / 看磁碟使用率，超過 85% 需注意。",
+    "tags": [
+      "Linux",
+      "uptime",
+      "free",
+      "df",
+      "資源監控",
+      "系統管理"
+    ],
+    "anchor": "kp14",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-18-kp15",
+    "date": "2026-05-18",
+    "title": "Git 復原操作三利器：reset --soft、restore、reflog",
+    "summary": "git reset --soft HEAD~1 退回 commit 保留 staged 改動；git restore 丟棄工作區改動；git reflog 是救命稻草，所有 HEAD 移動記錄都在，可找回誤刪的 commit。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "復原"
+    ],
+    "anchor": "kp15",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-18-kp16",
+    "date": "2026-05-18",
+    "title": "Helm 常用操作：list、history、rollback、get values 四指令覆蓋日常維運",
+    "summary": "helm list -A 列出所有 release；helm history 看版本歷史；helm rollback 退回指定版本；helm get values 查看目前部署所用的 values。",
+    "tags": [
+      "Helm",
+      "rollback",
+      "release",
+      "Kubernetes"
+    ],
+    "anchor": "kp16",
+    "conversation": "自主練習"
   }
 ]

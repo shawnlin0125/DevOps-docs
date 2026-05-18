@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-18（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117; --bg-card: #161b22; --accent: #58a6ff;
+  --accent-green: #3fb950; --accent-orange: #d2991d;
+  --text: #c9d1d9; --text-secondary: #8b949e;
+  --border: #30363d; --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent-orange); font-size: 1.2rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.toc ol { margin: 0.5rem 0 0 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.4rem; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.5rem 0; }
+.kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: var(--text); }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.cmd-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.5rem; font-size: 0.85rem; }
+.cmd-table th { background: var(--bg-card); color: var(--accent); text-align: left; padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td { padding: 0.4rem 0.6rem; border: 1px solid var(--border); }
+.cmd-table td:first-child { font-family: monospace; font-size: 0.82rem; }
+nav.bottom-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+nav.bottom-nav a { color: var(--accent); text-decoration: none; }
+nav.bottom-nav a:hover { text-decoration: underline; }
+.exercise-note { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.25); border-radius: 8px; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<h1>🏋️ DevOps 學習筆記 — 2026-05-18（自主練習）</h1>
+<p class="subtitle">May 18, 2026 · 0 對話 · 5 知識點</p>
+
+<div class="exercise-note">
+  <p>📝 今天沒有 DevOps 相關對話，以下是精選的 DevOps 基礎知識點，涵蓋 kubectl 排查、k3s 鏡像管理、Linux 資源監控、Git 復原、Helm 操作五大主題，適合日常複習。</p>
+</div>
+
+<details class="toc" open>
+<summary>📑 目錄</summary>
+<ol>
+  <li><a href="#conv1">🏋️ 自主練習：DevOps 基礎複習</a> — 5 知識點</li>
+  <li><a href="#kp12">kubectl 診斷 Pod 啟動失敗的完整流程</a></li>
+  <li><a href="#kp13">k3s containerd 鏡像管理完整流程</a></li>
+  <li><a href="#kp14">Linux 資源監控三指令</a></li>
+  <li><a href="#kp15">Git 復原操作</a></li>
+  <li><a href="#kp16">Helm 常用操作</a></li>
+</ol>
+</details>
+
+<!-- ========== 自主練習 ========== -->
+<section id="conv1">
+<h2>🏋️ 自主練習：DevOps 基礎複習</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">從內建知識庫精選 5 個不同主題的 DevOps 基礎知識點，涵蓋 kubectl 排查、k3s 鏡像管理、Linux 系統管理、Git 與 Helm。</p>
+
+<!-- kp12: kubectl Pod 診斷 -->
+<article class="kp-card" id="kp12">
+  <h4>💡 kubectl 診斷 Pod 啟動失敗的完整流程：get pods → describe → logs → get events</h4>
+  <p>當 Pod 無法啟動時，用四步驟系統性排查：<code>kubectl get pods</code> 看 Status 欄位（ImagePullBackOff / CrashLoopBackOff / OOMKilled / Pending），<code>kubectl describe pod</code> 看 Events 區段（最後幾行通常就是失敗原因），<code>kubectl logs</code> 看應用層錯誤，<code>kubectl get events</code> 補足 scheduler 層級的事件。每一步都有明確的排查對象，不需要盲目猜測。</p>
+  <pre><code># Step 1: 快速概覽 — 看 Pod 狀態
+kubectl get pods -n &lt;namespace&gt; -o wide
+
+# Step 2: 深入細節 — Events 區段是診斷關鍵
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt; | tail -40
+
+# Step 3: 應用層錯誤 — 看容器 log
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; --tail=50
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; --previous  # CrashLoop 時看上一次的 log
+
+# Step 4: 叢集層級事件 — 補足 scheduler 視角
+kubectl get events -n &lt;namespace&gt; --sort-by='.lastTimestamp' | tail -20</code></pre>
+  <p class="why">💭 原理：這四步驟對應 K8s 的三層架構：scheduler（get events）、kubelet（describe pod）、container runtime（logs）。逐層排查確保你不會在應用層錯誤時去改 scheduler 設定，也不會在 scheduler 排程失敗時去 debug 程式碼。</p>
+</article>
+
+<!-- kp13: k3s containerd 鏡像 -->
+<article class="kp-card" id="kp13">
+  <h4>💡 k3s containerd 鏡像管理完整流程：docker build → docker save → ctr import → kubectl apply → rollout restart</h4>
+  <p>k3s 內建 containerd 而非 Docker daemon，且通常不使用外部 registry。當 <code>imagePullPolicy: Never</code> 時，需要手動把本機 Docker image 匯入 k3s 的 containerd image store。完整流程：<code>docker build</code> 產出 image → <code>docker save</code> 匯出 tar → <code>sudo k3s ctr images import</code> 匯入 containerd → <code>kubectl apply</code> 更新 deployment → <code>kubectl rollout restart</code> 觸發 Pod 重建使用新 image。</p>
+  <pre><code># Step 1: 本機 build image
+docker build -t myapp:v1.2.0 .
+
+# Step 2: 匯出為 tar（k3s containerd 認得 docker image tar 格式）
+docker save myapp:v1.2.0 -o /tmp/myapp-v1.2.0.tar
+
+# Step 3: 匯入 k3s 的 containerd image store
+sudo k3s ctr images import /tmp/myapp-v1.2.0.tar
+
+# Step 4: 確認 image 已匯入
+sudo k3s ctr images ls | grep myapp
+
+# Step 5: 更新 deployment（imagePullPolicy: Never 時用本地 image）
+kubectl set image deployment/myapp myapp=myapp:v1.2.0 -n &lt;ns&gt;
+# 或直接 kubectl apply -f deployment.yaml
+
+# Step 6: 強制重建 Pod（確保使用新 image）
+kubectl rollout restart deployment/myapp -n &lt;ns&gt;</code></pre>
+  <p class="why">💭 原理：k3s 為了輕量化，用 containerd 取代 Docker daemon，但 containerd 的 image store 和 Docker 的 image store 是獨立的（<code>/var/lib/rancher/k3s/agent/containerd/</code> vs <code>/var/lib/docker/</code>）。<code>docker save</code> + <code>ctr images import</code> 就是在兩個 store 之間做「搬運」，讓 containerd 能認得並執行 Docker 產出的 image。</p>
+</article>
+
+<!-- kp14: Linux 資源監控 -->
+<article class="kp-card" id="kp14">
+  <h4>💡 Linux 資源監控三指令：uptime、free -h、df -h，快速判斷 CPU/RAM/Disk 瓶頸</h4>
+  <p>三個指令各對應一種資源：<code>uptime</code> 看 load average（過去 1/5/15 分鐘的平均 CPU 排隊數），<code>free -h</code> 看記憶體（重點看 available 不是 free），<code>df -h /</code> 看磁碟使用率。關鍵判讀：load average &gt; CPU 核心數表示有 process 在排隊等 CPU；free 很低不代表 RAM 不夠（Linux 會拿閒置 RAM 做 cache），要看 available 欄位。</p>
+  <pre><code># CPU 負載 — load average 三個數字對應 1/5/15 分鐘
+uptime
+# 解讀：若 load average > CPU 核心數（nproc），表示 CPU 壅塞中
+
+# RAM 使用 — 重點看「available」，不是「free」
+free -h
+# free 低不代表 RAM 不夠：Linux 拿 free RAM 做 disk cache，必要時會釋放
+# available = free + 可回收的 cache/buffer，才是真正可用量
+
+# Disk 使用 — 看 Use% 欄位
+df -h /
+# 超過 85% 要開始注意，超過 95% 可能觸發 Pod eviction（kubelet 的 disk pressure）</code></pre>
+  <p class="why">💭 原理：<code>uptime</code> 的 load average 是 run queue + uninterruptible sleep 的平均值，不只是 CPU 使用率。即使 CPU idle 但 I/O blocked 的 process 也會推高 load average。<code>free -h</code> 的 available 是 kernel 估算的「可立即分配給新 process 的記憶體」，包含 free + 可丟棄的 page cache，遠比 free 更有參考價值。</p>
+</article>
+
+<!-- kp15: Git 復原 -->
+<article class="kp-card" id="kp15">
+  <h4>💡 Git 復原操作三利器：reset --soft、restore、reflog</h4>
+  <p><code>git reset --soft HEAD~1</code> 退回最近一次 commit 但保留所有 staged 改動（commit 變成未 commit 的 staged 狀態），適合「commit 內容沒錯但 message 寫錯」的情境。<code>git restore &lt;file&gt;</code> 丟棄工作區的未 staged 改動（等同 checkout 舊語法）。<code>git reflog</code> 是救命稻草——所有 HEAD 移動記錄（commit、reset、merge、rebase）都存在這裡，即使你 <code>git reset --hard</code> 誤刪了 commit，也能從 reflog 找回 SHA 並 <code>git checkout</code> 回來。</p>
+  <pre><code># 退回最近一次 commit，保留 staged 改動（適合改 commit message）
+git reset --soft HEAD~1
+git commit -m "新的 commit message"
+
+# 丟棄某個檔案的工作區改動（回復到上次 commit 的狀態）
+git restore path/to/file
+
+# 丟棄所有工作區改動
+git restore .
+
+# 救命稻草：看所有 HEAD 移動記錄，找回誤刪的 commit
+git reflog
+# 找到你要的 commit SHA，然後：
+git checkout &lt;commit-sha&gt;         # 暫時回到那個 commit 的狀態
+# 或
+git reset --hard &lt;commit-sha&gt;     # 永久回到那個 commit（謹慎！）</code></pre>
+  <p class="why">💭 原理：Git 的物件模型是 append-only——commit 物件一旦建立就永遠存在於 <code>.git/objects/</code>，直到 garbage collection（預設 90 天後）。<code>git reset</code> 只是移動 HEAD 指標，不是刪除 commit。<code>git reflog</code> 記錄了所有 HEAD 的移動歷史，所以即使 commit 從 branch 歷史中「消失」，只要 reflog 還有記錄、object 還沒被 GC，就能救回來。</p>
+</article>
+
+<!-- kp16: Helm 常用操作 -->
+<article class="kp-card" id="kp16">
+  <h4>💡 Helm 常用操作：list、history、rollback、get values 四指令覆蓋日常維運</h4>
+  <p><code>helm list -A</code> 列出所有 namespace 的 Helm release；<code>helm history &lt;release&gt; -n &lt;ns&gt;</code> 看某個 release 的版本歷史與部署狀態；<code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code> 退回指定版本（不會建立新的 revision，直接回到舊版）；<code>helm get values &lt;release&gt; -n &lt;ns&gt;</code> 查看目前部署所用的 values（有助於確認覆蓋設定是否如預期）。</p>
+  <pre><code># 列出所有 namespace 的 Helm release
+helm list -A
+
+# 查看某個 release 的部署歷史（含成功/失敗狀態）
+helm history monitoring -n monitoring
+
+# 退回指定版本（第 3 個 revision）
+helm rollback monitoring 3 -n monitoring
+
+# 查看目前的 values（合併後的結果，包含 values.yaml + --set）
+helm get values monitoring -n monitoring
+
+# 查看所有 values（含 chart 預設值）
+helm get values monitoring -n monitoring --all</code></pre>
+  <p class="why">💭 原理：Helm 的 revision 機制是 immutable 的——每次 <code>helm install</code> 或 <code>helm upgrade</code> 都會建立一個新的 ConfigMap/Secret 儲存當時的 values 和 manifest（預設上限 10 個 revision）。<code>helm rollback</code> 不會修改舊 revision，而是用舊 revision 的資料建立一個新的 revision（內容和舊版相同但 revision number 遞增），所以你可以 rollback 之後再 rollback 回來，revision 歷史不會丟失。</p>
+</article>
+
+</section>
+
+<!-- ========== 本日指令速查表 ========== -->
+<section>
+<h2>🛠️ 本日指令速查表</h2>
+<table class="cmd-table">
+  <tr><th>指令</th><th>用途</th></tr>
+  <tr><td><code>kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; | tail -40</code></td><td>快速看 Pod Events，找出失敗原因</td></tr>
+  <tr><td><code>sudo k3s ctr images import /tmp/myapp.tar</code></td><td>將 Docker image 匯入 k3s containerd</td></tr>
+  <tr><td><code>free -h</code></td><td>看記憶體（重點看 available 欄位）</td></tr>
+  <tr><td><code>git reflog</code></td><td>找回誤刪的 commit / 回復錯誤的 reset</td></tr>
+  <tr><td><code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code></td><td>退回 Helm release 到指定版本</td></tr>
+</table>
+</section>
+
+<nav class="bottom-nav">
+  <a href="2026-05-17.html">← 05/17 · 上一天</a>
+  <a href="../index.html">🏠 回首頁</a>
+  <span style="color:var(--text-secondary);">下一頁 →</span>
+</nav>
+
+</body>
+</html>
