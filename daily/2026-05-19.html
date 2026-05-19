@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-19</title>
+<style>
+:root {
+  --bg: #0d1117; --bg-card: #161b22; --accent: #58a6ff;
+  --accent-green: #3fb950; --accent-orange: #d2991d;
+  --text: #c9d1d9; --text-secondary: #8b949e;
+  --border: #30363d; --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent-orange); font-size: 1.2rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.toc ol { margin: 0.5rem 0 0 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.4rem; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.5rem 0; }
+.kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: var(--text); }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+nav.bottom-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+nav.bottom-nav a { color: var(--accent); text-decoration: none; }
+nav.bottom-nav a:hover { text-decoration: underline; }
+.exercise-note { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.25); border-radius: 8px; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<h1>📘 DevOps 學習筆記 — 2026-05-19</h1>
+<p class="subtitle">May 19, 2026 · 1 對話 · 10 知識點（含 3 補充）</p>
+
+<details class="toc" open>
+<summary>📑 目錄</summary>
+<ol>
+  <li><a href="#conv1">🔧 plugin-hub 子模組架構轉換與 CI/CD 工作流程</a> — kp17–kp23（7 知識點）</li>
+  <li><a href="#kp17">GitHub push protection 阻擋 .gitmodules 中的 PAT token — 安全機制觸發與修復</a></li>
+  <li><a href="#kp18">Submodule-aware CI workflow：只對有變更的子模組執行測試，節省 CI 時間</a></li>
+  <li><a href="#kp19">kubectl describe deployment 驗證 K8s 部署：環境變數、資源限制、健康檢查</a></li>
+  <li><a href="#kp20">Manifest 自動生成作為 CI/CD 最後一步：子模組變更 → 重新產出 plugin-manifest.json</a></li>
+  <li><a href="#kp21">Git submodule pointer update 工作流程：git add <submodule-path> 更新指標後 commit</a></li>
+  <li><a href="#kp22">GitHub raw URL 作為 K8s Config 來源：不需 ConfigMap 更新、不需 secret、自動同步</a></li>
+  <li><a href="#kp23">git merge --no-ff 保留 release 分支合併記錄：永遠產生 merge commit</a></li>
+  <li><a href="#conv2">📚 補充知識點</a> — kp24–kp26（3 知識點）</li>
+  <li><a href="#kp24">Linux 資源監控三指令：uptime、free -h、df -h，快速判斷 CPU/RAM/Disk 瓶頸</a></li>
+  <li><a href="#kp25">Cloudflare DNS 管理模式：Proxy mode（橘雲）vs DNS only（灰雲）的選擇策略</a></li>
+  <li><a href="#kp26">網路排查四指令：curl -v、dig、ss -tlnp、nc -zv 覆蓋 L3-L7 診斷</a></li>
+</ol>
+</details>
+
+<!-- ========== 對話：plugin-hub CI/CD 工作流程 ========== -->
+<section id="conv1">
+<h2>🔧 plugin-hub 子模組架構轉換與 CI/CD 工作流程</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">從 monorepo 轉換為 submodule-based meta-repo 架構，包含 GitHub push protection 安全事件、submodule-aware CI workflow 設計、K8s 部署驗證、manifest 自動生成、以及 Git 工作流程最佳化。</p>
+
+<!-- kp17 -->
+<article class="kp-card" id="kp17">
+  <h4>💡 GitHub push protection 阻擋 .gitmodules 中的 PAT token — 安全機制觸發與修復</h4>
+  <p>當 .gitmodules 的 submodule URL 包含 GitHub Personal Access Token（https://user:ghp_...@github.com/...）時，git push 會被 GitHub push protection 直接拒絕。修復方法是改為無憑證的公開 URL（https://github.com/owner/repo.git），用 git commit --amend 修改後重新推送。</p>
+  <pre><code># GitHub push protection 阻擋 — .gitmodules 中包含 PAT token
+# 錯誤訊息類似：remote: error: GH013: Repository rule violations found for refs/heads/main
+
+# 檢查 .gitmodules 是否有 token
+cat .gitmodules
+# 問題：url = https://shawnlin0125:ghp_xxxxxxxx@github.com/shawnlin0125/ticketmaster-vendor.git
+
+# 修復：移除 token，只用公開 URL
+git config --file=.gitmodules submodule.plugins/ticketmaster.url https://github.com/shawnlin0125/ticketmaster-vendor.git
+
+# 修改最後一個 commit（不建立新 commit）
+git add .gitmodules
+git commit --amend --no-edit
+git push --force-with-lease</code></pre>
+  <p class="why">💭 原理：GitHub push protection 掃描 push 內容中的機密 pattern（PAT、API key 等），在伺服器端攔截。.gitmodules 會被掃描是因為它是純文字檔且常在 commit 中。git commit --amend 修改最近一個 commit 而非新增一個，避免留下含 token 的歷史記錄；--force-with-lease 確保不會意外覆蓋別人的 push。</p>
+</article>
+
+<!-- kp18 -->
+<article class="kp-card" id="kp18">
+  <h4>💡 Submodule-aware CI workflow：只對有變更的子模組執行測試，節省 CI 時間</h4>
+  <p>在 meta-repo 中建立 integration-ci.yaml，push 時自動偵測哪些子模組有變更（git diff --submodule），只對變更的子模組執行測試，未變更的子模組跳過。這比整個 repo 都跑一遍測試快得多。</p>
+  <pre><code># 核心邏輯：偵測哪些子模組變更了
+git diff --submodule HEAD~1 HEAD
+# 輸出範例：Subproject commit c40d8aa..5db0005 (ticketmaster)
+
+# GitHub Actions workflow 片段 (integration-ci.yaml)
+# on: push → checkout with submodules: recursive → detect changes → run tests per vendor
+name: Integration CI
+on:
+  push:
+    branches: [main]
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_vendors: ${{ steps.changes.outputs.vendors }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - id: changes
+        run: |
+          # 比對前一個 commit 的子模組變更
+          VENDORS=$(git diff --submodule HEAD~1 HEAD | grep '^Subproject commit' | sed 's/.*(\(.*\))$/\1/' | paste -sd,)
+          echo "vendors=$VENDORS" >> $GITHUB_OUTPUT
+  test-vendors:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.changed_vendors != ''
+    strategy:
+      matrix:
+        vendor: ${{ fromJSON(needs.detect-changes.outputs.changed_vendors) }}</code></pre>
+  <p class="why">💭 原理：git diff --submodule 會顯示子模組 commit 指標的變化（前後兩個 SHA），而非子模組內的全部 diff。CI workflow 用這個快速判斷「哪些子模組變了」，再用 matrix strategy 只對那些子模組執行測試，大幅節省 CI 時間和資源。這是 meta-repo + submodule 架構的核心效率優勢。</p>
+</article>
+
+<!-- kp19 -->
+<article class="kp-card" id="kp19">
+  <h4>💡 kubectl describe deployment 驗證 K8s 部署：環境變數、資源限制、健康檢查</h4>
+  <p>部署更新後，用 kubectl describe deployment 確認關鍵設定正確：env vars（如 MANIFEST_URL）、resource limits/requests（CPU/Memory）、liveness/readiness probes 的 endpoint、port、initialDelay。這比直接 apply 後就假設一切正常更可靠。</p>
+  <pre><code># 查看 deployment 完整設定（env、resources、probes）
+kubectl describe deployment hub-admin -n plugin-hub
+
+# 關鍵欄位快速擷取
+# Env vars:
+kubectl get deployment hub-admin -n plugin-hub -o jsonpath='{.spec.template.spec.containers[0].env[*]}' | jq .
+
+# Resource limits/requests:
+kubectl get deployment hub-admin -n plugin-hub -o jsonpath='{.spec.template.spec.containers[0].resources}' | jq .
+
+# Health probes:
+kubectl get deployment hub-admin -n plugin-hub -o jsonpath='{.spec.template.spec.containers[0].livenessProbe}' | jq .
+kubectl get deployment hub-admin -n plugin-hub -o jsonpath='{.spec.template.spec.containers[0].readinessProbe}' | jq .</code></pre>
+  <p class="why">💭 原理：kubectl describe 輸出 Deployment 的完整 spec 和 status，包括 Pod template 中的 env、resources、probes 等。部署後驗證是 CI/CD pipeline 中常被忽略但很重要的步驟 — apply 指令成功不代表 Pod 會正常啟動（image 不存在、env var 拼錯、probe port 不對都會導致 CrashLoop）。</p>
+</article>
+
+<!-- kp20 -->
+<article class="kp-card" id="kp20">
+  <h4>💡 Manifest 自動生成作為 CI/CD 最後一步：子模組變更 → 重新產出 plugin-manifest.json</h4>
+  <p>在 meta-repo 中，當子模組 commit 指標更新後，觸發 manifest 生成腳本（generate-manifest.py），掃描所有子模組的 plugin.py meta 資訊，產出一份統一的 plugin-manifest.json。這份 manifest 被 K8s Hub 讀取來決定載入哪些 plugin。</p>
+  <pre><code># Meta-repo 中的 manifest 生成流程
+# 1. 子模組指標更新後（例如 ticketmaster 從 c40d8aa → 5db0005）
+git add plugins/ticketmaster
+git commit -m "chore: update ticketmaster submodule to v0.1.1"
+
+# 2. 重新生成 manifest（掃描所有子模組的 plugin.py）
+python scripts/generate-manifest.py
+
+# 3. 確認 manifest 已更新（version、commit SHA 應反映最新）
+cat plugin-manifest.json | jq '.[] | {id, version, commit}'
+
+# 4. 提交 manifest 更新
+git add plugin-manifest.json
+git commit -m "chore: update plugin manifest"
+git push</code></pre>
+  <p class="why">💭 原理：這是 GitOps 的 manifest-as-source-of-truth 模式。plugin-manifest.json 是 K8s Hub 的唯一資料來源（Hub 透過 MANIFEST_URL env var 指向 GitHub raw URL）。所有 plugin 的版本、commit SHA、啟用狀態都集中在此，子模組變更後必須重新生成 manifest 才會生效。</p>
+</article>
+
+<!-- kp21 -->
+<article class="kp-card" id="kp21">
+  <h4>💡 Git submodule pointer update 工作流程：git add <submodule-path> 更新指標後 commit</h4>
+  <p>當子模組的 upstream repo 有新的 commit 推到 main，在 meta-repo 中需要手動更新指標：git add plugins/<vendor> 記錄新的 commit SHA，然後 commit 這個指標變更。注意：git add 子模組目錄只會更新指標，不會把子模組的內容放進 meta-repo。</p>
+  <pre><code># 在 meta-repo (ticket-vendor) 中更新子模組指標
+# 先 pull 子模組的最新內容
+cd plugins/ticketmaster
+git pull origin main   # 或 git checkout main && git pull
+cd ../..
+
+# 確認子模組有新 commit
+git diff --submodule
+# 輸出：Subproject commit c40d8aa..5db0005
+
+# 把子模組指標變更 staged（只記錄新的 commit SHA，不是子模組檔案內容）
+git add plugins/ticketmaster
+
+# Commit 指標變更
+git commit -m "chore: update ticketmaster submodule to v0.1.1 (5db0005)"
+git push</code></pre>
+  <p class="why">💭 原理：Git submodule 在 meta-repo 中只儲存一個 commit SHA 指標，不是子模組的實際檔案。git add plugins/ticketmaster 會偵測子模組 HEAD 和 meta-repo 記錄的 SHA 不同，將其更新。這個設計讓 meta-repo 體積小，且每個子模組的版本獨立管理，互不干擾。</p>
+</article>
+
+<!-- kp22 -->
+<article class="kp-card" id="kp22">
+  <h4>💡 GitHub raw URL 作為 K8s Config 來源：不需 ConfigMap 更新、不需 secret、自動同步</h4>
+  <p>K8s Deployment 中的 MANIFEST_URL 環境變數直接指向 GitHub raw URL（https://raw.githubusercontent.com/owner/repo/main/plugin-manifest.json）。當 manifest JSON 在 GitHub 上更新後，Hub 重啟或定期重新讀取時自動拿到最新版本，免去手動更新 ConfigMap 或 Secret 的步驟。</p>
+  <pre><code># K8s Deployment YAML 片段
+# 環境變數直接指向 GitHub raw URL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hub-admin
+  namespace: plugin-hub
+spec:
+  template:
+    spec:
+      containers:
+      - name: hub-admin
+        image: plugin-hub:go-latest
+        env:
+        - name: MANIFEST_URL
+          value: "https://raw.githubusercontent.com/shawnlin0125/ticket-vendor/main/plugin-manifest.json"
+
+# 驗證 manifest 可被正確讀取
+curl -s https://raw.githubusercontent.com/shawnlin0125/ticket-vendor/main/plugin-manifest.json | jq .</code></pre>
+  <p class="why">💭 原理：這是簡單版的 GitOps — 用 GitHub 作為設定檔的 single source of truth。raw.githubusercontent.com 提供的原始檔案 URL 可以直接被應用程式讀取（不需要 git clone），而且每次讀取都是最新版本。這避免了 K8s ConfigMap 需要手動更新和 rollout restart 的繁瑣流程。</p>
+</article>
+
+<!-- kp23 -->
+<article class="kp-card" id="kp23">
+  <h4>💡 git merge --no-ff 保留 release 分支合併記錄：永遠產生 merge commit</h4>
+  <p>從 development 分支合併到 main 時，使用 git merge --no-ff 強制建立一個 merge commit（即使可以 fast-forward）。這確保每次 release 合併都有明確的歷史節點，方便追溯「哪個版本何時合併到 main」，也讓 git log --first-parent 可以只看 main 的合併歷史。</p>
+  <pre><code># Development → Main 合併流程（保留 merge commit）
+git checkout main
+git merge --no-ff development -m "release: v0.1.1 — merge development branch"
+# --no-ff：即使可以 fast-forward 也建立一個 merge commit
+
+# 查看 main 分支的合併歷史（只看 first parent，即 main 的節點）
+git log --first-parent --oneline main
+# 5db0005 release: v0.1.1 — merge development branch
+# c40d8aa feat: initial plugin structure
+
+# 對比：如果用了 fast-forward merge（預設行為）
+# git log 會是線性的，看不出哪些 commit 是一起合併進來的</code></pre>
+  <p class="why">💭 原理：預設 git merge 會嘗試 fast-forward（直接把 main 指標移動到 development 的最新 commit），這樣歷史是線性的，但看不出合併的邊界。--no-ff 強制建立 merge commit，在 Git 歷史中留下一個明顯的合併節點，這對 release 管理非常重要：可以一眼看出每個版本的範圍，也讓 git bisect 更容易定位問題。</p>
+</article>
+
+</section>
+
+<!-- ========== 補充知識點 ========== -->
+<section id="conv2">
+<h2>📚 補充知識點</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">從內建知識庫補充 3 個不同主題的 DevOps 基礎知識點：Linux 資源監控、Cloudflare DNS 管理、網路排查指令。</p>
+
+<!-- kp24 -->
+<article class="kp-card" id="kp24">
+  <h4>💡 Linux 資源監控三指令：uptime、free -h、df -h，快速判斷 CPU/RAM/Disk 瓶頸</h4>
+  <p>三個指令各對應一種資源：uptime 看 load average（過去 1/5/15 分鐘的平均 CPU 排隊數），free -h 看記憶體（重點看 available 不是 free），df -h / 看磁碟使用率。關鍵判讀：load average > CPU 核心數表示有 process 在排隊等 CPU；free 很低不代表 RAM 不夠（Linux 會拿閒置 RAM 做 cache），要看 available 欄位。</p>
+  <pre><code># CPU 負載 — load average 三個數字對應 1/5/15 分鐘
+uptime
+# 輸出： 03:00:01 up 30 days, 12:34, 1 user, load average: 0.52, 0.38, 0.41
+# 判讀：0.52 < 核心數(4) → CPU 沒壅塞；若 > 核心數 → 有 process 在排隊
+
+# RAM 使用 — 重點看 available，不是 free
+free -h
+#               total   used   free   shared   buff/cache   available
+# Mem:           7.7G   2.1G   1.2G    150M        4.4G        5.2G
+# 判讀：available(5.2G) 才是真正可分配的記憶體；free(1.2G) 低是正常的（Linux 拿 RAM 做 cache）
+
+# 磁碟使用 — 超過 85% 要注意
+df -h /
+# Filesystem   Size  Used  Avail  Use%  Mounted on
+# /dev/sda1     50G   32G    16G   67%  /
+# 判讀：Use% > 85% 時需清理或擴充；> 95% 是緊急狀態</code></pre>
+  <p class="why">💭 原理：load average 不只計算 CPU 使用中的 process，也包含等待 I/O 的 process，所以它是「系統整體忙碌度」指標。Linux 記憶體管理會積極使用閒置 RAM 做 disk cache/buffer（加快 I/O），所以 free 很低是正常現象 — available 才是核心指標。</p>
+</article>
+
+<!-- kp25 -->
+<article class="kp-card" id="kp25">
+  <h4>💡 Cloudflare DNS 管理模式：Proxy mode（橘雲）vs DNS only（灰雲）的選擇策略</h4>
+  <p>Cloudflare DNS record 有兩種模式：Proxy mode（橘雲）會隱藏 origin IP、提供免費 TLS、DDoS 防護和 CDN 快取；DNS only（灰雲）直接解析到 origin IP，不做任何代理。選擇策略：對外服務用 Proxy mode（安全+加速），內部 API 或需要直接 TCP 連線的服務用 DNS only。Cloudflare API 可自動化管理 DNS record。</p>
+  <pre><code># Cloudflare API 管理 DNS record
+# 列出所有 DNS records
+curl -s -X GET "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '.result[] | {name, type, content, proxied}'
+
+# 新增一筆 A record（proxied=true 是橘雲模式）
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer $CF_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"A","name":"api.example.com","content":"1.2.3.4","proxied":true,"ttl":1}'
+
+# 關閉 Proxy（切換到灰雲 / DNS only）
+curl -s -X PATCH "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records/<RECORD_ID>" \
+  -H "Authorization: Bearer $CF_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"proxied":false}'</code></pre>
+  <p class="why">💭 原理：Proxy mode 時，用戶請求先到 Cloudflare edge → Cloudflare 再向 origin server 發請求 → 回傳給用戶。這層代理提供了 TLS termination、DDoS 防護和 CDN 快取，但會改變來源 IP（origin 看到的是 Cloudflare IP）。DNS only 則是傳統 DNS 解析，用戶直接連到 origin server，適用於需要原始 client IP 或非 HTTP 協定的場景。</p>
+</article>
+
+<!-- kp26 -->
+<article class="kp-card" id="kp26">
+  <h4>💡 網路排查四指令：curl -v、dig、ss -tlnp、nc -zv 覆蓋 L3-L7 診斷</h4>
+  <p>curl -v 看 HTTP 層（request/response header、TLS handshake、redirect）；dig +short 看 DNS 解析是否正確；ss -tlnp 看本機 listening port 和綁定 process；nc -zv 測 TCP port 連通性。這四個指令從應用層到傳輸層，快速定位網路問題的層級。</p>
+  <pre><code># HTTP 層 — 完整 request/response header 和 TLS 資訊
+curl -v http://ticket-proxy.plugin-hub.svc.cluster.local:8000/health
+# < HTTP/1.1 200 OK ... 看 response status
+# * TLS handshake ... 看憑證和加密協商
+
+# DNS 層 — 查詢域名的解析結果
+dig +short ticket-proxy.plugin-hub.svc.cluster.local
+# 輸出：10.43.123.45（K8s ClusterIP）
+
+# 傳輸層 — 看本機哪些 port 在 listening
+ss -tlnp
+# State  Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process
+# LISTEN 0       128     0.0.0.0:8000        0.0.0.0:*          users:(("python3",pid=1234))
+
+# 連通性測試 — 測 port 是否可達
+nc -zv 10.43.123.45 8000
+# Connection to 10.43.123.45 8000 port [tcp/*] succeeded!
+# 或用 timeout 防止卡住
+timeout 3 nc -zv 10.43.123.45 8000</code></pre>
+  <p class="why">💭 原理：網路問題可以從上到下排查：curl -v 看應用層（HTTP response、TLS 憑證），dig 看 DNS 層（域名解析是否正確），nc -zv 看傳輸層（TCP 三次握手是否成功），ss -tlnp 看本機層（服務是否正確監聽）。這四個指令的組合覆蓋了 L3（IP）到 L7（HTTP）的完整診斷範圍。</p>
+</article>
+
+</section>
+
+<h2>🛠️ 本日指令速查表</h2>
+<table style="width:100%;border-collapse:collapse;margin:0.5rem 0 1.5rem;font-size:0.85rem;">
+<tr style="background:var(--bg-card);color:var(--accent);text-align:left;">
+<th style="padding:0.4rem 0.6rem;border:1px solid var(--border);">指令</th>
+<th style="padding:0.4rem 0.6rem;border:1px solid var(--border);">用途</th>
+</tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">git commit --amend --no-edit && git push --force-with-lease</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">修正 push protection 阻擋的 commit（.gitmodules token）</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">git diff --submodule HEAD~1 HEAD</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">偵測子模組變更（CI 自動化用）</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">kubectl describe deployment <name> -n <ns> | grep -A5 'Env:\|Limits:\|Liveness:'</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">部署後驗證 env、資源、probes</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">git merge --no-ff development -m "release: vX.Y.Z"</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">release 合併保留 merge commit</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">df -h / && free -h && uptime</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">快速健康檢查三連擊</td></tr>
+</table>
+
+<nav class="bottom-nav">
+  <a href="2026-05-18.html">← 05/18 筆記（自主練習）</a>
+  <a href="../index.html">📑 回目錄</a>
+  <span style="color:var(--text-secondary);">05/20 →</span>
+</nav>
+
+</body>
+</html>

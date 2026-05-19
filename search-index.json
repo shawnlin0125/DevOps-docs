@@ -1237,5 +1237,160 @@
     ],
     "anchor": "kp16",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-19-kp17",
+    "date": "2026-05-19",
+    "title": "GitHub push protection 阻擋 .gitmodules 中的 PAT token — 安全機制觸發與修復",
+    "summary": "當 .gitmodules 的 submodule URL 包含 GitHub Personal Access Token（https://user:ghp_...@github.com/...）時，git push 會被 GitHub push protection 直接拒絕。修復方法是改為無憑證的公開 URL（https://github.com/owner/repo.git），用 git commit --amend 修改後重新推送。",
+    "tags": [
+      "GitHub",
+      "push protection",
+      "security",
+      "gitmodules",
+      "PAT"
+    ],
+    "anchor": "kp17",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp18",
+    "date": "2026-05-19",
+    "title": "Submodule-aware CI workflow：只對有變更的子模組執行測試，節省 CI 時間",
+    "summary": "在 meta-repo 中建立 integration-ci.yaml，push 時自動偵測哪些子模組有變更（git diff --submodule），只對變更的子模組執行測試，未變更的子模組跳過。這比整個 repo 都跑一遍測試快得多。",
+    "tags": [
+      "GitHub Actions",
+      "CI/CD",
+      "submodule",
+      "integration-ci",
+      "git diff"
+    ],
+    "anchor": "kp18",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp19",
+    "date": "2026-05-19",
+    "title": "kubectl describe deployment 驗證 K8s 部署：環境變數、資源限制、健康檢查",
+    "summary": "部署更新後，用 kubectl describe deployment 確認關鍵設定正確：env vars（如 MANIFEST_URL）、resource limits/requests（CPU/Memory）、liveness/readiness probes 的 endpoint、port、initialDelay。這比直接 apply 後就假設一切正常更可靠。",
+    "tags": [
+      "kubectl",
+      "deployment",
+      "驗證",
+      "probe",
+      "resource limits",
+      "K8s"
+    ],
+    "anchor": "kp19",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp20",
+    "date": "2026-05-19",
+    "title": "Manifest 自動生成作為 CI/CD 最後一步：子模組變更 → 重新產出 plugin-manifest.json",
+    "summary": "在 meta-repo 中，當子模組 commit 指標更新後，觸發 manifest 生成腳本（generate-manifest.py），掃描所有子模組的 plugin.py meta 資訊，產出一份統一的 plugin-manifest.json。這份 manifest 被 K8s Hub 讀取來決定載入哪些 plugin。",
+    "tags": [
+      "CI/CD",
+      "manifest",
+      "generate",
+      "pipeline",
+      "自動化"
+    ],
+    "anchor": "kp20",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp21",
+    "date": "2026-05-19",
+    "title": "Git submodule pointer update 工作流程：git add <submodule-path> 更新指標後 commit",
+    "summary": "當子模組的 upstream repo 有新的 commit 推到 main，在 meta-repo 中需要手動更新指標：git add plugins/<vendor> 記錄新的 commit SHA，然後 commit 這個指標變更。注意：git add 子模組目錄只會更新指標，不會把子模組的內容放進 meta-repo。",
+    "tags": [
+      "Git",
+      "submodule",
+      "pointer",
+      "commit SHA"
+    ],
+    "anchor": "kp21",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp22",
+    "date": "2026-05-19",
+    "title": "GitHub raw URL 作為 K8s Config 來源：不需 ConfigMap 更新、不需 secret、自動同步",
+    "summary": "K8s Deployment 中的 MANIFEST_URL 環境變數直接指向 GitHub raw URL（https://raw.githubusercontent.com/owner/repo/main/plugin-manifest.json）。當 manifest JSON 在 GitHub 上更新後，Hub 重啟或定期重新讀取時自動拿到最新版本，免去手動更新 ConfigMap 或 Secret 的步驟。",
+    "tags": [
+      "GitHub",
+      "raw URL",
+      "K8s",
+      "ConfigMap",
+      "Config",
+      "GitOps"
+    ],
+    "anchor": "kp22",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp23",
+    "date": "2026-05-19",
+    "title": "git merge --no-ff 保留 release 分支合併記錄：永遠產生 merge commit",
+    "summary": "從 development 分支合併到 main 時，使用 git merge --no-ff 強制建立一個 merge commit（即使可以 fast-forward）。這確保每次 release 合併都有明確的歷史節點，方便追溯「哪個版本何時合併到 main」，也讓 git log --first-parent 可以只看 main 的合併歷史。",
+    "tags": [
+      "Git",
+      "merge",
+      "--no-ff",
+      "release",
+      "commit history"
+    ],
+    "anchor": "kp23",
+    "conversation": "plugin-hub 子模組架構轉換與 CI/CD 工作流程"
+  },
+  {
+    "id": "2026-05-19-kp24",
+    "date": "2026-05-19",
+    "title": "Linux 資源監控三指令：uptime、free -h、df -h，快速判斷 CPU/RAM/Disk 瓶頸",
+    "summary": "三個指令各對應一種資源：uptime 看 load average（過去 1/5/15 分鐘的平均 CPU 排隊數），free -h 看記憶體（重點看 available 不是 free），df -h / 看磁碟使用率。關鍵判讀：load average > CPU 核心數表示有 process 在排隊等 CPU；free 很低不代表 RAM 不夠（Linux 會拿閒置 RAM 做 cache），要看 available 欄位。",
+    "tags": [
+      "Linux",
+      "uptime",
+      "free",
+      "df",
+      "資源監控",
+      "系統管理"
+    ],
+    "anchor": "kp24",
+    "conversation": "自主補充"
+  },
+  {
+    "id": "2026-05-19-kp25",
+    "date": "2026-05-19",
+    "title": "Cloudflare DNS 管理模式：Proxy mode（橘雲）vs DNS only（灰雲）的選擇策略",
+    "summary": "Cloudflare DNS record 有兩種模式：Proxy mode（橘雲）會隱藏 origin IP、提供免費 TLS、DDoS 防護和 CDN 快取；DNS only（灰雲）直接解析到 origin IP，不做任何代理。選擇策略：對外服務用 Proxy mode（安全+加速），內部 API 或需要直接 TCP 連線的服務用 DNS only。Cloudflare API 可自動化管理 DNS record。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "TLS",
+      "CDN",
+      "網路"
+    ],
+    "anchor": "kp25",
+    "conversation": "自主補充"
+  },
+  {
+    "id": "2026-05-19-kp26",
+    "date": "2026-05-19",
+    "title": "網路排查四指令：curl -v、dig、ss -tlnp、nc -zv 覆蓋 L3-L7 診斷",
+    "summary": "curl -v 看 HTTP 層（request/response header、TLS handshake、redirect）；dig +short 看 DNS 解析是否正確；ss -tlnp 看本機 listening port 和綁定 process；nc -zv 測 TCP port 連通性。這四個指令從應用層到傳輸層，快速定位網路問題的層級。",
+    "tags": [
+      "網路",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "排查",
+      "DNS"
+    ],
+    "anchor": "kp26",
+    "conversation": "自主補充"
   }
 ]
