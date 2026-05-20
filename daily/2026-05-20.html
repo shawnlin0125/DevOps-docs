@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-20</title>
+<style>
+:root {
+  --bg: #0d1117; --bg-card: #161b22; --accent: #58a6ff;
+  --accent-green: #3fb950; --accent-orange: #d2991d;
+  --text: #c9d1d9; --text-secondary: #8b949e;
+  --border: #30363d; --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent-orange); font-size: 1.2rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.toc ol { margin: 0.5rem 0 0 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.4rem; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.5rem 0; }
+.kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: var(--text); }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+nav.bottom-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+nav.bottom-nav a { color: var(--accent); text-decoration: none; }
+nav.bottom-nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h1>📘 DevOps 學習筆記 — 2026-05-20</h1>
+<p class="subtitle">May 20, 2026 · 2 對話 · 10 知識點</p>
+
+<details class="toc" open>
+<summary>📑 目錄</summary>
+<ol>
+  <li><a href="#conv1">🔧 plugin-hub --link 自動化與 CI/CD 基礎設施</a> — kp27–kp31（5 知識點）</li>
+  <li><a href="#kp27">GitHub push protection 阻擋 .gitmodules 中的 PAT token — 安全機制觸發與修復</a></li>
+  <li><a href="#kp28">Submodule-aware CI workflow：git diff --submodule 只測變更的 vendor</a></li>
+  <li><a href="#kp29">K8s ConfigMap 驅動多 pod 部署：LOAD_PLUGINS CSV + rollout restart</a></li>
+  <li><a href="#kp30">Manifest-based 服務發現：GitHub raw URL + 5-min refresh + zero hub code change</a></li>
+  <li><a href="#kp31">Docker 多階段建置：golang:alpine → alpine:3.21，CGO_ENABLED=0 靜態編譯</a></li>
+  <li><a href="#conv2">🐱 Tomcat 升級腳本練習 — Docker / Multipass / Docker Compose 三種方法</a> — kp32–kp36（5 知識點）</li>
+  <li><a href="#kp32">Docker sandbox 練習 VM 升級流程 — Dockerfile + docker cp + docker exec</a></li>
+  <li><a href="#kp33">服務升級 9 步驟流程 — shutdown → backup → config → symlink → start → smoke → rollback</a></li>
+  <li><a href="#kp34">ln -sfn 原子化 symlink 切換 — 直接更新目標，無空窗期</a></li>
+  <li><a href="#kp35">curl smoke test 正確用法 — -w "%{http_code}" 區分成功/拒絕/錯誤</a></li>
+  <li><a href="#kp36">Multipass 建立練習 VM — launch 24.04，systemd 完整環境</a></li>
+</ol>
+</details>
+
+<!-- ========== 對話 1：plugin-hub --link 自動化 ========== -->
+<section id="conv1">
+<h2>🔧 plugin-hub --link 自動化與 CI/CD 基礎設施</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">Shawn 為 ticket-vendor 的 scaffold-vendor.py 加上 --link 旗標，自動化 git submodule 註冊流程。對話中深入討論了 K8s ConfigMap 部署模型、Docker 多階段建置、manifest-based 服務發現、以及 CI/CD pipeline 的 submodule 偵測機制。</p>
+
+<!-- kp27 -->
+<article class="kp-card" id="kp27">
+  <h4>💡 GitHub push protection 阻擋 .gitmodules 中的 PAT token — 安全機制觸發與修復</h4>
+  <p>當 .gitmodules 的 submodule URL 中帶有 GitHub Personal Access Token（格式：https://token@github.com/...），git push 時 GitHub push protection 會直接拒絕推送。修正方法是將 URL 改為無憑證的公開 HTTPS URL，用 git commit --amend 修改後 force push。</p>
+  <pre><code># 檢查 .gitmodules 是否有 token
+cat .gitmodules
+# url = https://ghp_xxxxxxxxxxxx@github.com/shawnlin0125/ticketmaster-vendor.git
+
+# 修正：手動編輯或用 sed 移除 token
+git config --file=.gitmodules submodule.plugins/ticketmaster.url \
+  https://github.com/shawnlin0125/ticketmaster-vendor.git
+
+# 修改後 amend commit + force push
+git add .gitmodules
+git commit --amend --no-edit
+git push --force-with-lease</code></pre>
+  <p class="why">💭 原理：GitHub push protection 會在伺服器端掃描上傳的 commit 內容，偵測到 tokens（PAT、OAuth、private key）就直接拒絕。這是防止 secret leak 的最後一道防線。.gitmodules 中不需要 token — submodule 本來就應該用公開 URL，認證由 git credential helper 處理。</p>
+</article>
+
+<!-- kp28 -->
+<article class="kp-card" id="kp28">
+  <h4>💡 Submodule-aware CI workflow：git diff --submodule 偵測變更，只測變更的 vendor</h4>
+  <p>在整合 CI（.github/workflows/integration-ci.yaml）中，用 git diff --submodule HEAD~1 檢查哪些子模組指標變更了，只對變更的 vendor 執行 pytest 和 manifest 更新，未變更的不重複測試。</p>
+  <pre><code># CI 中偵測哪些 submodule 有變更
+git diff --submodule HEAD~1 HEAD
+# 輸出範例：
+# Submodule plugins/ticketmaster 5db0005..a1b2c3d:
+#   > feat: add repo_url attribute
+
+# 解析輸出取得變更的 vendor 列表，只對這些 vendor 跑測試
+changed=$(git diff --submodule HEAD~1 HEAD | grep '^Submodule' | awk -F'/' '{print $2}' | awk '{print $1}')
+for vendor in $changed; do
+  pytest plugins/$vendor/tests/
+done</code></pre>
+  <p class="why">💭 原理：meta-repo 的每個 commit 都可能同時更新多個子模組指標。不加過濾就全部重測浪費 CI 時間；git diff --submodule 精確知道哪些變了。配合 generate-manifest.py --changed 只更新變更的 vendor，保留其他 vendor 的 test_passed 狀態不變。</p>
+</article>
+
+<!-- kp29 -->
+<article class="kp-card" id="kp29">
+  <h4>💡 K8s ConfigMap 驅動多 pod 部署 — 單一 ConfigMap 控制所有 proxy pod 行為</h4>
+  <p>ticket-proxy 的所有 replica pod 共用一個 proxy-plugins ConfigMap，其中 LOAD_PLUGINS 是逗號分隔的 vendor ID 列表（如 ticketmaster,kktix）。啟用 vendor 只需更新 ConfigMap + kubectl rollout restart，不需重建 image。</p>
+  <pre><code># proxy-plugins ConfigMap 結構
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-plugins
+  namespace: plugin-hub
+data:
+  LOAD_PLUGINS: "ticketmaster,kktix"
+
+# 在 Deployment 中以 env 注入
+env:
+- name: LOAD_PLUGINS
+  valueFrom:
+    configMapKeyRef:
+      name: proxy-plugins
+      key: LOAD_PLUGINS
+
+# 更新 ConfigMap 後重啟 pod 生效
+kubectl edit configmap proxy-plugins -n plugin-hub
+kubectl rollout restart deployment/ticket-proxy -n plugin-hub</code></pre>
+  <p class="why">💭 原理：ConfigMap 將設定從 image 中分離，改設定不需要重建 image。proxy-plugins ConfigMap 是部署的「單一真相來源」：所有 pod 讀同一個值，pod 之間行為一致，消除「哪台機器執行哪個 vendor」的路由問題。</p>
+</article>
+
+<!-- kp30 -->
+<article class="kp-card" id="kp30">
+  <h4>💡 Manifest-based 服務發現 — Hub 每 5 分鐘 HTTP fetch GitHub raw URL 取得 plugin 清單</h4>
+  <p>plugin-manifest.json 由 vendor repo CI 自動生成，存放在 GitHub repo 中。Hub 透過 HTTP 定時 fetch GitHub raw URL（每 5 分鐘），動態載入 plugin 清單。新增 vendor 不需修改 Hub 程式碼，也不需更新 ConfigMap。</p>
+  <pre><code># Hub 的環境變數
+MANIFEST_URL=https://raw.githubusercontent.com/shawnlin0125/ticket-vendor/main/plugin-manifest.json
+
+# plugin-manifest.json 範例
+[
+  {
+    "id": "ticketmaster",
+    "name": "Ticketmaster",
+    "version": "0.1.1",
+    "commit": "5db0005",
+    "test_passed": true,
+    "last_ci": "2026-05-20T12:00:00Z"
+  }
+]
+
+# Hub 取得 manifest（Go 端每 5 分鐘排程 fetch）
+resp, _ := http.Get(os.Getenv("MANIFEST_URL"))
+json.NewDecoder(resp.Body).Decode(&plugins)</code></pre>
+  <p class="why">💭 原理：這是 GitOps-light 模式 — GitHub repo 是設定來源，Hub 不保留 plugin 清單的本地副本。5 分鐘刷新是平衡即時性與 API 呼叫頻率的折衷。未來可升級為 K8s CRD + ArgoCD watch 機制，達到近乎即時的同步。</p>
+</article>
+
+<!-- kp31 -->
+<article class="kp-card" id="kp31">
+  <h4>💡 Docker 多階段建置縮小 Go image — golang:alpine → alpine:3.21，CGO_ENABLED=0</h4>
+  <p>build stage 用 golang:alpine 編譯（CGO_ENABLED=0 產生靜態 binary），runtime stage 用 alpine:3.21 或 FROM scratch。最終 binary ~8MB，image ~28MB。使用 -ldflags="-s -w" 移除 debug 資訊進一步縮小。</p>
+  <pre><code># 多階段 Dockerfile
+FROM golang:alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o hub .
+
+FROM alpine:3.21
+RUN apk --no-cache add ca-certificates tzdata
+COPY --from=builder /app/hub /app/hub
+EXPOSE 8000
+ENTRYPOINT ["/app/hub"]
+
+# 檢查 image 大小
+docker images | grep plugin-hub
+# plugin-hub  go-latest  28MB</code></pre>
+  <p class="why">💭 原理：Go 的靜態編譯（CGO_ENABLED=0）讓 binary 不依賴任何 glibc/libc，可以跑在 FROM scratch 的空白 image 中。多階段建置讓 build 工具鏈（golang:alpine ~300MB）不進最終 image，大幅縮小體積，加快 pull/deploy 速度。</p>
+</article>
+
+</section>
+
+<!-- ========== 對話 2：Tomcat 升級腳本練習 ========== -->
+<section id="conv2">
+<h2>🐱 Tomcat 升級腳本練習 — Docker / Multipass / Docker Compose 三種練習方法</h2>
+<p style="color:var(--text-secondary);font-size:0.9rem;">Shawn 詢問如何在自己電腦上練習服務升級腳本。討論了三種練習環境（Docker sandbox、Multipass VM、Docker Compose），以及升級腳本的 9 步驟流程、ln -sfn 原子切換、curl smoke test 正確用法。</p>
+
+<!-- kp32 -->
+<article class="kp-card" id="kp32">
+  <h4>💡 Docker sandbox 練習 VM 升級流程 — Dockerfile 模擬生產 VM，docker cp + docker exec 測試腳本</h4>
+  <p>用 Dockerfile 建立一個含 Tomcat + Java 的 Ubuntu 24.04 容器來模擬 VM 環境，然後 docker cp 將 upgrade-service.sh 腳本複製進容器，docker exec 在容器內以 sudo 執行完整升級流程。最適合測試腳本邏輯，5 分鐘內可搭建完成。</p>
+  <pre><code># Dockerfile：模擬生產 VM
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y openjdk-21-jdk-headless curl wget sudo
+RUN useradd -m tomcat && echo "tomcat ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+USER tomcat
+WORKDIR /home/tomcat
+# 安裝舊版 Tomcat 9.0.97 作為「現行版本」
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.97/bin/apache-tomcat-9.0.97.tar.gz && \
+    tar xzf apache-tomcat-9.0.97.tar.gz && \
+    ln -s apache-tomcat-9.0.97 tomcat
+EXPOSE 8080
+CMD ["apache-tomcat-9.0.97/bin/catalina.sh", "run"]
+
+# 使用流程
+docker build -t tomcat-practice:9.0.97 .
+docker run -d --name tomcat-lab -p 8080:8080 tomcat-practice:9.0.97
+docker cp upgrade-service.sh tomcat-lab:/home/tomcat/
+docker exec -it tomcat-lab bash
+# 在容器內執行
+sudo ./upgrade-service.sh 9.0.113</code></pre>
+  <p class="why">💭 原理：Docker sandbox 提供受控的隔離環境，可以在不影響真實 VM 的情況下反覆測試腳本。docker cp + docker exec 是輕量級的檔案注入和命令執行方式，不需要掛載 volume 或重建 image。</p>
+</article>
+
+<!-- kp33 -->
+<article class="kp-card" id="kp33">
+  <h4>💡 服務升級 9 步驟原子化流程 — shutdown → backup → config → symlink → start → smoke → rollback</h4>
+  <p>參數化升級腳本的核心流程：pre-flight 檢查（磁碟空間、目錄存在）→ catalina.sh stop 優雅關閉（30s timeout + force kill）→ wget 下載新版 → 備份舊版（時間戳目錄）→ 遷移設定（setenv.sh、server.xml、JAR、WAR）→ ln -sfn 原子切換 → chown 修正權限 → 啟動並檢查 PID → curl smoke test 12 次重試 → 失敗自動 rollback。</p>
+  <pre><code>#!/bin/bash
+set -euo pipefail
+TOMCAT_VERSION="${1:?Usage: $0 <version>}"
+BASE_DIR="/usr/share"
+HEALTH_URL="${HEALTH_URL:-http://localhost:8080/}"
+SHUTDOWN_WAIT=30
+SMOKE_RETRIES=12
+
+# Step 1: Pre-flight — check disk space
+df -h "$BASE_DIR" >&2
+
+# Step 2: Graceful shutdown
+"$BASE_DIR/tomcat/bin/catalina.sh" stop
+sleep "$SHUTDOWN_WAIT"
+
+# Step 3: Download new version
+wget "https://dlcdn.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz"
+
+# Step 4: Backup old version
+tar czf "/root/tomcat-backup/$(date +%Y%m%d-%H%M%S).tar.gz" "$BASE_DIR/tomcat"
+
+# Steps 5-9: config migration, symlink switch, ownership, start, smoke test...</code></pre>
+  <p class="why">💭 原理：9 步驟的順序經過設計，每一步都有失敗處理（set -euo pipefail 保證任一失敗就中斷）。backup 在 deploy 之前做，確保即使新版有問題也能還原。smoke test 是最後一步驗證，不接受「啟動了就代表正常」的假設。</p>
+</article>
+
+<!-- kp34 -->
+<article class="kp-card" id="kp34">
+  <h4>💡 ln -sfn 原子化 symlink 切換 — 直接更新 symlink 目標，避免 rm + ln 空窗期</h4>
+  <p>用 ln -sfn 直接更新 symlink 指向新目錄（例如 ln -sfn apache-tomcat-9.0.113 tomcat），是一個原子操作，不需要先 rm 再 ln。避免 rm 刪除後 ln 建立前的短暫空窗期導致服務請求失敗。</p>
+  <pre><code># ❌ 非原子：有 rm → ln 空窗期
+rm /usr/share/tomcat          # symlink 消失，服務無法找到路徑
+ln -s apache-tomcat-9.0.113 /usr/share/tomcat
+
+# ✅ 原子：ln -sfn 直接更新 symlink 目標
+ln -sfn apache-tomcat-9.0.113 /usr/share/tomcat
+# -s: create symbolic link
+# -f: force (覆蓋已存在的 symlink)
+# -n: treat destination as normal file if it's a symlink to directory
+
+# 驗證
+ls -la /usr/share/tomcat
+# lrwxrwxrwx ... tomcat -> apache-tomcat-9.0.113</code></pre>
+  <p class="why">💭 原理：ln -sfn 的 -n 是關鍵：當目的地本身就是 symlink 時，不加 -n 會把 symlink 解引用（dereference）後在目標目錄「裡面」建立新 symlink，而非替換 symlink 本身。加上 -n 確保直接替換 symlink 指向。這是 kernel 內的單一 syscall，無法被中斷。</p>
+</article>
+
+<!-- kp35 -->
+<article class="kp-card" id="kp35">
+  <h4>💡 curl smoke test 正確姿勢 — -w "%{http_code}" 而非 -sf，區分成功/拒絕/錯誤</h4>
+  <p>curl -sf 會將 HTTP 4xx 視為失敗（exit code 22），若 health endpoint 可能回 404（例如 Tomcat 還沒完全啟動、WAR 未載入）則會誤判。改用 curl -s -o /dev/null -w "%{http_code}" 取得精確狀態碼，接受 200/302/404，拒絕 000（連線拒絕）和 5xx（伺服器錯誤）。</p>
+  <pre><code># ❌ curl -sf：4xx 也當失敗
+curl -sf http://localhost:8080/ && echo "OK" || echo "FAIL"
+# Tomcat 回 404（WAR 未載入）→ exit 22 → 印出 FAIL（誤判）
+
+# ✅ curl -w：精確判斷狀態碼
+SMOKE_RETRIES=12
+for i in $(seq 1 $SMOKE_RETRIES); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+  if [ "$code" = "200" ] || [ "$code" = "302" ] || [ "$code" = "404" ]; then
+    echo "OK (HTTP $code)"
+    exit 0
+  elif [ "$code" = "000" ]; then
+    echo "Connection refused, retrying..."
+  else
+    echo "FAIL: HTTP $code"
+    exit 1
+  fi
+  sleep 5
+done
+exit 1</code></pre>
+  <p class="why">💭 原理：404 在服務啟動初期是正常狀態（process 已啟動但 WAR 還在載入中），curl -sf 把它當錯誤是不正確的。000 代表 TCP 連線根本沒建立（connection refused），這才是真正的失敗。用 -w 取得確切狀態碼可以針對不同狀態做出精確判斷。</p>
+</article>
+
+<!-- kp36 -->
+<article class="kp-card" id="kp36">
+  <h4>💡 Multipass 快速建立練習 VM — multipass launch 24.04，systemd 完整環境</h4>
+  <p>multipass launch 24.04 --name tomcat-vm --cpus 2 --mem 4G --disk 20G 一鍵建立 Ubuntu 24.04 VM，提供完整 systemd 環境，最接近真實生產 VM。適用於需要測試 systemctl、journalctl、服務自動啟動等依賴 systemd 的情境。</p>
+  <pre><code># 安裝 Multipass（Linux）
+snap install multipass
+
+# 建立練習 VM
+multipass launch 24.04 --name tomcat-vm --cpus 2 --mem 4G --disk 20G
+
+# 進入 VM
+multipass shell tomcat-vm
+
+# 在 VM 內安裝依賴
+sudo apt update && sudo apt install -y openjdk-21-jdk-headless wget
+
+# 從主機複製腳本進 VM（或直接 git clone）
+multipass transfer upgrade-service.sh tomcat-vm:/home/ubuntu/
+
+# 執行升級腳本
+sudo ./upgrade-service.sh 9.0.113
+
+# 清理
+multipass stop tomcat-vm
+multipass delete tomcat-vm
+multipass purge</code></pre>
+  <p class="why">💭 原理：Docker sandbox 雖然方便，但缺少 systemd（無法測試 systemctl、journalctl、開機自動啟動）。Multipass 建立的是完整虛擬機，有真正的 init system、network stack、和 kernel，是練習 systemd-based 服務管理的最佳環境。10 分鐘即可搭建完成。</p>
+</article>
+
+</section>
+
+<h2>🛠️ 本日指令速查表</h2>
+<table style="width:100%;border-collapse:collapse;margin:0.5rem 0 1.5rem;font-size:0.85rem;">
+<tr style="background:var(--bg-card);color:var(--accent);text-align:left;">
+<th style="padding:0.4rem 0.6rem;border:1px solid var(--border);">指令</th>
+<th style="padding:0.4rem 0.6rem;border:1px solid var(--border);">用途</th>
+</tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">git diff --submodule HEAD~1 HEAD</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">CI 中偵測哪些 submodule 有變更</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">kubectl rollout restart deployment/ticket-proxy -n plugin-hub</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">ConfigMap 更新後重啟 pod 生效</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">ln -sfn apache-tomcat-9.0.113 tomcat</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">原子化 symlink 切換，無空窗期</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">精確取得 HTTP 狀態碼，區分 200/302/404/000/5xx</td></tr>
+<tr><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);font-family:monospace;font-size:0.82rem;">multipass launch 24.04 --name test-vm --cpus 2 --mem 4G</td><td style="padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary);">快速建立 Ubuntu VM 練習環境</td></tr>
+</table>
+
+<nav class="bottom-nav">
+  <a href="2026-05-19.html">← 05/19 筆記</a>
+  <a href="../index.html">📑 回目錄</a>
+  <span style="color:var(--text-secondary);">05/21 →</span>
+</nav>
+
+</body>
+</html>

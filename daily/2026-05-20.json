@@ -1,0 +1,155 @@
+[
+  {
+    "id": "2026-05-20-kp27",
+    "date": "2026-05-20",
+    "title": "GitHub push protection 阻擋 git history 中的 secret token — 觸發後如何修正",
+    "summary": "當 .gitmodules 的 submodule URL 包含 GitHub PAT token 時，git push 會被 push protection 拒絕。修正方法是用 git commit --amend 移除 token，再用 --force-with-lease 推送。",
+    "tags": [
+      "GitHub",
+      "security",
+      "push protection",
+      "PAT",
+      "gitmodules",
+      "secret"
+    ],
+    "anchor": "kp27",
+    "conversation": "plugin-hub scaffold-vendor.py --link 自動化：GitHub push protection 阻擋 PAT token"
+  },
+  {
+    "id": "2026-05-20-kp28",
+    "date": "2026-05-20",
+    "title": "Git submodule CI/CD 整合 — git diff --submodule 偵測變更，只測變更的 vendor",
+    "summary": "submodule-aware CI workflow 用 git diff --submodule 檢查哪些子模組指標變更，只對變更的 vendor 執行測試與 manifest 更新，節省 CI 時間。",
+    "tags": [
+      "CI/CD",
+      "GitHub Actions",
+      "submodule",
+      "git diff",
+      "integration-ci"
+    ],
+    "anchor": "kp28",
+    "conversation": "plugin-hub scaffold-vendor.py --link 自動化：submodule-aware CI"
+  },
+  {
+    "id": "2026-05-20-kp29",
+    "date": "2026-05-20",
+    "title": "K8s ConfigMap 驅動多 pod 部署 — 單一 ConfigMap 控制所有 proxy pod 行為",
+    "summary": "所有 ticket-proxy pod 讀取同一個 proxy-plugins ConfigMap（LOAD_PLUGINS CSV），啟用 vendor 只需更新 ConfigMap + kubectl rollout restart，不需重建 image。",
+    "tags": [
+      "Kubernetes",
+      "ConfigMap",
+      "deployment",
+      "rollout restart",
+      "kubectl"
+    ],
+    "anchor": "kp29",
+    "conversation": "plugin-hub scaffold-vendor.py --link 自動化：ConfigMap 部署模式"
+  },
+  {
+    "id": "2026-05-20-kp30",
+    "date": "2026-05-20",
+    "title": "Manifest-based 服務發現 — Hub 每 5 分鐘 HTTP fetch GitHub raw URL 取得 plugin 清單",
+    "summary": "plugin-manifest.json 由 CI 自動生成於 GitHub，Hub 透過 raw URL fetch 取得最新 plugin 清單。新增 vendor 不需修改 Hub 程式碼、不需更新 ConfigMap、不需重啟服務。",
+    "tags": [
+      "service discovery",
+      "GitHub raw URL",
+      "manifest",
+      "GitOps",
+      "plugin"
+    ],
+    "anchor": "kp30",
+    "conversation": "plugin-hub scaffold-vendor.py --link 自動化：manifest-based 服務發現"
+  },
+  {
+    "id": "2026-05-20-kp31",
+    "date": "2026-05-20",
+    "title": "Docker 多階段建置縮小 Go image — golang:alpine → alpine:3.21，CGO_ENABLED=0",
+    "summary": "build stage 用 golang:alpine 編譯（CGO_ENABLED=0 產生靜態 binary），runtime stage 用 alpine:3.21 或 FROM scratch。最終 image 從 ~800MB 縮到 ~28MB。",
+    "tags": [
+      "Docker",
+      "multi-stage build",
+      "Go",
+      "CGO_ENABLED",
+      "image optimization"
+    ],
+    "anchor": "kp31",
+    "conversation": "plugin-hub scaffold-vendor.py --link 自動化：Docker 多階段建置"
+  },
+  {
+    "id": "2026-05-20-kp32",
+    "date": "2026-05-20",
+    "title": "Docker sandbox 練習 VM 升級流程 — Dockerfile 模擬生產 VM，docker cp + docker exec 測試腳本",
+    "summary": "用 Dockerfile 建立含 Tomcat/Java 的 Ubuntu 容器模擬 VM 環境，docker cp 將升級腳本複製進去，docker exec 在容器內執行完整升級流程。避免污染真實 VM。",
+    "tags": [
+      "Docker",
+      "sandbox",
+      "practice",
+      "upgrade script",
+      "VM simulation"
+    ],
+    "anchor": "kp32",
+    "conversation": "Tomcat 升級腳本練習：Docker sandbox 環境搭建"
+  },
+  {
+    "id": "2026-05-20-kp33",
+    "date": "2026-05-20",
+    "title": "服務升級 9 步驟原子化流程 — shutdown → backup → config → symlink → start → smoke → rollback",
+    "summary": "參數化升級腳本（./upgrade-service.sh 9.0.113）：pre-flight 檢查 → 優雅關閉 → 下載新版 → 備份舊版 → 遷移設定 → 原子 symlink 切換 → 啟動驗證 → smoke test → 失敗自動 rollback。",
+    "tags": [
+      "service upgrade",
+      "deployment",
+      "symlink",
+      "rollback",
+      "bash",
+      "automation"
+    ],
+    "anchor": "kp33",
+    "conversation": "Tomcat 升級腳本練習：9 步驟安全升級流程"
+  },
+  {
+    "id": "2026-05-20-kp34",
+    "date": "2026-05-20",
+    "title": "ln -sfn 原子化 symlink 切換 — 直接更新 symlink 目標，避免 rm + ln 空窗期",
+    "summary": "ln -sfn /opt/tomcat-9.0.113 /usr/share/tomcat 會直接更新 symlink 指向新目錄，不經過 rm 階段，避免 rm 後 ln 前產生的空窗期導致服務不可用。",
+    "tags": [
+      "symlink",
+      "ln",
+      "atomic",
+      "deployment",
+      "zero-downtime"
+    ],
+    "anchor": "kp34",
+    "conversation": "Tomcat 升級腳本練習：ln -sfn 原子化 symlink"
+  },
+  {
+    "id": "2026-05-20-kp35",
+    "date": "2026-05-20",
+    "title": "curl smoke test 正確姿勢 — -w '%{http_code}' 而非 -sf，區分成功/拒絕/錯誤",
+    "summary": "curl -sf 將 4xx 視為失敗（exit 22），若 health endpoint 可能回 404 則誤判。改用 curl -s -o /dev/null -w '%{http_code}' 取得精確狀態碼，接受 200/302/404，拒絕 000（連線拒絕）和 5xx。",
+    "tags": [
+      "curl",
+      "smoke test",
+      "HTTP status",
+      "health check",
+      "monitoring"
+    ],
+    "anchor": "kp35",
+    "conversation": "Tomcat 升級腳本練習：curl smoke test 正確用法"
+  },
+  {
+    "id": "2026-05-20-kp36",
+    "date": "2026-05-20",
+    "title": "Multipass 快速建立練習 VM — multipass launch 24.04，systemd 完整環境",
+    "summary": "multipass launch 24.04 --name tomcat-vm --cpus 2 --mem 4G --disk 20G 一鍵建立 Ubuntu 24.04 VM，完整 systemd 環境最接近生產。適用於需要測試 systemctl、journalctl 等服務管理的情境。",
+    "tags": [
+      "Multipass",
+      "VM",
+      "Ubuntu",
+      "practice",
+      "systemd",
+      "testing"
+    ],
+    "anchor": "kp36",
+    "conversation": "Tomcat 升級腳本練習：Multipass VM 建立"
+  }
+]
