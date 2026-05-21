@@ -1545,5 +1545,90 @@
     ],
     "anchor": "kp36",
     "conversation": "Tomcat 升級腳本練習：Multipass VM 建立"
+  },
+  {
+    "id": "2026-05-21-kp37",
+    "date": "2026-05-21",
+    "title": "kubectl 進 Pod 內排查 — env | grep、nc -zv、cat /etc/resolv.conf",
+    "summary": "用 kubectl exec -it 進容器內部排查環境變數（env | grep -i）、網路連線（nc -zv svc port）、DNS 設定（cat /etc/resolv.conf）。是 Pod 看似 Running 但功能異常時的第一線診斷法。",
+    "tags": [
+      "kubectl",
+      "debug",
+      "Pod",
+      "exec",
+      "DNS",
+      "netcat",
+      "容器排查"
+    ],
+    "anchor": "kp37",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-21-kp38",
+    "date": "2026-05-21",
+    "title": "k3s containerd 鏡像管理完整流程 — docker save → ctr images import → kubectl apply",
+    "summary": "k3s 內建 containerd 而非 Docker daemon，本地鏡像需 docker save 匯出 tar 後用 k3s ctr images import 匯入。搭配 imagePullPolicy: Never 避免從 registry 拉取。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "ctr",
+      "匯入",
+      "container runtime"
+    ],
+    "anchor": "kp38",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-21-kp39",
+    "date": "2026-05-21",
+    "title": "查 OOM 紀錄 — sudo dmesg -T | grep -i oom、oom_score 機制",
+    "summary": "用 sudo dmesg -T | grep -i oom 查看 kernel OOM log。OOM Killer 根據 oom_score 選擇 victim（通常是最吃 RAM 的 process）。K8s 中 memory limits 總和 > Node RAM 時 OOM 會連鎖殺 Pod。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "kernel",
+      "memory",
+      "oom_score",
+      "Linux",
+      "cgroup"
+    ],
+    "anchor": "kp39",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-21-kp40",
+    "date": "2026-05-21",
+    "title": "GitHub PR 完整流程 — checkout -b → push → gh pr create → merge → pull main",
+    "summary": "標準 GitHub PR 流程：git checkout -b feature/xxx → commit → git push -u origin → gh pr create --title --body → review → gh pr merge --squash → checkout main && pull。gh CLI 直接呼叫 GitHub API。",
+    "tags": [
+      "GitHub",
+      "PR",
+      "git",
+      "gh CLI",
+      "code review",
+      "merge",
+      "branch"
+    ],
+    "anchor": "kp40",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-21-kp41",
+    "date": "2026-05-21",
+    "title": "Cloudflare DNS 管理 — Proxy（orange cloud）vs DNS only（gray cloud）",
+    "summary": "Proxy 模式隱藏 origin IP + 免費 TLS + DDoS 防護（只支援 HTTP/HTTPS）；DNS only 直接解析 IP（適用 SSH/SMTP 等非 HTTP 服務）。可用 Cloudflare REST API 自動化管理 DNS records。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "TLS",
+      "API",
+      "CNAME",
+      "網路"
+    ],
+    "anchor": "kp41",
+    "conversation": "自主練習"
   }
 ]

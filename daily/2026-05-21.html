@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-21（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-orange); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+.auto-note { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.25); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; color: var(--accent-purple); font-size: 0.92rem; line-height: 1.5; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* Cheat sheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { color: var(--accent-orange); font-size: 1rem; margin-bottom: 0.8rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Nav */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+.page-nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.page-nav a:hover { text-decoration: underline; }
+.page-nav .disabled { color: var(--text-secondary); font-size: 0.9rem; }
+
+footer { margin-top: 2rem; padding-top: 1.2rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1>🏋️ <span class="emoji">DevOps 學習筆記</span> — 2026-05-21（自主練習）</h1>
+  <p class="subtitle">0 對話 · 5 知識點</p>
+  <p class="meta-line">📅 2026 年 5 月 21 日 · 凌晨 3:00 自動生成</p>
+</div>
+
+<div class="auto-note">
+  💡 今天沒有 DevOps 相關對話，以下是精選的 DevOps 基礎知識點，適合日常複習。涵蓋 kubectl Pod 內排查、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理。
+</div>
+
+<nav class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp37">kubectl 進 Pod 內排查 — 環境變數、網路連線、DNS 診斷</a></li>
+    <li><a href="#kp38">k3s containerd 鏡像管理完整流程 — docker save → ctr import → kubectl apply</a></li>
+    <li><a href="#kp39">查 OOM 紀錄 — dmesg + oom_score 機制</a></li>
+    <li><a href="#kp40">GitHub PR 完整流程 — branch → push → gh pr create → merge</a></li>
+    <li><a href="#kp41">Cloudflare DNS 管理 — Proxy vs DNS only、API 自動化</a></li>
+  </ol>
+</nav>
+
+<section class="kp-section" id="kp37">
+  <article class="kp-card">
+    <h4>💡 kubectl 進 Pod 內排查 — 環境變數、網路連線、DNS 診斷</h4>
+    <p>當 Pod 看似 Running 但功能異常時，直接進 Pod 內部排查最快。用 <code>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</code> 進入容器後，常用三個指令：<code>env | grep -i</code> 確認環境變數、<code>nc -zv &lt;svc&gt; &lt;port&gt;</code> 測網路連線、<code>cat /etc/resolv.conf</code> 確認 DNS 設定。</p>
+    <pre><code>kubectl exec -it api-gateway-69b74d9878-qhpcl -n korean-staging -- sh
+# 進 Pod 後
+env | grep -i DATABASE
+nc -zv user-service 3000
+cat /etc/resolv.conf</code></pre>
+    <p class="why">💭 原理：kubectl exec 啟動容器內的 shell process（stdin/stdout 透傳），讓你直接在容器環境中驗證 — 環境變數來自 ConfigMap/Secret injection、DNS 來自 CoreDNS、網路受 NetworkPolicy 限制。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp38">
+  <article class="kp-card">
+    <h4>💡 k3s containerd 鏡像管理完整流程 — docker save → ctr import → kubectl apply</h4>
+    <p>k3s 內建 containerd 而非 Docker daemon，本地鏡像需要用 <code>docker save</code> 匯出 tar，再用 <code>k3s ctr images import</code> 匯入 containerd image store。搭配 <code>imagePullPolicy: Never</code> 避免 k3s 嘗試從 registry 拉取。</p>
+    <pre><code>docker build -t my-app:latest .
+docker save my-app:latest -o my-app.tar
+sudo k3s ctr images import my-app.tar
+kubectl apply -f deploy.yaml
+kubectl rollout restart deployment/my-app -n my-ns</code></pre>
+    <p class="why">💭 原理：k3s 用 containerd 作為容器 runtime，containerd 有自己的 image store（/var/lib/rancher/k3s/agent/containerd/），和 Docker 的 image store 完全獨立。ctr images import 就是橋接兩者的工具。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp39">
+  <article class="kp-card">
+    <h4>💡 查 OOM 紀錄 — dmesg + oom_score 機制</h4>
+    <p>當 process 被 OOM Killer 殺掉，用 <code>sudo dmesg -T | grep -i oom</code> 查看 kernel log。OOM Killer 會挑 <code>oom_score</code> 最高的 process（通常是吃最多 RAM 的）。K8s 中 memory limits 總和超過 Node 實體 RAM 時，OOM 會連鎖殺 Pod。</p>
+    <pre><code>sudo dmesg -T | grep -i oom | tail -20
+# 看 process 的 oom_score
+cat /proc/&lt;PID&gt;/oom_score
+# 查哪個 Pod 被 OOMKilled
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; | grep -A 5 "OOMKilled"</code></pre>
+    <p class="why">💭 原理：Linux kernel 在記憶體耗盡時啟動 OOM Killer，根據 oom_score（綜合 RSS、swap、cgroup 限制等計算）選擇 victim。K8s 的 memory limit 轉化為 cgroup limit，超出則觸發 OOM，Pod 狀態變為 OOMKilled。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp40">
+  <article class="kp-card">
+    <h4>💡 GitHub PR 完整流程 — branch → push → gh pr create → merge → pull main</h4>
+    <p>標準 GitHub PR 流程：從 main 開 feature branch → 修改 → commit → push → <code>gh pr create</code> 建立 PR → 等待 review → 通過後用 <code>gh pr merge</code> 合併 → 切回 main 並 pull 最新。</p>
+    <pre><code>git checkout -b feature/add-login
+# ... 修改檔案 ...
+git add . && git commit -m "feat: add login page"
+git push -u origin feature/add-login
+gh pr create --title "Add login page" --body "Implements OAuth login flow"
+# 等 review 通過後
+gh pr merge --squash feature/add-login
+git checkout main && git pull</code></pre>
+    <p class="why">💭 原理：PR 的核心是「code review gate」— 讓變更在被合併進 main 前經過審查。gh CLI 直接呼叫 GitHub REST API，省去開瀏覽器的步驟。--squash 合併會把所有 commit 壓成一個乾淨的 commit，適合功能分支。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp41">
+  <article class="kp-card">
+    <h4>💡 Cloudflare DNS 管理 — Proxy vs DNS only、API 自動化</h4>
+    <p>Cloudflare DNS 有兩種模式：<strong>Proxy（orange cloud）</strong>隱藏 origin IP + 免費 TLS + DDoS 防護，但只支援 HTTP/HTTPS port；<strong>DNS only（gray cloud）</strong>直接解析到 server IP，適用於非 HTTP 服務（如 SSH、SMTP）。可用 Cloudflare API 自動化管理 DNS records。</p>
+    <pre><code># 建立 proxied CNAME（orange cloud）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/{ZONE_ID}/dns_records"   -H "Authorization: Bearer {API_TOKEN}"   -H "Content-Type: application/json"   -d '{"type":"CNAME","name":"app","content":"shawnlin.online","proxied":true}'
+
+# 建立 DNS-only A record（gray cloud）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/{ZONE_ID}/dns_records"   -H "Authorization: Bearer {API_TOKEN}"   -H "Content-Type: application/json"   -d '{"type":"A","name":"direct","content":"43.167.10.119","proxied":false}'</code></pre>
+    <p class="why">💭 原理：Proxy 模式時，DNS 查詢返回 Cloudflare edge IP 而非你的 origin IP，請求經過 Cloudflare CDN 後再轉發到 origin。這等於多了一層反向代理，提供免費的 TLS termination 和 DDoS 防護。</p>
+  </article>
+</section>
+
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <pre><code># 進 Pod 內部排查
+kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh
+
+# k3s 匯入本地 Docker image
+docker save my-app:latest | sudo k3s ctr images import -
+
+# 查 OOM 紀錄
+sudo dmesg -T | grep -i oom | tail -20
+
+# GitHub PR 一條龍
+git checkout -b feature/xxx && git push -u origin feature/xxx && gh pr create --title "..." --body "..."
+
+# Cloudflare API 建 DNS record（proxied）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" -H "Authorization: Bearer $TOKEN" -d '{"type":"CNAME","name":"app","content":"origin.example.com","proxied":true}'</code></pre>
+</div>
+
+<nav class="page-nav">
+  <a href="2026-05-20.html">← 05/20：plugin-hub --link 自動化 & Tomcat 升級練習</a>
+  <a href="../index.html">📋 回總覽</a>
+  <span class="disabled">05/22 →</span>
+</nav>
+
+<footer>
+  <p>🚀 每天凌晨 3:00 自動生成 · Powered by Hermes Agent</p>
+</footer>
+
+</div>
+</body>
+</html>
