@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-22（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-orange); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+.auto-note { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.25); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; color: var(--accent-purple); font-size: 0.92rem; line-height: 1.5; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* Cheat sheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { color: var(--accent-orange); font-size: 1rem; margin-bottom: 0.8rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Nav */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+.page-nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.page-nav a:hover { text-decoration: underline; }
+.page-nav .disabled { color: var(--text-secondary); font-size: 0.9rem; }
+
+footer { margin-top: 2rem; padding-top: 1.2rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1>🏋️ <span class="emoji">DevOps 學習筆記</span> — 2026-05-22（自主練習）</h1>
+  <p class="subtitle">0 對話 · 5 知識點</p>
+  <p class="meta-line">📅 2026 年 5 月 22 日 · 凌晨 3:00 自動生成</p>
+</div>
+
+<div class="auto-note">
+  💡 今天沒有 DevOps 相關對話，以下是精選的 DevOps 基礎知識點，適合日常複習。涵蓋 kubectl 資源用量診斷、Docker 多階段建置、Linux 資源監控、Git stash 暫存、Helm values 分層覆蓋。
+</div>
+
+<nav class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp42">kubectl 資源用量診斷 — top nodes / top pods / describe node Allocated 三層視角</a></li>
+    <li><a href="#kp43">Docker 多階段建置縮小 image — build stage vs runtime stage、FROM scratch</a></li>
+    <li><a href="#kp44">Linux 資源監控三指令 — uptime / free -h / df -h 的正確讀法</a></li>
+    <li><a href="#kp45">Git stash 暫存管理 — stash / stash pop / stash list</a></li>
+    <li><a href="#kp46">Helm values 分層覆蓋 — values.yaml ← values/production.yaml ← --set</a></li>
+  </ol>
+</nav>
+
+<section class="kp-section" id="kp42">
+  <article class="kp-card">
+    <h4>💡 kubectl 資源用量診斷 — top nodes / top pods / describe node Allocated 三層視角</h4>
+    <p>診斷 K8s 資源瓶頸有三個層次：<code>kubectl top nodes</code> 看即時用量（CPU/RAM 百分比）、<code>kubectl top pods -A</code> 找吃資源最多的 Pod、<code>kubectl describe node | grep -A 8 Allocated</code> 看 scheduler 視角的 request/limit 佔比。三者互補：top 是即時快照、Allocated 是容量規劃。</p>
+    <pre><code># 節點即時用量
+kubectl top nodes
+
+# 所有 Pod 用量排序（找出資源大戶）
+kubectl top pods -A --sort-by=memory | tail -10
+
+# Scheduler 視角：request/limit 佔比
+kubectl describe node k3s-master | grep -A 8 "Allocated resources"</code></pre>
+    <p class="why">💭 原理：top 讀的是 cgroup 的即時 metrics summary API（類比 Linux 的 top），describe Allocated 則是 scheduler 計算 request 總和除以節點 allocatable 容量（類比容量規劃報表）。兩者可能不同步 — top 顯示 30% 用量但 Allocated 可能已 95%（很多 Pod 設了 request 但實際沒用滿）。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp43">
+  <article class="kp-card">
+    <h4>💡 Docker 多階段建置縮小 image — build stage vs runtime stage、FROM scratch</h4>
+    <p>多階段建置（multi-stage build）把編譯依賴留在 build stage，runtime stage 只複製最終 artifacts，大幅縮小 image。Go 靜態編譯甚至可以 <code>FROM scratch</code>（< 10MB）。Node.js 可用 standalone output + <code>node:alpine</code>。查看 image 大小：<code>docker images | grep name</code>。</p>
+    <pre><code># Go 多階段建置範例
+FROM golang:alpine AS builder
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o server .
+
+FROM scratch  # 或 alpine:3.21
+COPY --from=builder /app/server /server
+EXPOSE 8080
+ENTRYPOINT ["/server"]</code></pre>
+    <p class="why">💭 原理：Docker 的每一層 layer 都是唯讀的，build stage 的編譯工具鏈（golang:alpine ~300MB）在最終 image 中不需要 — 多階段建置讓這些 layer 不和最終 image 一起出貨。FROM scratch 是完全空的 filesystem，適合 static binary。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp44">
+  <article class="kp-card">
+    <h4>💡 Linux 資源監控三指令 — uptime / free -h / df -h 的正確讀法</h4>
+    <p>快速診斷 Linux server 健康的三指令：<code>uptime</code> 看 load average 是否超過核心數（超過表示 CPU 排隊）、<code>free -h</code> 看 available 而非 free（Linux 會用閒置 RAM 做 cache）、<code>df -h /</code> 看磁碟使用率。三者 5 秒內就能判斷瓶頸方向。</p>
+    <pre><code># Load average vs 核心數
+uptime
+# 輸出: 03:00:00 up 10 days, 0.55, 0.40, 0.35
+# → 核心數: nproc → 若 load > 核心數表示 CPU 忙碌
+
+# 記憶體：看 available 不是 free
+free -h
+#               total   used   free   available
+# Mem:          7.5Gi   3.5Gi  1.2Gi  4.0Gi
+# → 真正可用 4.0Gi（含可回收的 cache/buffer）
+
+# 磁碟使用率
+df -h /
+# Filesystem  Size  Used  Avail Use%
+# /dev/sda1    50G   35G   15G  70%</code></pre>
+    <p class="why">💭 原理：Linux kernel 積極利用閒置 RAM 做 page cache 加速 I/O，所以 free 欄位低不代表不夠 — 需要時 kernel 會回收 cache。load average 是 runnable + uninterruptible sleep 的平均數（不只 CPU 排隊，還包含 I/O 等待），超過核心數 1~2 倍還可接受，超過 5 倍通常有問題。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp45">
+  <article class="kp-card">
+    <h4>💡 Git stash 暫存管理 — stash / stash pop / stash list</h4>
+    <p><code>git stash</code> 把目前的改動暫存到一個 LIFO stack 上，恢復乾淨 working tree。需要切 branch 但不想 commit 時很好用。還原用 <code>git stash pop</code>（取出並刪除 stash）或 <code>git stash apply</code>（取出但保留 stash）。<code>git stash list</code> 看所有暫存。</p>
+    <pre><code># 暫存目前所有改動（含 staged 和 unstaged）
+git stash
+
+# 暫存時加訊息（推薦）
+git stash push -m "WIP: halfway through refactoring auth"
+
+# 查看所有 stash
+git stash list
+# stash@{0}: On main: WIP: halfway through refactoring auth
+
+# 還原最近一個 stash 並從 list 中刪除
+git stash pop
+
+# 還原但不刪除
+git stash apply</code></pre>
+    <p class="why">💭 原理：git stash 本質上是把 working tree + index 的 diff 存成一個臨時 commit object（在 .git/refs/stash），然後 reset working tree 到 HEAD。因為是 commit，所以即使是 stash pop 後的衝突也能用 git 標準方法解決。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp46">
+  <article class="kp-card">
+    <h4>💡 Helm values 分層覆蓋 — values.yaml ← values/production.yaml ← --set</h4>
+    <p>Helm 的 value 覆蓋順序：<code>values.yaml</code>（預設值）← <code>values/production.yaml</code>（環境覆蓋）← <code>--set key=value</code>（CLI 動態覆蓋）。後面的層級 merge 並覆蓋前面的同名 key。多個 <code>-f</code> 檔案從左到右，<code>--set</code> 永遠最後贏。注意 <code>--set</code> 不會檢查 typo，打錯 key 會默默新增一個無效設定。</p>
+    <pre><code># 預設值在 chart/values.yaml
+# replicas: 1
+
+# 環境覆蓋在 values/production.yaml
+# replicas: 3
+
+# CLI 動態覆蓋（最終贏）
+helm upgrade my-app ./chart   -f values.yaml   -f values/production.yaml   --set replicas=5   -n production
+
+# 查看最終合併後的 values
+helm get values my-app -n production</code></pre>
+    <p class="why">💭 原理：Helm 用 YAML merge 策略（recursive merge），同名 key 後面的值覆蓋前面的，同層級不同名 key 會合併。分層設計讓團隊可以共用同一份 chart（values.yaml 是 baseline）、不同環境有自己的覆蓋檔（staging.yaml / production.yaml）、CI/CD 還可以用 --set 注入 build-specific 的值（如 image tag）。</p>
+  </article>
+</section>
+
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <pre><code># kubectl 找記憶體用量最大的 Pod
+kubectl top pods -A --sort-by=memory | tail -10
+
+# Docker 多階段建置（Go static binary）
+docker build -t my-app:latest . && docker images | grep my-app
+
+# Linux 快速健康檢查（CPU → RAM → Disk）
+uptime && free -h && df -h /
+
+# Git stash 暫存 + 還原
+git stash push -m "description" && git stash pop
+
+# Helm 分層部署 + 查看最終 values
+helm upgrade app ./chart -f values/production.yaml --set image.tag=v2 -n prod && helm get values app -n prod</code></pre>
+</div>
+
+<nav class="page-nav">
+  <a href="2026-05-21.html">← 05/21：kubectl Pod 內排查、k3s 鏡像管理、OOM 診斷</a>
+  <a href="../index.html">📋 回總覽</a>
+  <span class="disabled">05/23 →</span>
+</nav>
+
+<footer>
+  <p>🚀 每天凌晨 3:00 自動生成 · Powered by Hermes Agent</p>
+</footer>
+
+</div>
+</body>
+</html>

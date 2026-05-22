@@ -1,0 +1,77 @@
+[
+  {
+    "id": "2026-05-22-kp42",
+    "date": "2026-05-22",
+    "title": "kubectl 資源用量診斷 — top nodes / top pods / describe node Allocated",
+    "summary": "三層診斷法：kubectl top nodes 看節點即時用量、kubectl top pods -A 找資源大戶、kubectl describe node 看 scheduler 視角的 request/limit 佔比。三者互補而非替代。",
+    "tags": [
+      "kubectl",
+      "資源診斷",
+      "top",
+      "Allocated",
+      "scheduler"
+    ],
+    "anchor": "kp42",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-22-kp43",
+    "date": "2026-05-22",
+    "title": "Docker 多階段建置縮小 image — build stage vs runtime stage、FROM scratch",
+    "summary": "多階段建置把編譯依賴留在 build stage，runtime stage 只複製 artifacts。Go static binary 可 FROM scratch（< 10MB），大幅減少攻擊面和傳輸成本。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "FROM scratch",
+      "image size",
+      "Go"
+    ],
+    "anchor": "kp43",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-22-kp44",
+    "date": "2026-05-22",
+    "title": "Linux 資源監控三指令 — uptime / free -h / df -h 的正確讀法",
+    "summary": "uptime 的 load average 需對比 nproc 核心數；free -h 要看 available 而非 free（Linux 用閒置 RAM 做 cache）；df -h 檢查磁碟使用率。三步驟 5 秒定位瓶頸。",
+    "tags": [
+      "Linux",
+      "uptime",
+      "free",
+      "df",
+      "load average",
+      "監控"
+    ],
+    "anchor": "kp44",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-22-kp45",
+    "date": "2026-05-22",
+    "title": "Git stash 暫存管理 — stash / stash pop / stash list",
+    "summary": "git stash 把 working tree 改動存到 LIFO stack，適合切 branch 前暫存進度。stash pop 還原並刪除，stash apply 還原但保留。底層是臨時 commit object。",
+    "tags": [
+      "Git",
+      "stash",
+      "LIFO",
+      "working tree"
+    ],
+    "anchor": "kp45",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-22-kp46",
+    "date": "2026-05-22",
+    "title": "Helm values 分層覆蓋 — values.yaml ← production.yaml ← --set",
+    "summary": "Helm 三層覆蓋：values.yaml（baseline）→ values/production.yaml（環境）→ --set（CLI 動態）。後面層級 merge + 覆蓋前面。注意 --set 不檢查 typo。",
+    "tags": [
+      "Helm",
+      "values",
+      "分層",
+      "--set",
+      "deploy"
+    ],
+    "anchor": "kp46",
+    "conversation": "自主練習"
+  }
+]
