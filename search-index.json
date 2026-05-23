@@ -1705,5 +1705,84 @@
     ],
     "anchor": "kp46",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-23-kp47",
+    "date": "2026-05-23",
+    "title": "kubectl 診斷 Pod 啟動失敗完整流程 — describe → logs → events 三步驟",
+    "summary": "Pod 故障三步驟診斷法：kubectl get pods 看狀態欄位判斷類型（Pending/CrashLoopBackOff/ImagePullBackOff），kubectl describe pod 看 Events 找直接原因，kubectl logs --previous 看上次崩潰的容器輸出。",
+    "tags": [
+      "kubectl",
+      "Pod",
+      "CrashLoopBackOff",
+      "ImagePull",
+      "OOMKilled",
+      "events"
+    ],
+    "anchor": "kp47",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-23-kp48",
+    "date": "2026-05-23",
+    "title": "Git 復原操作 — reset --soft、git restore、git reflog 救回誤刪 commit",
+    "summary": "Git 三種復原場景：git reset --soft HEAD~1 退回 commit 保留 staged（改訊息用）、git restore 丟棄工作區改動、git reflog 查看所有 HEAD 移動記錄可救回誤刪 commit。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "復原",
+      "commit"
+    ],
+    "anchor": "kp48",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-23-kp49",
+    "date": "2026-05-23",
+    "title": "Helm 常用操作 — list / history / rollback / get values",
+    "summary": "Helm 日常運維指令：helm list -A 看所有 release、helm history 看部署版本歷史、helm rollback 緊急回滾、helm get values 確認目前生效的 values 覆蓋結果。",
+    "tags": [
+      "Helm",
+      "rollback",
+      "release",
+      "history",
+      "values"
+    ],
+    "anchor": "kp49",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-23-kp50",
+    "date": "2026-05-23",
+    "title": "網路排查四指令 — curl -v / dig / ss / nc",
+    "summary": "Linux 網路診斷工具：curl -v 看完整 HTTP 互動、dig 做 DNS 查詢、ss -tlnp 取代 netstat 看 listening port、nc -zv 測 TCP port 通不通。",
+    "tags": [
+      "網路",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "DNS",
+      "port"
+    ],
+    "anchor": "kp50",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-23-kp51",
+    "date": "2026-05-23",
+    "title": "systemd 服務管理 — failed units、journalctl、daemon-reload",
+    "summary": "systemd 服務管理：systemctl list-units --state=failed 找掛掉服務、journalctl -u 看服務 log、daemon-reload 改完 unit file 後重載設定。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "daemon-reload",
+      "服務管理"
+    ],
+    "anchor": "kp51",
+    "conversation": "自主練習"
   }
 ]

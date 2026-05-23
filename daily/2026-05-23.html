@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-23（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-orange); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+.auto-note { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.25); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; color: var(--accent-purple); font-size: 0.92rem; line-height: 1.5; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* Cheat sheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { color: var(--accent-orange); font-size: 1rem; margin-bottom: 0.8rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Nav */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+.page-nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.page-nav a:hover { text-decoration: underline; }
+.page-nav .disabled { color: var(--text-secondary); font-size: 0.9rem; }
+
+footer { margin-top: 2rem; padding-top: 1.2rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1>🏋️ <span class="emoji">DevOps 學習筆記</span> — 2026-05-23（自主練習）</h1>
+  <p class="subtitle">0 對話 · 5 知識點</p>
+  <p class="meta-line">📅 2026 年 5 月 23 日 · 凌晨 3:00 自動生成</p>
+</div>
+
+<div class="auto-note">
+  💡 今天沒有 DevOps 相關對話，以下是精選的 DevOps 基礎知識點，適合日常複習。涵蓋 kubectl Pod 啟動失敗排查、Git 復原操作（reset/restore/reflog）、Helm list/history/rollback 操作、網路排查四指令、systemd 服務管理。
+</div>
+
+<nav class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp47">kubectl 診斷 Pod 啟動失敗完整流程 — describe → logs → events 三步驟</a></li>
+    <li><a href="#kp48">Git 復原操作 — reset --soft、git restore、git reflog 救回誤刪 commit</a></li>
+    <li><a href="#kp49">Helm 常用操作 — list / history / rollback / get values</a></li>
+    <li><a href="#kp50">網路排查四指令 — curl -v / dig / ss / nc</a></li>
+    <li><a href="#kp51">systemd 服務管理 — failed units、journalctl、daemon-reload</a></li>
+  </ol>
+</nav>
+
+<section class="kp-section" id="kp47">
+  <article class="kp-card">
+    <h4>💡 kubectl 診斷 Pod 啟動失敗完整流程 — describe → logs → events 三步驟</h4>
+    <p>Pod 起不來時的三步驟診斷：<code>kubectl get pods</code> 看 Status 欄位（Running/Pending/CrashLoopBackOff/ImagePullBackOff）、<code>kubectl describe pod</code> 看 Events（最下面，通常直接寫原因）、<code>kubectl logs</code> 看容器輸出。從 Status + Events 可快速判斷是 ImagePull、CrashLoop、OOMKilled 還是 Pending（資源不夠）。</p>
+    <pre><code># 第一步：看 Pod 狀態（STATUS 欄位是關鍵）
+kubectl get pods -n production
+
+# 第二步：看 Events（describe 最下面幾行通常就是原因）
+kubectl describe pod my-app-xxx -n production | tail -20
+
+# 第三步：看容器 log（CrashLoop 時加 --previous 看上次崩潰的 log）
+kubectl logs my-app-xxx -n production
+kubectl logs my-app-xxx -n production --previous
+
+# 看全叢集最近 Events（有時 Pod 被 evicted 要去 events 找）
+kubectl get events -A --sort-by='.lastTimestamp' | tail -20</code></pre>
+    <p class="why">💭 原理：kubectl describe pod 讀的是 Pod object 的 Status.Conditions 和 Events 列表（存在 etcd 中），Events 由 kubelet 在 Pod 生命週期變動時寫入。logs 讀的是容器 stdout/stderr，CrashLoop 時容器已死，需 --previous 才能看到上次的 log（kubelet 會保留最後一個 terminated container 的 log）。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp48">
+  <article class="kp-card">
+    <h4>💡 Git 復原操作 — reset --soft、git restore、git reflog 救回誤刪 commit</h4>
+    <p>三種常見復原場景：<code>git reset --soft HEAD~1</code> 退回上次 commit 但保留 staged 內容（改 commit message 用）、<code>git restore &lt;file&gt;</code> 丟棄工作區改動、<code>git reflog</code> 看所有 HEAD 移動記錄（可救回誤刪的 commit，只要知道 hash 就能 checkout 回來）。</p>
+    <pre><code># 退回上次 commit，保留所有改動在 staged（改 message 或補檔用）
+git reset --soft HEAD~1
+
+# 丟棄某檔的工作區改動（還原到上次 commit 的版本）
+git restore path/to/file
+
+# 丟棄所有工作區改動
+git restore .
+
+# 查看 HEAD 所有移動記錄（救命指令！）
+git reflog
+# 輸出範例：
+# abc1234 HEAD@{0}: commit: add feature X
+# def5678 HEAD@{1}: commit: fix bug Y    ← 誤刪的 commit 也在這
+
+# 救回誤刪的 commit（從 reflog 找到 hash 後）
+git checkout def5678    # 或 git reset --hard def5678
+
+# 取消 staged（把 staged 檔案移回 working）
+git restore --staged path/to/file</code></pre>
+    <p class="why">💭 原理：Git 的 reflog 記錄了 HEAD 的每一次移動（commit、reset、checkout、merge），即使 commit 被 reset 掉、branch 被刪除、甚至做了 garbage collection，只要 reflog 還在（預設保留 90 天）就能找回來。reset --soft 只移動 HEAD 指標不動 index 和 working tree，所以改動完整保留。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp49">
+  <article class="kp-card">
+    <h4>💡 Helm 常用操作 — list / history / rollback / get values</h4>
+    <p>Helm 日常運維四大指令：<code>helm list -A</code> 看所有 release 和狀態、<code>helm history &lt;release&gt; -n &lt;ns&gt;</code> 看部署版本歷史、<code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code> 退回指定版本（緊急回滾用）、<code>helm get values &lt;release&gt; -n &lt;ns&gt;</code> 看目前生效的 values（確認覆蓋結果）。</p>
+    <pre><code># 看所有 namespace 的 release
+helm list -A
+
+# 看某 release 的部署歷史（STATUS 欄位看哪版 deployed/failed）
+helm history my-app -n production
+
+# 回滾到第 3 版（緊急時比手動修 YAML 快）
+helm rollback my-app 3 -n production
+
+# 查看目前生效的 values（確認 --set 或 values 檔有被正確合併）
+helm get values my-app -n production
+
+# 查看完整 manifest（含所有 template 渲染後的結果）
+helm get manifest my-app -n production</code></pre>
+    <p class="why">💭 原理：Helm 把每次 install/upgrade 存成一個 Release Secret（或 ConfigMap，取決於 Helm 版本），內含 rendered manifest 和 values。rollback 就是取前一個 release secret 的內容重新部署。history 列出所有 release secret 的版本號、狀態、更新時間。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp50">
+  <article class="kp-card">
+    <h4>💡 網路排查四指令 — curl -v / dig / ss / nc</h4>
+    <p>Linux 網路排查工具箱：<code>curl -v http://host</code> 看完整 HTTP request/response header（TLS handshake、redirect 都看得到）、<code>dig +short domain</code> 做 DNS 查詢（比 nslookup 資訊更完整）、<code>ss -tlnp</code> 看所有 listening TCP port 和對應 process（取代舊 netstat）、<code>nc -zv host port</code> 測試 port 通不通（純 TCP connect，不發 HTTP）。</p>
+    <pre><code># 看完整 HTTP 互動（header、TLS、redirect 全程）
+curl -v https://example.com
+
+# DNS 查詢（+short 只顯示結果，不加參數看完整 NS/SOA 等）
+dig +short example.com
+dig example.com
+
+# 看誰在監聽哪些 port（-t tcp, -l listening, -n numeric, -p process）
+ss -tlnp
+# 輸出：LISTEN  0  128  *:8080  *:*  users:(("nginx",pid=1234,fd=6))
+
+# 測 port 通不通（-z 不發資料, -v 顯示結果）
+nc -zv example.com 443
+# 成功：Connection to example.com 443 port [tcp/https] succeeded!
+# 失敗：nc: connect to example.com port 443 (tcp) failed: Connection refused
+
+# 看網路介面和 IP
+ip addr show  # 取代 ifconfig</code></pre>
+    <p class="why">💭 原理：ss 直接讀 /proc/net/tcp 等 kernel socket table（netlink socket），比 netstat 快（尤其是大量連線時）。nc -z 只做 TCP 三次握手（SYN → SYN-ACK → RST），不對應用層發任何資料，適合純連通性測試。dig 直接發 DNS query 到 resolver（不走 nsswitch/hosts 快取）。</p>
+  </article>
+</section>
+
+<section class="kp-section" id="kp51">
+  <article class="kp-card">
+    <h4>💡 systemd 服務管理 — failed units、journalctl、daemon-reload</h4>
+    <p>systemd 服務日常管理：<code>systemctl list-units --state=failed</code> 快速找出掛掉的服務、<code>journalctl -u &lt;service&gt; -n 50 --no-pager</code> 看服務最近 log（-n 控制行數、--no-pager 避免進入互動模式）、<code>systemctl daemon-reload</code> 在改完 unit file 後重載設定（不做會導致改動不生效）。</p>
+    <pre><code># 找出所有掛掉的服務
+systemctl list-units --state=failed
+
+# 看某服務最近 50 行 log
+journalctl -u nginx -n 50 --no-pager
+
+# 即時追蹤 log（類似 tail -f）
+journalctl -u nginx -f
+
+# 看特定時間範圍的 log
+journalctl -u nginx --since "2026-05-23 02:00" --until "2026-05-23 03:00"
+
+# 改完 unit file 後必須重載
+sudo systemctl daemon-reload
+
+# 重啟服務並確認狀態
+sudo systemctl restart nginx && systemctl status nginx
+
+# 開機自動啟動
+sudo systemctl enable nginx</code></pre>
+    <p class="why">💭 原理：systemd 把 unit file 讀進記憶體後會快取，改完 /etc/systemd/system/xxx.service 後記憶體中的版本不會自動更新 — daemon-reload 強制重新解析所有 unit file。journalctl 讀的是 systemd-journald 的二進位 log（/var/log/journal/），比傳統 syslog 多了結構化欄位（_PID、_UID、UNIT 等），可以用 --output=json-pretty 看完整 metadata。</p>
+  </article>
+</section>
+
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <pre><code># kubectl 診斷 Pod 失敗（三步驟 + events）
+kubectl describe pod POD -n NS | tail -20 && kubectl logs POD -n NS --previous
+
+# Git 救回誤刪 commit（reflog → checkout）
+git reflog && git checkout HASH
+
+# Helm 緊急回滾到上一版
+helm rollback RELEASE $(($(helm history RELEASE -n NS --max=1 -o json | jq '.[0].revision') - 1)) -n NS
+
+# 網路快速診斷（DNS → port → HTTP）
+dig +short example.com && nc -zv example.com 443 && curl -s -o /dev/null -w "%{http_code}" https://example.com
+
+# systemd 服務狀態快速檢查
+systemctl list-units --state=failed | grep -v "^$" | tail -n +2 && systemctl status SERVICE</code></pre>
+</div>
+
+<nav class="page-nav">
+  <a href="2026-05-22.html">← 05/22：kubectl 資源診斷、Docker 多階段建置、Git stash、Helm values</a>
+  <a href="../index.html">📋 回總覽</a>
+  <span class="disabled">05/24 →</span>
+</nav>
+
+<footer>
+  <p>🚀 每天凌晨 3:00 自動生成 · Powered by Hermes Agent</p>
+</footer>
+
+</div>
+</body>
+</html>
