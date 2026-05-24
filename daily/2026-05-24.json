@@ -1,0 +1,141 @@
+[
+  {
+    "id": "2026-05-24-kp52",
+    "date": "2026-05-24",
+    "title": "Docker socket 權限錯誤 → sudo docker 解決",
+    "summary": "Docker daemon socket 預設只允許 root 和 docker 群組存取，非群組成員須用 sudo 執行所有 docker 指令",
+    "tags": [
+      "Docker",
+      "Linux",
+      "權限",
+      "sudo"
+    ],
+    "anchor": "kp52",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp53",
+    "date": "2026-05-24",
+    "title": "k3s containerd 鏡像匯入（免 registry）",
+    "summary": "docker save → k3s ctr images import pipe 方式將 Docker image 匯入 k3s containerd image store",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image"
+    ],
+    "anchor": "kp53",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp54",
+    "date": "2026-05-24",
+    "title": "imagePullPolicy: Never 在 k3s 的意義",
+    "summary": "設定 imagePullPolicy: Never 讓 kubelet 不從 registry pull，只用本地 containerd 中的 image",
+    "tags": [
+      "k3s",
+      "Kubernetes",
+      "Deployment",
+      "imagePullPolicy"
+    ],
+    "anchor": "kp54",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp55",
+    "date": "2026-05-24",
+    "title": "Next.js static export + nginx:alpine Dockerfile",
+    "summary": "output: export 匯出靜態網站，nginx:alpine 提供服務，無需 Node.js runtime，image 極小",
+    "tags": [
+      "Next.js",
+      "Docker",
+      "nginx",
+      "static"
+    ],
+    "anchor": "kp55",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp56",
+    "date": "2026-05-24",
+    "title": "kubectl rollout restart + status 完整流程",
+    "summary": "rollout restart 觸發滾動更新，rollout status 等待完成後才驗證，確保零停機部署",
+    "tags": [
+      "kubectl",
+      "rollout",
+      "Deployment",
+      "Kubernetes"
+    ],
+    "anchor": "kp56",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp57",
+    "date": "2026-05-24",
+    "title": "K8s Resource Limits 設定策略（靜態網站）",
+    "summary": "nginx 靜態網站設 128Mi memory / 200m CPU limits，足夠且不浪費節點資源",
+    "tags": [
+      "Kubernetes",
+      "Resource",
+      "limits",
+      "nginx"
+    ],
+    "anchor": "kp57",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp58",
+    "date": "2026-05-24",
+    "title": "K8s liveness / readiness probes 配置",
+    "summary": "HTTP GET probes 分別偵測容器存活與服務就緒，liveness 失敗重啟、readiness 失敗暫停流量",
+    "tags": [
+      "Kubernetes",
+      "probes",
+      "liveness",
+      "readiness"
+    ],
+    "anchor": "kp58",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp59",
+    "date": "2026-05-24",
+    "title": "nginx ingress host-based 路由",
+    "summary": "ingressClassName: nginx + host 規則根據 Host header 將流量路由到不同 Service",
+    "tags": [
+      "nginx",
+      "ingress",
+      "Kubernetes",
+      "路由"
+    ],
+    "anchor": "kp59",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp60",
+    "date": "2026-05-24",
+    "title": "curl 部署 smoke test 驗證",
+    "summary": "curl -s -o /dev/null -w '%{http_code}' 一行驗證部署是否回應 200，可串接 CI/CD",
+    "tags": [
+      "curl",
+      "smoke test",
+      "部署",
+      "驗證"
+    ],
+    "anchor": "kp60",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  },
+  {
+    "id": "2026-05-24-kp61",
+    "date": "2026-05-24",
+    "title": "K8s namespace 專案隔離",
+    "summary": "每個專案建立獨立 namespace 避免資源名稱衝突，方便 ResourceQuota 管理",
+    "tags": [
+      "Kubernetes",
+      "namespace",
+      "隔離"
+    ],
+    "anchor": "kp61",
+    "conversation": "stock-analysis-v2 K3s 部署"
+  }
+]
