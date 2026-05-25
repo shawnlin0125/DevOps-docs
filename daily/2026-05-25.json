@@ -1,0 +1,78 @@
+[
+  {
+    "id": "2026-05-25-kp62",
+    "date": "2026-05-25",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "get pods → describe pod → logs → get events 四步驟診斷，從 Events 判斷 ImagePull/CrashLoop/OOMKilled/Pending 問題",
+    "tags": [
+      "kubectl",
+      "K8s",
+      "診斷",
+      "Pod",
+      "debug"
+    ],
+    "anchor": "kp62",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-25-kp63",
+    "date": "2026-05-25",
+    "title": "k3s containerd 鏡像管理完整流程（免 registry）",
+    "summary": "docker build → docker save → k3s ctr images import，將 Docker image 匯入 k3s containerd，搭配 imagePullPolicy: Never 使用",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "registry"
+    ],
+    "anchor": "kp63",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-25-kp64",
+    "date": "2026-05-25",
+    "title": "Linux 資源監控三指令：uptime / free / df 的正確讀法",
+    "summary": "uptime 看 CPU 排隊（load average vs 核心數）、free -h 看 available 而非 free、df -h 看磁碟使用率",
+    "tags": [
+      "Linux",
+      "監控",
+      "uptime",
+      "free",
+      "df",
+      "資源"
+    ],
+    "anchor": "kp64",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-25-kp65",
+    "date": "2026-05-25",
+    "title": "Git 復原操作：reset / restore / reflog 何時用哪個",
+    "summary": "git reset --soft HEAD~1 退回 commit 保留 staged、git restore 丟棄工作區改動、git reflog 救回誤刪的 commit",
+    "tags": [
+      "Git",
+      "復原",
+      "reset",
+      "restore",
+      "reflog"
+    ],
+    "anchor": "kp65",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-25-kp66",
+    "date": "2026-05-25",
+    "title": "Helm 常用運維操作：list / history / rollback / get values",
+    "summary": "helm list -A 看所有 release、helm history 看版本歷史、helm rollback 緊急退回舊版、helm get values 確認目前設定",
+    "tags": [
+      "Helm",
+      "K8s",
+      "運維",
+      "rollback",
+      "values"
+    ],
+    "anchor": "kp66",
+    "conversation": "自主練習"
+  }
+]
