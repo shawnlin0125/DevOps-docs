@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-26</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Navigation */
+.nav-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.9rem; flex-wrap: wrap; }
+.nav-bottom a { color: var(--accent); text-decoration: none; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1><span class="emoji">📘</span> DevOps 學習筆記 — May 26, 2026</h1>
+  <p class="subtitle">1 對話 · 10 知識點</p>
+  <p class="meta-line">來源：Discord 對話 · 伺服器端全市場掃描系統部署 | 分類：k3s · hostPath · API rate limiting · 進程監控 · CronJob · 崩潰恢復 · 資源管理 · health check</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp67">hostPath Volume 動態檔案服務</a></li>
+    <li><a href="#kp68">API Rate Limit 偵測與資料來源遷移</a></li>
+    <li><a href="#kp69">TWSE STOCK_DAY_ALL 一次撈全市場</a></li>
+    <li><a href="#kp70">長時間執行腳本的進度監控</a></li>
+    <li><a href="#kp71">CronJob 與底層腳本的耦合管理</a></li>
+    <li><a href="#kp72">k3s hostPath DirectoryOrCreate 防呆機制</a></li>
+    <li><a href="#kp73">Python stdout 緩衝與進度輸出</a></li>
+    <li><a href="#kp74">中繼檔案崩潰恢復模式</a></li>
+    <li><a href="#kp75">k3s 資源請求與限制的實戰權衡</a></li>
+    <li><a href="#kp76">容器健康檢查參數的設計思維</a></li>
+  </ol>
+</div>
+
+<!-- KP Section -->
+<div class="kp-section">
+  <h2>🐱 伺服器端全市場掃描系統部署（stock-analysis）</h2>
+
+  <article class="kp-card" id="kp67">
+    <h4>💡 hostPath Volume 動態檔案服務：無需重建容器即可更新內容</h4>
+    <p>k3s hostPath volume 讓 Nginx 直接讀取 host 目錄中的檔案。掃描腳本寫入 host 路徑 <code>/home/ubuntu/stock-analysis-data/</code> 後，Nginx 透過 volume mount 即刻提供最新 <code>scan-results.json</code>，無需 rebuild image 或 restart container。適合頻繁更新的靜態資料。</p>
+    <pre><code># k3s deployment.yaml 中的 volume 設定
+volumes:
+  - name: scan-data
+    hostPath:
+      path: /home/ubuntu/stock-analysis-data
+      type: DirectoryOrCreate
+volumeMounts:
+  - name: scan-data
+    mountPath: /usr/share/nginx/html/data
+
+# 腳本直接寫入 host 路徑，Nginx 即刻提供新內容
+python3 scan-all-stocks-v3.py  # 輸出 → /home/ubuntu/stock-analysis-data/scan-results.json
+# 前端立即讀取：https://stock.shawnlin.online/data/scan-results.json</code></pre>
+    <p class="why">💭 原理：hostPath volume 不是複製，而是直接 mount host 目錄到容器內。所以 host 上的任何檔案變更，容器內立即可見。比 ConfigMap 適合大型或頻繁更新的檔案（ConfigMap 有 1MB 限制且更新需要 rollout），也比 rebuild image 快。</p>
+  </article>
+
+  <article class="kp-card" id="kp68">
+    <h4>💡 API Rate Limit 實戰偵測與資料來源遷移策略</h4>
+    <p>FinMind 免費 API 在發出 ~200-300 次請求後回傳 HTTP 403，回應 header 含 <code>retry-after: 1239</code>（約 20 分鐘），隨後 IP 完全被封鎖。yfinance 備案同樣被 rate-limit。最終遷移至 TWSE OpenAPI 解決：無 rate limit、不需 API token、官方資料更可靠。</p>
+    <pre><code># FinMind rate limit 被觸發時的典型回應
+# HTTP 403 Forbidden
+# retry-after: 1239  ← 需等 20 分鐘
+# 約 183/1089 支股票後中斷
+
+# 遷移策略：尋找官方、免認證、無 rate limit 的替代 API
+# ✅ TWSE OpenAPI: openapi.twse.com.tw
+# ✅ 無需 API key、無 rate limit
+# ✅ 官方資料，準確度最高</code></pre>
+    <p class="why">💭 原理：API rate limit 是服務端保護機制（通常是 IP-based 或 token-based）。免費 API 通常有嚴格的 rate limit。生產環境的資料 pipeline 應優先選擇官方 API 或無 rate limit 的來源，避免在排程任務中觸發封鎖。</p>
+  </article>
+
+  <article class="kp-card" id="kp69">
+    <h4>💡 TWSE STOCK_DAY_ALL：一次 API 呼叫撈全市場當日行情</h4>
+    <p>TWSE OpenAPI 的 <code>STOCK_DAY_ALL</code> endpoint 單次呼叫回傳全部 ~1,361 檔上市股票的當日 OHLCV（開高低收量）。無需 auth token、無 rate limit。將原需 1000+ 次個別查詢的架構縮減為 1 次批量查詢 + 針對篩選標的補歷史資料。</p>
+    <pre><code># 一次呼叫取得全市場當日數據
+curl "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+# 回應: [{Code:"0050", Name:"元大台灣50", TradeVolume:"...", ...}, ...共 1361 筆]
+
+# 篩選候選標的：股價 ≤ 150、成交量 ≥ 5000
+# 878 檔進入第二階段：個別查詢歷史資料
+curl "https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&stockNo=2330&date=20260501"
+
+# 每檔約需 4 次 API call（4 個月歷史），0.25s 間隔
+# 總耗時約 45-50 分鐘（無 rate limit 阻斷）</code></pre>
+    <p class="why">💭 原理：批次 API（一次回傳全部）vs 逐筆 API（每筆一個 request）的效能差距是指數級的。STOCK_DAY_ALL 讓網路往返從 O(n) 降為 O(1)，這是 API 架構選擇的重大 DevOps 決策——直接影響執行時間和穩定性。</p>
+  </article>
+
+  <article class="kp-card" id="kp70">
+    <h4>💡 長時間執行腳本的進度監控與中繼儲存設計</h4>
+    <p>執行 45+ 分鐘的掃描腳本（878 檔股票），將進度寫入 <code>/tmp/scan-status.json</code> 並每 50 筆中繼儲存結果到輸出檔。解決 stdout 緩衝問題（pipe 模式下不即時 flush），同時提供 crash recovery 的 checkpoint 機制。</p>
+    <pre><code># 進度檔案格式
+# /tmp/scan-status.json
+# {"scanned": 120, "total": 878, "passing": 2, "eta_seconds": 2700}
+
+# 查看即時進度
+cat /tmp/scan-status.json | python3 -m json.tool
+
+# 中繼儲存（每 50 筆寫一次）
+# 確保崩潰後最多損失 50 筆進度
+if scanned_count % 50 == 0:
+    with open(output_path, 'w') as f:
+        json.dump(results, f, ensure_ascii=False)
+    with open('/tmp/scan-status.json', 'w') as f:
+        json.dump(status, f)</code></pre>
+    <p class="why">💭 原理：stdout 是 line-buffered（TTY）或 fully-buffered（pipe/file），導致進度訊息在程式結束前看不到。寫入獨立檔案解決緩衝問題，同時提供可程式化讀取的狀態接口。中繼儲存則是 crash recovery 的基礎——損失上限 = checkpoint 間隔。</p>
+  </article>
+
+  <article class="kp-card" id="kp71">
+    <h4>💡 CronJob 與底層腳本的耦合管理</h4>
+    <p>當 CronJob 執行的腳本從 v1 升級到 v3 時，CronJob 的 command 欄位也必須同步更新（腳本路徑從 <code>scan-all-stocks.py</code> 變為 <code>scan-all-stocks-v3.py</code>）。解決方案：用固定路徑 symlink 指向最新版本，CronJob 永遠指向 symlink 不動。</p>
+    <pre><code># ❌ 耦合：CronJob 直接引用版本號
+# CronJob command: ["python3", "/home/ubuntu/scripts/scan-all-stocks-v3.py"]
+# 每次升級都要改 CronJob manifest → kubectl apply
+
+# ✅ 解耦：用 symlink 抽象版本
+ln -sfn /home/ubuntu/scripts/scan-all-stocks-v3.py /usr/local/bin/daily-scan
+# CronJob command: ["python3", "/usr/local/bin/daily-scan"]
+# 升級只要更新 symlink，CronJob 不變</code></pre>
+    <p class="why">💭 原理：這是經典的「介面隔離」模式——CronJob 不應知道腳本的版本號，只應知道「我要執行 daily-scan」。symlink 就是這個抽象層，把變動隔離在 CronJob 之外。</p>
+  </article>
+
+  <article class="kp-card" id="kp72">
+    <h4>💡 k3s hostPath type: DirectoryOrCreate 的防呆機制</h4>
+    <p>hostPath volume 的 <code>type</code> 設為 <code>DirectoryOrCreate</code> 時，若 host 目錄不存在，kubelet 會自動建立（權限 0755、owner root）。比 <code>type: Directory</code> 更安全——後者目錄不存在時 Pod 直接 CrashLoopBackOff。</p>
+    <pre><code># deployment.yaml — hostPath volume 定義
+spec:
+  volumes:
+    - name: scan-data
+      hostPath:
+        path: /home/ubuntu/stock-analysis-data
+        type: DirectoryOrCreate  # ← 關鍵：目錄不存在時自動建立
+
+# type 對照表：
+# DirectoryOrCreate  → 目錄不存在就建立（最常用）
+# Directory           → 目錄必須已存在，否則 Pod 啟動失敗
+# FileOrCreate        → 檔案不存在就建立
+# File                → 檔案必須已存在
+# ""  (空字串)        → 不做任何檢查（最不安全）</code></pre>
+    <p class="why">💭 原理：kubelet 在掛載 hostPath 前會檢查路徑是否存在。DirectoryOrCreate 讓 kubelet 執行 mkdir -p，避免「先手動建目錄再 deploy」的手動步驟——對 first-deploy 或 CI/CD 自動化部署特別重要。</p>
+  </article>
+
+  <article class="kp-card" id="kp73">
+    <h4>💡 Python stdout 緩衝問題：pipe 模式下的輸出延遲</h4>
+    <p>Python 的 stdout 在非 TTY 環境（pipe 到 tee、背景執行、cron job）時會啟用區塊緩衝（block buffering），導致 <code>print()</code> 輸出延遲數分鐘甚至到程式結束才出現。掃描腳本因此無法即時看到進度。</p>
+    <pre><code># ❌ 問題：背景執行時 print() 不即時輸出
+python3 scan.py &  # stdout 被緩衝，看不到進度
+
+# ✅ 解法一：強制行緩衝
+import sys
+sys.stdout.reconfigure(line_buffering=True)
+
+# ✅ 解法二：寫入檔案（更可靠，適合長時間任務）
+with open('/tmp/progress.json', 'w') as f:
+    json.dump({"scanned": n, "total": 878}, f)
+    f.flush()  # 確保寫入磁碟
+
+# ✅ 解法三：命令列參數
+python3 -u scan.py  # -u = unbuffered stdout/stderr</code></pre>
+    <p class="why">💭 原理：C 標準庫的 stdio 緩衝策略：TTY → line-buffered（遇到 \n 就 flush），pipe/file → fully-buffered（滿 4KB/8KB 才 flush）。Python 繼承這個行為。非 TTY 環境（cron、systemd、pipe）下要主動處理緩衝。</p>
+  </article>
+
+  <article class="kp-card" id="kp74">
+    <h4>💡 批次處理的中繼檔案崩潰恢復模式</h4>
+    <p>處理 878 筆資料的長時間任務，每 50 筆寫入一次中繼結果到輸出檔案。若程式崩潰，可從上次 checkpoint 繼續而非重頭開始。關鍵設計：中繼檔案格式與最終輸出完全相同，重啟時讀取最後 checkpoint 的進度接續處理。</p>
+    <pre><code># 中繼儲存模式（每 N 筆 checkpoint）
+CHECKPOINT_INTERVAL = 50
+
+for i, stock in enumerate(stocks):
+    result = analyze(stock)
+    if result and result['passing']:
+        results.append(result)
+
+    # 每 50 筆寫一次 checkpoint
+    if (i + 1) % CHECKPOINT_INTERVAL == 0:
+        with open(output_path, 'w') as f:
+            json.dump(results, f)
+        # 進度也寫到狀態檔
+        with open('/tmp/scan-status.json', 'w') as f:
+            json.dump({"scanned": i+1, "total": len(stocks)}, f)
+
+# 崩潰後重啟：從 output_path 讀取已完成數量，skip 已處理的
+if os.path.exists(output_path):
+    existing = json.load(open(output_path))
+    start_index = len(existing)  # 從這裡繼續</code></pre>
+    <p class="why">💭 原理：這是「原子寫入 + checkpoint」模式。每次 checkpoint 覆蓋整個輸出檔（原子操作），崩潰時檔案狀態是上一次完整 checkpoint。損失上限 = checkpoint 間隔（此例 50 筆 ≈ 2.5 分鐘）。</p>
+  </article>
+
+  <article class="kp-card" id="kp75">
+    <h4>💡 k3s 資源請求與限制的實戰權衡：靜態 Nginx 為例</h4>
+    <p>靜態 Nginx 站點的最佳化配置：<code>requests</code> 設最低值讓排程容易通過（10m CPU/32Mi RAM），<code>limits</code> 設合理上限防止失控（200m CPU/128Mi RAM）。requests 影響排程決策（資源不夠 = Pending），limits 防止容器吃垮節點。</p>
+    <pre><code># deployment.yaml — 靜態 Nginx 的保守資源設定
+resources:
+  requests:
+    cpu: 10m       # 排程最低保證：1% CPU core
+    memory: 32Mi   # 排程最低保證：32MB RAM
+  limits:
+    cpu: 200m      # 最多可用 20% CPU core（burst 上限）
+    memory: 128Mi  # 超過 128MB → OOMKilled
+
+# Nginx Alpine 靜態站點的實測用量
+# idle: ~2-4MB RAM, ~0 CPU
+# under load: ~15-20MB RAM, ~50m CPU</code></pre>
+    <p class="why">💭 原理：requests 是 scheduler 用來決定 Pod 該放哪個節點的依據（bin-packing），limits 是 kubelet 用來 enforce 的硬上限。靜態站點 RAM 需求極低且穩定，128Mi limits 已綽綽有餘；CPU 設 200m 給 burst 空間但不會真的吃滿。</p>
+  </article>
+
+  <article class="kp-card" id="kp76">
+    <h4>💡 容器健康檢查參數的設計思維：liveness vs readiness</h4>
+    <p>livenessProbe（決定是否重啟容器）用較寬鬆參數避免誤殺：<code>initialDelaySeconds: 5</code> 等容器啟動，<code>periodSeconds: 30</code> 降低檢查頻率。readinessProbe（決定是否送流量）用較靈敏參數快速反應：<code>initialDelaySeconds: 3</code>，<code>periodSeconds: 10</code>。</p>
+    <pre><code># deployment.yaml — 健康檢查參數設計
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 5   # 等容器啟動（Nginx 約 1-2s 就 ready）
+  periodSeconds: 30        # 30s 檢查一次（誤殺成本高，不需太頻繁）
+  failureThreshold: 3      # 連續 3 次失敗才重啟（共 90s）
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 3   # 更快開始檢查（流量應該早點進來）
+  periodSeconds: 10        # 10s 檢查一次（靈敏度高，快速摘流量）
+  failureThreshold: 3      # 連續 3 次失敗才摘除（共 30s）</code></pre>
+    <p class="why">💭 原理：liveness 和 readiness 的職責不同。Liveness 的「誤判」成本是殺掉一個活著的容器（服務中斷），所以參數要寬鬆。Readiness 的「誤判」成本只是暫時不送流量（不會中斷現有連線），所以可以更靈敏。</p>
+  </article>
+</div>
+
+<!-- Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查</h3>
+  <pre><code># k3s hostPath 動態檔案服務（無需重建容器）
+kubectl get deployment stock-analysis -n stock-analysis -o yaml | grep -A5 hostPath
+
+# TWSE 全市場當日行情（一次 API call）
+curl -s "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'{len(d)} stocks')"
+
+# 長時間腳本進度監控
+watch -n 5 'cat /tmp/scan-status.json | python3 -m json.tool'
+
+# CronJob symlink 解耦模式
+ln -sfn /home/ubuntu/scripts/scan-all-stocks-v3.py /usr/local/bin/daily-scan
+
+# Python 無緩衝執行（cron 環境適用）
+python3 -u /home/ubuntu/scripts/scan-all-stocks-v3.py</code></pre>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bottom">
+  <span><a href="2026-05-25.html">← 05/25 自主練習：kubectl · k3s · Linux · Git · Helm</a></span>
+  <span><a href="../index.html">📖 回首頁</a></span>
+  <span class="disabled">05/27 →（尚未發布）</span>
+</div>
+
+</div>
+</body>
+</html>

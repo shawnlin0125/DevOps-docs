@@ -1,0 +1,155 @@
+[
+  {
+    "id": "2026-05-26-kp67",
+    "date": "2026-05-26",
+    "title": "hostPath Volume 動態檔案服務：無需重建容器即可更新內容",
+    "summary": "k3s hostPath volume 讓 Nginx 直接讀取 host 目錄中的檔案。掃描腳本寫入 host 路徑後，Nginx 即刻提供最新內容，無需 rebuild image 或 restart container。適合頻繁更新的靜態資料（JSON、報告、log）。",
+    "tags": [
+      "k3s",
+      "hostPath",
+      "volume",
+      "nginx",
+      "volume mount"
+    ],
+    "anchor": "kp67",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp68",
+    "date": "2026-05-26",
+    "title": "API Rate Limit 實戰偵測與資料來源遷移",
+    "summary": "FinMind 免費 API 在 ~200-300 次請求後回傳 HTTP 403（retry-after: 1239s），IP 被完全封鎖。yfinance 同 IP 也被 rate-limit。遷移至 TWSE OpenAPI 解決：無 rate limit、不需 token、官方資料更可靠。",
+    "tags": [
+      "API",
+      "rate limiting",
+      "FinMind",
+      "TWSE",
+      "資料來源遷移"
+    ],
+    "anchor": "kp68",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp69",
+    "date": "2026-05-26",
+    "title": "TWSE STOCK_DAY_ALL：一次 API 呼叫撈全市場日線",
+    "summary": "TWSE OpenAPI 的 STOCK_DAY_ALL endpoint 單次呼叫回傳全部 ~1,361 檔上市股票的當日 OHLCV。無需 auth token、無 rate limit。將原需 1000+ 次個別查詢的策略縮減為 1 次批量查詢，再針對篩選標的進行歷史資料補齊。",
+    "tags": [
+      "TWSE",
+      "OpenAPI",
+      "batch API",
+      "股票資料",
+      "performance"
+    ],
+    "anchor": "kp69",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp70",
+    "date": "2026-05-26",
+    "title": "長時間執行腳本的進度監控與中繼儲存",
+    "summary": "執行 45+ 分鐘的掃描腳本時，將進度寫入 /tmp/scan-status.json 並每 50 筆中繼儲存結果。解決 stdout 緩衝問題（Python 寫入 pipe 時不會即時 flush），同時提供 crash recovery 的 checkpoint。",
+    "tags": [
+      "script",
+      "monitoring",
+      "進度監控",
+      "crash recovery",
+      "Python"
+    ],
+    "anchor": "kp70",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp71",
+    "date": "2026-05-26",
+    "title": "CronJob 與底層腳本的耦合管理",
+    "summary": "當 CronJob 執行的腳本從 v1 升級到 v3 時，CronJob 的 command 參數必須同步更新（script 路徑變更）。這暴露了 CronJob 與腳本名稱的隱性耦合——解決方案：用固定路徑 symlink（如 /usr/local/bin/daily-scan）指向最新版本，CronJob 不變。",
+    "tags": [
+      "cron",
+      "CronJob",
+      "耦合",
+      "symlink",
+      "維運"
+    ],
+    "anchor": "kp71",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp72",
+    "date": "2026-05-26",
+    "title": "k3s hostPath type: DirectoryOrCreate 的防呆機制",
+    "summary": "hostPath 的 type 設為 DirectoryOrCreate 時，如果 host 目錄不存在，kubelet 會自動建立。比 type: Directory 更安全（後者目錄不存在時 Pod 會啟動失敗）。適合 first-deploy 或目錄由應用自行初始化的場景。",
+    "tags": [
+      "k3s",
+      "hostPath",
+      "DirectoryOrCreate",
+      "volume",
+      "kubelet"
+    ],
+    "anchor": "kp72",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp73",
+    "date": "2026-05-26",
+    "title": "Python stdout 緩衝問題：pipe 模式下的輸出延遲",
+    "summary": "Python 在 stdout 不是 TTY（例如 pipe 到 tee、背景執行、cron）時會啟用區塊緩衝，導致 print() 輸出延遲到程式結束才出現。解法：sys.stdout.reconfigure(line_buffering=True) 或寫入檔案（如 /tmp/progress.json）。",
+    "tags": [
+      "Python",
+      "stdout",
+      "緩衝",
+      "buffer",
+      "pipe",
+      "cron"
+    ],
+    "anchor": "kp73",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp74",
+    "date": "2026-05-26",
+    "title": "批次處理的中繼檔案崩潰恢復模式",
+    "summary": "處理 878 筆資料的長時間任務，每 50 筆寫入一次中繼結果檔案。若程式崩潰，可從上次 checkpoint 繼續而非重頭開始。關鍵設計：中繼檔案格式與最終輸出相同，崩潰後的 restart 直接讀取最後的 checkpoint 接續處理。",
+    "tags": [
+      "crash recovery",
+      "checkpoint",
+      "batch processing",
+      "resilience",
+      "中繼檔案"
+    ],
+    "anchor": "kp74",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp75",
+    "date": "2026-05-26",
+    "title": "k3s 資源請求與限制的實戰權衡",
+    "summary": "靜態 Nginx 站點的保守配置：requests 10m CPU/32Mi RAM（排程最低保證），limits 200m CPU/128Mi RAM（burst 上限）。requests 決定 Pod 能否被排程（資源不夠則 Pending），limits 防止容器失控吃垮節點。靜態站點 RAM 需求極低，128Mi 已綽綽有餘。",
+    "tags": [
+      "k3s",
+      "resource limits",
+      "requests",
+      "limits",
+      "nginx",
+      "排程"
+    ],
+    "anchor": "kp75",
+    "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-26-kp76",
+    "date": "2026-05-26",
+    "title": "容器健康檢查參數的設計思維",
+    "summary": "livenessProbe（重啟判斷）用較寬鬆的參數避免誤殺：initialDelaySeconds 5s 等容器啟動、periodSeconds 30s 降低檢查頻率。readinessProbe（流量路由）用較靈敏的參數快速反應：initialDelaySeconds 3s、periodSeconds 10s。兩者分工：liveness 決定「要不要殺掉重啟」，readiness 決定「要不要送流量進來」。",
+    "tags": [
+      "k3s",
+      "probes",
+      "liveness",
+      "readiness",
+      "health check",
+      "container"
+    ],
+    "anchor": "kp76",
+    "conversation": "20260526_100218_240df6a0"
+  }
+]
