@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-27</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .alert { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-red); }
+.kp-card .alert::before { content: "⚠️ "; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Navigation */
+.nav-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.9rem; flex-wrap: wrap; }
+.nav-bottom a { color: var(--accent); text-decoration: none; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1><span class="emoji">📘</span> DevOps 學習筆記 — May 27, 2026</h1>
+  <p class="subtitle">4 對話 · 12 知識點</p>
+  <p class="meta-line">來源：Discord 對話 · k3s 部署流程 · TWSE 單位陷阱 · Cron 排程 timeout · 緊急熱修復 · Cloudflare CDN | 分類：k3s · Docker · containerd · kubectl · cron · Cloudflare · 資料單位</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp77">k3s containerd 完整部署四步驟</a></li>
+    <li><a href="#kp78">Timestamp tag 繞過 imagePullPolicy: Never 緩存</a></li>
+    <li><a href="#kp79">docker build 前確認 COPY 來源目錄存在</a></li>
+    <li><a href="#kp80">TWSE TradeVolume 單位陷阱：股 ≠ 張</a></li>
+    <li><a href="#kp81">kubectl exec tee 直接寫檔進 pod（免 rebuild）</a></li>
+    <li><a href="#kp82">Hermes cron script mode 120s timeout 與解法</a></li>
+    <li><a href="#kp83">CronJob broken symlink 排查</a></li>
+    <li><a href="#kp84">資料源更新時間影響排程設計</a></li>
+    <li><a href="#kp85">緊急修復繞過 CDN 快取驗證</a></li>
+    <li><a href="#kp86">kubectl exec -i + pipe 做 in-place 熱修復</a></li>
+    <li><a href="#kp87">Cloudflare cf-cache-status 確認快取</a></li>
+    <li><a href="#kp88">Pod 內 hotfix 是暫時的，永久修復需 rebuild</a></li>
+  </ol>
+</div>
+
+<!-- Section 1 -->
+<div class="kp-section">
+  <h2>🐱 k3s 部署流程與 timestamp tag 繞過緩存（stock-analysis 功能更新）</h2>
+
+  <article class="kp-card" id="kp77">
+    <h4>💡 k3s containerd 完整部署四步驟（docker build → save → ctr import → kubectl set image）</h4>
+    <p>k3s 使用 containerd 而非 Docker runtime，鏡像管理流程為：<code>docker build</code> 產出 Docker image → <code>docker save</code> 匯出 tar → <code>sudo ctr -n k8s.io images import</code> 匯入 containerd 的 k8s namespace → <code>kubectl set image</code> 觸發 rolling update。k3s 不依賴 Docker registry，本地 containerd image store 就是鏡像來源。</p>
+    <pre><code># 完整 k3s 部署四步驟（Next.js static export → Docker → containerd → k3s）
+# Step 1: 建置 Next.js static export
+rm -rf out .next && npx next build
+mkdir -p out/data
+# （從 running pod 拉取資料檔案到 out/data/）
+
+# Step 2: 打包 Docker image（timestamp tag 避免快取問題）
+TAG="stock-analysis:v$(date +%s)"
+sudo docker build --no-cache -t $TAG .
+
+# Step 3: 匯入 k3s containerd（注意 namespace 是 k8s.io）
+sudo docker save $TAG | sudo ctr -n k8s.io images import -
+
+# Step 4: 更新 deployment 觸發 rolling update
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=$TAG
+sudo kubectl -n stock-analysis rollout status deploy/stock-analysis</code></pre>
+    <p class="why">💭 原理：k3s 預設使用 containerd 而非 dockerd。docker build 產出的 image 存在 Docker 的 image store（/var/lib/docker），containerd 看不到。必須透過 docker save + ctr import 跨 runtime 傳遞 image。ctr 的 -n k8s.io 是指定 Kubernetes 用的 containerd namespace。</p>
+  </article>
+
+  <article class="kp-card" id="kp78">
+    <h4>💡 Timestamp Docker tag 繞過 k3s imagePullPolicy: Never 的 image digest 緩存</h4>
+    <p>k3s deployment 設定 <code>imagePullPolicy: Never</code> 時，kubelet 只檢查本地 containerd 是否有同名 image。若用固定 tag（如 <code>stock-analysis:latest</code>），重新 docker build 後 containerd 內的舊 image digest 不變，k3s 不會重新拉取。解法：每次 build 用 timestamp 作為唯一 tag（<code>stock-analysis:v$(date +%s)</code>），強制 k3s 識別為新 image。</p>
+    <pre><code># ❌ 固定 tag 問題：containerd 內已有 stock-analysis:latest
+# docker build -t stock-analysis:latest → ctr import → kubectl set image
+# k3s: "我已經有 stock-analysis:latest 了，不用重新拉"（實際上內容不同！）
+
+# ✅ Timestamp tag 解決：每次都是全新 tag
+TAG="stock-analysis:v$(date +%s)"  # 例：stock-analysis:v1779848611
+sudo docker build --no-cache -t $TAG .
+sudo docker save $TAG | sudo ctr -n k8s.io images import -
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=$TAG
+
+# 驗證：確認 Pod 使用新 image
+sudo kubectl -n stock-analysis get pods -o jsonpath='{.items[*].spec.containers[*].image}'</code></pre>
+    <p class="why">💭 原理：imagePullPolicy: Never 時，kubelet 只做本地 image lookup by tag name。如果 tag 相同，即使底層 digest 已變，kubelet 也不會察覺——因為它根本不比對 digest。timestamp tag 用唯一名稱繞過這個比對漏洞，但副作用是 containerd 內會累積大量舊 image（需定期清理 <code>sudo ctr -n k8s.io images rm</code>）。</p>
+  </article>
+
+  <article class="kp-card" id="kp79">
+    <h4>💡 docker build 前確認 COPY 指令的來源目錄存在（避免 missing file）</h4>
+    <p>當 Dockerfile 使用 <code>COPY out/ /usr/share/nginx/html/</code> 時，若 <code>rm -rf out</code> 後忘了重建 <code>out/data/</code> 目錄，docker build 會順利完成（COPY 只複製 out/ 下存在的內容），但部署後應用缺少必要檔案。實務做法：build 前先從 running pod 拉取資料檔到 out/data/，確保完整。</p>
+    <pre><code># ❌ 常見陷阱：clean rebuild 後忘了放回資料檔
+rm -rf out .next && npx next build
+# out/ 此時只有 _next/ 和 .html，沒有 data/
+sudo docker build -t stock-analysis:latest .
+# 部署後 → /data/scan-results.json 404！
+
+# ✅ 正確流程：build 前補齊所有必要檔案
+rm -rf out .next && npx next build
+mkdir -p out/data
+# 從 running pod 拉取最新資料
+sudo kubectl -n stock-analysis exec deploy/stock-analysis -- cat /usr/share/nginx/html/data/scan-results.json > out/data/scan-results.json
+sudo kubectl -n stock-analysis exec deploy/stock-analysis -- cat /usr/share/nginx/html/data/stock-list.json > out/data/stock-list.json
+# 確認檔案存在再 build
+ls -la out/data/
+sudo docker build --no-cache -t stock-analysis:v$(date +%s) .</code></pre>
+    <p class="why">💭 原理：Docker 的 COPY 指令不會報錯如果來源目錄缺少某些檔案——它只複製「存在的內容」。這和 cp 的行為不同（cp 會報 missing）。解決方案是在 build 腳本中加入防禦性檢查（<code>test -f out/data/scan-results.json || exit 1</code>），或使用 Makefile target 確保依賴關係。</p>
+  </article>
+</div>
+
+<!-- Section 2 -->
+<div class="kp-section">
+  <h2>🐱 TWSE 成交量單位陷阱與 kubectl exec 熱修復（stock-analysis 成交量 Bug）</h2>
+
+  <article class="kp-card" id="kp80">
+    <h4>💡 TWSE API TradeVolume 欄位單位是「股」，不是「張」（1 張 = 1,000 股）</h4>
+    <p>TWSE OpenAPI 和 FinMind API 的成交量欄位（<code>TradeVolume</code>）單位都是「股」（shares），不是台灣股市慣用的「張」（1 張 = 1,000 股）。設定成交量門檻時若直接寫 <code>MIN_VOLUME = 5000</code>，實際篩選的是 5 張而非 5,000 張。此 bug 導致篩選結果出現大量不符標準的低成交量股票。</p>
+    <pre><code># ❌ Bug：把「股」當成「張」
+MIN_VOLUME = 5000  # 實際只篩掉 5 張以下的股票（幾乎沒篩）
+
+# ✅ 修正：張數 × 1,000
+MIN_VOLUME = 5_000_000  # 5,000 張 × 1,000 股/張
+
+# 驗證：TWSE API 回傳的 TradeVolume 確實是股數
+curl -s "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL" | \
+  python3 -c "import json,sys; d=json.load(sys.stdin); [print(f'{x[\"Code\"]} {x[\"Name\"]} vol={int(x[\"TradeVolume\"]):,}股 = {int(x[\"TradeVolume\"])/1000:,.0f}張') for x in d if x['Code']=='2330']"
+# 輸出範例: 2330 台積電 vol=35,234,567股 = 35,235張
+
+# 修正後掃描結果：878 檔 → 180 檔（大量低成交量股票被正確排除）</code></pre>
+    <p class="why">💭 原理：這是 API 文件閱讀陷阱——TWSE API 的欄位說明可能只寫「成交數量」而不標註單位。台灣股市的習慣單位是「張」，但 API 欄位的原始值幾乎都是「股」。所有涉及成交量比對的程式碼（前端過濾、後端掃描、條件判斷）必須統一使用「股」作為內部單位，避免混用。</p>
+    <p class="alert">此 bug 導致儀表板推薦買入的股票中有成交量僅 400-530 張的低流動性標的。修復後掃描器重新執行，候選股票從 878 降至 180，通過 MACD v1 的從 22 降至僅 3 檔。</p>
+  </article>
+
+  <article class="kp-card" id="kp81">
+    <h4>💡 kubectl exec ... -- tee 直接寫檔進 running pod（純資料更新，免 rebuild image）</h4>
+    <p>當只需更新 Pod 內的靜態資料檔案（如 JSON、設定檔），不需走完整 rebuild → docker build → redeploy 流程。可以直接用 <code>kubectl exec</code> 將新檔案內容 pipe 進容器內覆蓋舊檔。適合頻繁更新的資料檔（掃描結果、報表），大幅節省部署時間。</p>
+    <pre><code># 方法一：將本地檔案 pipe 進 pod（單行寫入）
+cat scan-results.json | sudo kubectl -n stock-analysis exec -i deploy/stock-analysis -- tee /usr/share/nginx/html/data/scan-results.json > /dev/null
+
+# 方法二：從 pod 拉出 → 修改 → 推回（互動式修復）
+sudo kubectl -n stock-analysis exec deploy/stock-analysis -- cat /usr/share/nginx/html/data/scan-results.json > /tmp/scan.json
+# 用 Python 或 jq 修改 /tmp/scan.json ...
+# 推回 pod
+cat /tmp/scan.json | sudo kubectl -n stock-analysis exec -i deploy/stock-analysis -- tee /usr/share/nginx/html/data/scan-results.json > /dev/null
+
+# 驗證修改生效
+sudo kubectl -n stock-analysis exec deploy/stock-analysis -- head -c 200 /usr/share/nginx/html/data/scan-results.json
+
+# ❌ 注意：此法不適合會重啟的 Pod（重啟後回到 image 原始內容）
+# ✅ 適合：頻繁更新的靜態資料、緊急修復、不需永久化的設定調整</code></pre>
+    <p class="why">💭 原理：kubectl exec 的 stdin pipe（-i）讓你可以像寫入本地檔案一樣寫入容器內檔案。tee 在這裡的作用是同時寫入檔案和 stdout（> /dev/null 丟棄 stdout）。容器檔案系統是 ephemeral 的——Pod 重啟後所有 exec 寫入的內容都會消失，回到 image 的原始狀態。如果資料是由外部程序（如 cron 掃描腳本）定期寫入 hostPath volume，則不需要用 exec。</p>
+  </article>
+</div>
+
+<!-- Section 3 -->
+<div class="kp-section">
+  <h2>🐱 Hermes Cron 排程 timeout 與資料源時間管理（stock-analysis 排程問題）</h2>
+
+  <article class="kp-card" id="kp82">
+    <h4>💡 Hermes cron script mode 120s 硬限制：長時間任務需改用 agent mode</h4>
+    <p>Hermes 的 cron job 在 <code>no_agent</code>（script mode）下有 120 秒的硬性 timeout。如果執行的腳本超過 2 分鐘（如全市場掃描需 20 分鐘），會被強制中斷且不會重試。解法：將 cron job 從 script mode 切換為 agent mode，agent mode 沒有 timeout 限制。</p>
+    <pre><code># ❌ Script mode（no_agent）：有 120s 硬限制
+# hermes cronjob create --schedule "0 14 * * 1-5" \
+#   --command "python3 /home/ubuntu/scripts/scan-all-stocks-v3.py" \
+#   --mode no_agent
+# → 掃描 20 分鐘 → 120s 被 kill → 失敗
+
+# ✅ Agent mode：無 timeout 限制
+# hermes cronjob update <job-id> --mode agent
+# 或建立時直接指定：
+# hermes cronjob create --schedule "0 14 * * 1-5" \
+#   --prompt "執行全市場 MACD v1 掃描" \
+#   --mode agent
+# → Agent 自己管理腳本執行，無 timeout 上限
+
+# 檢查目前 cron job 的 mode
+hermes cronjob list  # 查看 output_mode 欄位
+
+# 手動觸發測試（確認修復後可用）
+hermes cronjob trigger <job-id></code></pre>
+    <p class="why">💭 原理：Hermes cron 的 script mode 設計用於快速腳本（健康檢查、簡單 curl），底層有 subprocess timeout 保護機制防止 zombie process。Agent mode 則讓 Hermes agent 自行管理執行生命週期，適合長時間批次任務。這個差異在文件不明顯，容易誤用。</p>
+    <p class="alert">當天兩次排程都因 timeout 失敗：14:00 的排程因 broken symlink（script not found）失敗，15:04 的重試因 120s timeout 中斷。掃描最終透過手動背景執行完成（20 分鐘）。</p>
+  </article>
+
+  <article class="kp-card" id="kp83">
+    <h4>💡 CronJob broken symlink 排查與維運策略</h4>
+    <p>Cron job 設定的腳本路徑是一個 symlink（<code>~/.hermes/scripts/scan-wrapper.py → /home/ubuntu/scripts/scan-wrapper.py</code>），但目標檔案不存在（broken symlink）。排查步驟：<code>ls -la</code> 確認 symlink 指向 → 檢查目標是否存在 → 若目標已移動則修復 symlink 或直接複製檔案。</p>
+    <pre><code># 排查 broken symlink
+ls -la ~/.hermes/scripts/scan-wrapper.py
+# lrwxrwxrwx ... scan-wrapper.py -> /home/ubuntu/scripts/scan-wrapper.py  ← 紅色閃爍 = broken
+
+# 確認目標檔案是否存在
+test -f /home/ubuntu/scripts/scan-wrapper.py && echo "存在" || echo "不存在（broken symlink）"
+
+# 修復方法一：更新 symlink 指向正確路徑
+rm ~/.hermes/scripts/scan-wrapper.py
+ln -s /home/ubuntu/scripts/scan-wrapper.py ~/.hermes/scripts/scan-wrapper.py
+
+# 修復方法二：直接複製檔案（避免 symlink 耦合）
+cp /home/ubuntu/scripts/scan-wrapper.py ~/.hermes/scripts/scan-wrapper.py
+
+# 修復方法三：讓 cron 直接指向實際檔案路徑（最簡單）
+# 更新 cron job command 從 symlink 改為實際路徑</code></pre>
+    <p class="why">💭 原理：Symlink 只是指向目標路徑的指標，不包含實際內容。當目標檔案被移動、刪除、或目錄結構改變時，symlink 會變成 dangling（broken）。Cron job 對 broken symlink 的行為等同 file not found。最佳實踐：cron job 盡量使用絕對路徑指向實際檔案，或在部署腳本中加入 symlink 完整性檢查。</p>
+  </article>
+
+  <article class="kp-card" id="kp84">
+    <h4>💡 資料源更新時間影響排程設計：TWSE 14:30 vs FinMind 18:00</h4>
+    <p>台灣股市 13:30 收盤，但不同資料源的資料可用時間不同：TWSE 官方 OpenAPI 約 <strong>14:30</strong> 更新當日資料，FinMind 第三方 API 約 <strong>18:00</strong> 才完成更新。排程時間必須晚於資料源更新時間，否則掃描到的是前一天資料。目前 cron 設定為 14:00（盤後 30 分鐘），對 TWSE 來說可能太早。</p>
+    <pre><code># 資料可用性時間線（台灣股市）
+# 13:30  收盤
+# 14:00  目前 cron 排程（⚠️ TWSE 資料可能尚未更新）
+# 14:30  TWSE OpenAPI 當日資料可用（官方交易所）
+# 18:00  FinMind 第三方 API 完成更新
+
+# 建議排程時間
+# TWSE 來源：14:30 之後（保守設 15:00）
+# FinMind 來源：18:00 之後（保守設 18:30）
+
+# 實務作法：在掃描腳本開頭檢查資料日期
+import requests, json
+resp = requests.get("https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL")
+data = json.loads(resp.text)
+# 檢查第一筆資料的日期是否為今天
+if data and data[0].get("Date"):
+    print(f"TWSE 資料日期: {data[0]['Date']}")
+    # 若日期不是今天 → 退出或 retry</code></pre>
+    <p class="why">💭 原理：資料 pipeline 的排程時間是「資料可用時間 + 處理時間 + 緩衝」的組合。資料源更新時間不是文件寫的，而是實測出來的（TWSE 實際 API 行為 vs FinMind 文檔）。生產排程應該比資料可用時間晚 30-60 分鐘作為安全邊際，並在腳本中加入資料日期檢查做防禦。</p>
+  </article>
+</div>
+
+<!-- Section 4 -->
+<div class="kp-section">
+  <h2>🐱 k3s 緊急 Pod 修復與 Cloudflare CDN 快取管理（stock-analysis dashboard 掛了）</h2>
+
+  <article class="kp-card" id="kp85">
+    <h4>💡 緊急修復要先繞過 CDN 快取：curl pod IP 直接驗證（而非走 domain）</h4>
+    <p>當網站掛掉需要緊急修復時，瀏覽器或 curl 透過 domain 存取的是 Cloudflare CDN 快取層，可能看到舊的快取內容或 stale error page。正確做法：先取得 Pod IP（<code>kubectl get pods -o wide</code>），直接 curl Pod 的 cluster IP + port，繞過 CDN 和 ingress，確認 Pod 本身的實際狀態。</p>
+    <pre><code># Step 1: 取得 Pod IP（繞過 CDN/ingress 的直連路徑）
+sudo kubectl -n stock-analysis get pods -o wide
+# NAME                              READY   STATUS    IP           NODE
+# stock-analysis-66fd9dff58-vxg4m   1/1     Running   10.42.0.45   k3s-node
+
+# Step 2: 直連 Pod IP 測試（不經 CDN，不經 ingress）
+curl -s http://10.42.0.45:80/data/scan-results.json | head -c 300
+
+# Step 3: 對比 CDN 路徑（經過 Cloudflare + ingress）
+curl -s https://stock.shawnlin.online/data/scan-results.json | head -c 300
+
+# 如果兩個結果不同 → 問題在 CDN 快取或 ingress 路由
+# 如果 Pod IP 也回錯誤 → 問題在 Pod 內部</code></pre>
+    <p class="why">💭 原理：現代網站架構中，請求路徑通常是：Client → Cloudflare CDN → Ingress Controller → Service → Pod。每一層都可能快取或修改回應。診斷時從最底層（Pod IP）往上排查，可以快速定位問題層級。Pod IP 正常但 domain 異常 = CDN/ingress 問題；Pod IP 異常 = 應用層問題。</p>
+  </article>
+
+  <article class="kp-card" id="kp86">
+    <h4>💡 kubectl exec -i + pipe 做 in-place 熱修復：Python 轉換 JSON → 寫回 pod</h4>
+    <p>本次 dashboard 掛掉的原因是 Python 掃描器輸出的 <code>scan-results.json</code> 使用 snake_case 欄位（<code>change_pct</code>），而前端 TypeScript 期待 camelCase（<code>changePct</code>）。緊急修復：用 Python 轉換 JSON key → pipe 進 pod 覆蓋檔案。2 分鐘內恢復服務，無需走 rebuild 流程。</p>
+    <pre><code># 緊急修復流程（snake_case → camelCase in-place）
+# Step 1: 從 pod 拉出原始 JSON
+sudo kubectl -n stock-analysis exec deploy/stock-analysis -- \
+  cat /usr/share/nginx/html/data/scan-results.json > /tmp/scan.json
+
+# Step 2: Python 轉換 key（snake_case → camelCase）
+python3 -c "
+import json, re
+with open('/tmp/scan.json') as f:
+    data = json.load(f)
+def to_camel(s):
+    return re.sub(r'_([a-z])', lambda m: m.group(1).upper(), s)
+results = [{to_camel(k): v for k, v in r.items()} for r in data['results']]
+print(json.dumps({'results': results}, ensure_ascii=False))
+" > /tmp/scan-fixed.json
+
+# Step 3: pipe 回 pod 覆蓋原檔
+cat /tmp/scan-fixed.json | sudo kubectl -n stock-analysis exec -i deploy/stock-analysis -- \
+  tee /usr/share/nginx/html/data/scan-results.json > /dev/null
+
+# Step 4: 驗證修復
+sudo kubectl -n stock-analysis exec deploy/stock-analysis -- \
+  head -c 200 /usr/share/nginx/html/data/scan-results.json
+# 確認看到 "changePct" 而非 "change_pct"</code></pre>
+    <p class="why">💭 原理：這是 "hotfix via data transform" 模式——不修改應用程式碼，而是修正輸入資料的格式讓既有程式碼可以正確處理。Python 一行 dict comprehension 做 key mapping 比 sed 安全（sed 可能誤改 value 中的底線）。注意：kubectl exec -i 的 pipe 有大小限制（約幾 MB），超大檔案需分段或改用 kubectl cp。</p>
+  </article>
+
+  <article class="kp-card" id="kp87">
+    <h4>💡 Cloudflare cf-cache-status header 確認快取狀態（HIT / MISS / EXPIRED / DYNAMIC）</h4>
+    <p>Cloudflare proxy（orange cloud）會自動快取靜態資源。緊急修復 Pod 內容後，CDN 可能仍回傳舊快取。用 <code>curl -I</code> 檢查 <code>cf-cache-status</code> header：HIT 表示從 CDN 快取回應、MISS 表示回源、EXPIRED 表示快取過期已重新抓取、DYNAMIC 表示不緩存。</p>
+    <pre><code># 檢查 Cloudflare 快取狀態
+curl -I https://stock.shawnlin.online/data/scan-results.json 2>/dev/null | grep -i cf-
+# cf-cache-status: HIT     ← CDN 正在用快取版本（可能不是最新的！）
+# cf-cache-status: MISS    ← CDN 回源 fetch 新內容
+# cf-cache-status: EXPIRED ← 快取過期，已重新 fetch
+# cf-ray: 8a3b...          ← Cloudflare edge node ID
+
+# 完整看所有 Cloudflare 相關 header
+curl -sI https://stock.shawnlin.online/ | grep -iE '^(cf-|cache|age|server)'
+# cf-cache-status: DYNAMIC
+# cache-control: public, max-age=0, must-revalidate
+# server: cloudflare
+
+# 強制繞過 CDN 快取（開發/緊急時用）
+curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" \
+  https://stock.shawnlin.online/data/scan-results.json | head -c 200
+
+# Cloudflare 手動 purge cache（透過 API 或 Dashboard）
+# Dashboard: https://dash.cloudflare.com/ → Caching → Purge Everything</code></pre>
+    <p class="why">💭 原理：Cloudflare 的 proxy mode 在 origin server 前面插入全球 CDN。靜態檔案（JSON、JS、CSS）預設會被快取，快取時間由 origin 的 Cache-Control header 或 Cloudflare 的 Page Rules 決定。緊急修復時最大的陷阱就是：你修好 Pod 了，但 CDN 還在餵舊內容。MISS/HIT 告訴你使用者看到的是哪個版本。</p>
+  </article>
+
+  <article class="kp-card" id="kp88">
+    <h4>💡 Pod 內直接修改是暫時的：永久修復需要程式碼 fix + rebuild + redeploy</h4>
+    <p>用 <code>kubectl exec ... tee</code> 寫入 Pod 內檔案的修改是 <strong>ephemeral</strong>（暫時的）。Pod 重啟、重新部署、node 故障遷移後，所有 exec 修改都會消失，回到 Docker image 的原始狀態。緊急 hotfix 只是爭取時間，永久修復仍需改程式碼 → rebuild image → redeploy。</p>
+    <pre><code># 暫時修復（緊急時用，2 分鐘恢復服務）
+cat fixed.json | kubectl exec -i pod -- tee /data/file.json > /dev/null
+
+# 永久修復流程（事後必須完成）
+# 1. 修改原始碼（例：app/page.tsx 加入 snake_case→camelCase 轉換）
+# 2. Clean rebuild
+rm -rf out .next && npx next build
+# 3. Docker build + k3s deploy
+sudo docker build --no-cache -t stock-analysis:v$(date +%s) .
+sudo docker save stock-analysis:v$(date +%s) | sudo ctr -n k8s.io images import -
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=stock-analysis:v$(date +%s)
+# 4. 等 rolling update 完成後，kubectl exec 修改消失，但程式碼已自帶修正
+
+# ⚠️ 常見失誤：做完 hotfix 就以為修好了，結果下次 deploy 又掛
+# 檢查清單：
+# □ 原始碼已修改並 commit？
+# □ Docker image 已 rebuild？
+# □ k3s deployment 已 rolling update？
+# □ 確認 Pod 內的檔案是 image 內建版本（非 exec injected）？</code></pre>
+    <p class="why">💭 原理：容器檔案系統是 overlay filesystem（image layer + container layer）。kubectl exec 寫入的內容存在 container layer，Pod 刪除時一起消失。只有寫入 Dockerfile（image layer）的內容才會持久。這是容器的核心設計——immutable infrastructure——hotfix 是對這個設計的暫時繞過，不是長期策略。</p>
+    <p class="alert">本日案例：dashboard 的 snake_case/camelCase 問題早在專案 skill 文件（references/scan-json-schema.md）中記錄過，但前端未加入防禦性轉換。Hotfix 恢復服務後，永久修復（加入 JS-side field mapping）在對話結束前尚未完成。</p>
+  </article>
+</div>
+
+<!-- Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查</h3>
+  <pre><code># k3s 完整部署四步驟（Docker → containerd → k3s）
+sudo docker build --no-cache -t stock-analysis:v$(date +%s) . && \
+sudo docker save stock-analysis:v$(date +%s) | sudo ctr -n k8s.io images import - && \
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=stock-analysis:v$(date +%s)
+
+# kubectl exec 熱修復：pipe JSON 進 pod 覆蓋檔案
+cat fixed.json | sudo kubectl -n stock-analysis exec -i deploy/stock-analysis -- tee /usr/share/nginx/html/data/scan-results.json > /dev/null
+
+# 繞過 Cloudflare CDN 直連 Pod IP 驗證
+POD_IP=$(sudo kubectl -n stock-analysis get pod -o jsonpath='{.items[0].status.podIP}') && curl -s http://$POD_IP:80/data/scan-results.json | head -c 200
+
+# Cron broken symlink 排查
+ls -la ~/.hermes/scripts/scan-wrapper.py && test -f $(readlink ~/.hermes/scripts/scan-wrapper.py) && echo "OK" || echo "BROKEN"
+
+# TWSE 成交量單位驗證（股 → 張）
+curl -s "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL" | python3 -c "import json,sys; d=json.load(sys.stdin); [print(f'{x[\"Code\"]} vol={int(x[\"TradeVolume\"]):,}股') for x in d[:3]]"</code></pre>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bottom">
+  <span><a href="2026-05-26.html">← 05/26 全市場掃描系統部署：hostPath · API遷移 · CronJob · 崩潰恢復</a></span>
+  <span><a href="../index.html">📖 回首頁</a></span>
+  <span class="disabled">05/28 →（尚未發布）</span>
+</div>
+
+</div>
+</body>
+</html>

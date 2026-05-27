@@ -2152,5 +2152,186 @@
     ],
     "anchor": "kp76",
     "conversation": "20260526_100218_240df6a0"
+  },
+  {
+    "id": "2026-05-27-kp77",
+    "date": "2026-05-27",
+    "title": "k3s containerd 完整部署四步驟（docker build → save → ctr import → kubectl set image）",
+    "summary": "k3s 使用 containerd 而非 Docker runtime，部署流程為：docker build → docker save → sudo ctr -n k8s.io images import → kubectl set image。Docker image store 和 containerd image store 不相通，需透過 save/import 跨 runtime 傳遞。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "kubectl",
+      "部署流程"
+    ],
+    "anchor": "kp77",
+    "conversation": "20260527_100551_915d15c5"
+  },
+  {
+    "id": "2026-05-27-kp78",
+    "date": "2026-05-27",
+    "title": "Timestamp Docker tag 繞過 k3s imagePullPolicy: Never 的 digest 緩存",
+    "summary": "k3s imagePullPolicy: Never 只做本地 image lookup by tag name，不檢查 digest。固定 tag（如 latest）即使重新 build，k3s 也不會察覺內容已變。用 timestamp tag（stock-analysis:v$(date +%s)）強制每次都是新名稱，繞過緩存。",
+    "tags": [
+      "k3s",
+      "Docker",
+      "containerd",
+      "imagePullPolicy",
+      "timestamp"
+    ],
+    "anchor": "kp78",
+    "conversation": "20260527_100551_915d15c5"
+  },
+  {
+    "id": "2026-05-27-kp79",
+    "date": "2026-05-27",
+    "title": "docker build 前確認 COPY 來源目錄存在（避免 missing file 導致部署後 404）",
+    "summary": "Docker COPY 指令不會報錯如果來源目錄缺少部分檔案——它只複製存在的內容。rm -rf out 後若忘了重建 out/data/ 目錄，build 完成但部署後缺少必要檔案。build 前先從 running pod 拉取資料補齊。",
+    "tags": [
+      "Docker",
+      "COPY",
+      "Dockerfile",
+      "部署",
+      "防呆"
+    ],
+    "anchor": "kp79",
+    "conversation": "20260527_100551_915d15c5"
+  },
+  {
+    "id": "2026-05-27-kp80",
+    "date": "2026-05-27",
+    "title": "TWSE API TradeVolume 欄位單位是「股」不是「張」（1 張 = 1,000 股）",
+    "summary": "TWSE OpenAPI 和 FinMind API 的成交量欄位單位都是「股」（shares），非台灣股市慣用的「張」。設定門檻 MIN_VOLUME=5000 實際只篩掉 5 張。修正為 5_000_000（5,000 張×1,000 股），候選從 878 降至 180 檔。",
+    "tags": [
+      "TWSE",
+      "API",
+      "單位陷阱",
+      "股票",
+      "Bug"
+    ],
+    "anchor": "kp80",
+    "conversation": "20260527_115351_85be20bd"
+  },
+  {
+    "id": "2026-05-27-kp81",
+    "date": "2026-05-27",
+    "title": "kubectl exec ... -- tee 直接寫檔進 running pod（純資料更新免 rebuild）",
+    "summary": "只需更新 Pod 內靜態資料（JSON、設定檔）時，用 kubectl exec -i + pipe 直接寫入容器檔案系統，跳過 docker build + redeploy 流程。適合頻繁更新的資料，但 Pod 重啟後修改會消失（ephemeral）。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "hotfix",
+      "Pod",
+      "tee"
+    ],
+    "anchor": "kp81",
+    "conversation": "20260527_115351_85be20bd"
+  },
+  {
+    "id": "2026-05-27-kp82",
+    "date": "2026-05-27",
+    "title": "Hermes cron script mode 120s 硬限制：長時間任務需改用 agent mode",
+    "summary": "Hermes cron job 的 script mode（no_agent）有 120 秒硬性 timeout，超過即被 kill。像全市場掃描（20 分鐘）的長時間任務必須切換為 agent mode，讓 agent 自行管理生命週期，無 timeout 限制。",
+    "tags": [
+      "Hermes",
+      "cron",
+      "timeout",
+      "agent mode",
+      "排程"
+    ],
+    "anchor": "kp82",
+    "conversation": "20260527_144354_0b49e0a5"
+  },
+  {
+    "id": "2026-05-27-kp83",
+    "date": "2026-05-27",
+    "title": "CronJob broken symlink 排查與維運策略",
+    "summary": "Cron job 的腳本路徑是 symlink 但目標檔案不存在時，cron 報 file not found。排查：ls -la 看 symlink 指向 + test -f 確認目標存在。修復：更新 symlink 或直接複製檔案到 cron 工作目錄。",
+    "tags": [
+      "cron",
+      "symlink",
+      "troubleshooting",
+      "shell",
+      "維運"
+    ],
+    "anchor": "kp83",
+    "conversation": "20260527_144354_0b49e0a5"
+  },
+  {
+    "id": "2026-05-27-kp84",
+    "date": "2026-05-27",
+    "title": "資料源更新時間影響排程設計：TWSE 14:30 vs FinMind 18:00",
+    "summary": "台灣股市 13:30 收盤後，TWSE OpenAPI 約 14:30 更新當日資料，FinMind 約 18:00。排程時間必須晚於資料源更新時間。建議 Cron job 設在資料可用時間後 30-60 分鐘，並在腳本中加入資料日期檢查做防禦。",
+    "tags": [
+      "cron",
+      "排程",
+      "TWSE",
+      "FinMind",
+      "資料可用性"
+    ],
+    "anchor": "kp84",
+    "conversation": "20260527_144354_0b49e0a5"
+  },
+  {
+    "id": "2026-05-27-kp85",
+    "date": "2026-05-27",
+    "title": "緊急修復要先繞過 CDN 快取：curl pod IP 直接驗證而非走 domain",
+    "summary": "網站掛掉緊急修復時，curl domain 走的是 Cloudflare CDN 快取層，可能看到舊內容。正確做法：kubectl get pods -o wide 取得 Pod IP，直連 Pod:80 確認實際狀態，再對比 CDN 路徑差異。",
+    "tags": [
+      "Cloudflare",
+      "CDN",
+      "troubleshooting",
+      "kubectl",
+      "Pod IP"
+    ],
+    "anchor": "kp85",
+    "conversation": "20260527_175244_f79e7d5a"
+  },
+  {
+    "id": "2026-05-27-kp86",
+    "date": "2026-05-27",
+    "title": "kubectl exec -i + pipe 做 in-place 熱修復（snake_case → camelCase JSON）",
+    "summary": "儀表板因 JSON 欄位命名格式不符（snake_case vs camelCase）掛掉。緊急修復：從 pod 拉出 JSON → Python 轉換 key → pipe 回 pod 覆蓋。2 分鐘恢復服務，比 rebuild + deploy 快數十倍。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "hotfix",
+      "JSON",
+      "Python"
+    ],
+    "anchor": "kp86",
+    "conversation": "20260527_175244_f79e7d5a"
+  },
+  {
+    "id": "2026-05-27-kp87",
+    "date": "2026-05-27",
+    "title": "Cloudflare cf-cache-status header 確認快取狀態（HIT/MISS/EXPIRED/DYNAMIC）",
+    "summary": "curl -I 檢查 cf-cache-status：HIT=CDN 快取回應（可能不是最新）、MISS=回源 fetch、EXPIRED=快取過期重抓、DYNAMIC=不緩存。緊急修復 pod 後需確認 CDN 已從 MISS 轉為 HIT 新版本。",
+    "tags": [
+      "Cloudflare",
+      "CDN",
+      "cache",
+      "cf-cache-status",
+      "header"
+    ],
+    "anchor": "kp87",
+    "conversation": "20260527_175244_f79e7d5a"
+  },
+  {
+    "id": "2026-05-27-kp88",
+    "date": "2026-05-27",
+    "title": "Pod 內 hotfix 是暫時的：永久修復需程式碼 fix + rebuild + redeploy",
+    "summary": "kubectl exec 寫入的檔案存在 container layer，Pod 重啟/重新部署後消失。緊急 hotfix 只是爭取時間，永久修復仍需：改程式碼 → git commit → docker build → k3s deploy。容器 immutable infrastructure 的設計原則。",
+    "tags": [
+      "k3s",
+      "Pod",
+      "hotfix",
+      "immutable",
+      "ephemeral",
+      "container"
+    ],
+    "anchor": "kp88",
+    "conversation": "20260527_175244_f79e7d5a"
   }
 ]
