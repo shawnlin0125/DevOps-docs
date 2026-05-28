@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-28</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .alert { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-red); }
+.kp-card .alert::before { content: "⚠️ "; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+
+/* Navigation */
+.nav-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.9rem; flex-wrap: wrap; }
+.nav-bottom a { color: var(--accent); text-decoration: none; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1><span class="emoji">📘</span> DevOps 學習筆記 — May 28, 2026</h1>
+  <p class="subtitle">3 對話 · 10 知識點</p>
+  <p class="meta-line">來源：Discord 對話 · Vendor Plugins MVP 基礎設施建置 · Cloudflare 連線診斷 · ArgoCD 存取 | 分類：Helm · ArgoCD · GitHub Actions · Docker · Ingress · Cloudflare · kubectl · K8s Secret</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp1">Helm values 分層覆蓋與環境區隔</a></li>
+    <li><a href="#kp2">GitHub Actions CI Gate 三階段防護</a></li>
+    <li><a href="#kp3">Dockerfile pip install --user 的用戶路徑陷阱</a></li>
+    <li><a href="#kp4">Python module 執行模式支援相對匯入</a></li>
+    <li><a href="#kp5">Helm Ingress template 結構與控制</a></li>
+    <li><a href="#kp6">scan-and-sync 自動部署 Pipeline</a></li>
+    <li><a href="#kp7">curl 診斷 HTTPS 連線參數</a></li>
+    <li><a href="#kp8">Cloudflare Proxy 模式與連線排查</a></li>
+    <li><a href="#kp9">kubectl describe ingress 診斷 backend</a></li>
+    <li><a href="#kp10">K8s Secret base64 解碼取密碼</a></li>
+  </ol>
+</div>
+
+<!-- Section 1 -->
+<div class="kp-section">
+  <h2>🐱 Vendor Plugins MVP 基礎設施建置（CI/CD + Helm + ArgoCD + Docker）</h2>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 Helm values 分層覆蓋與環境區隔（values.yaml → values-staging.yaml → --set）</h4>
+    <p>Helm chart 的 values 可以分層覆蓋：<code>values.yaml</code>（chart 預設值）→ <code>values-staging.yaml</code>（環境特定覆蓋）→ <code>--set key=value</code>（CLI 即時覆蓋）。後面的層級會 merge 覆蓋前面的同名 key。這讓同一份 chart 可以部署到 staging/production 等不同環境，只需切換 values 檔案。</p>
+    <pre><code># values-staging.yaml — 只放 staging 環境的覆蓋值
+namespace: vendor-staging
+ingress:
+  enabled: true
+  host: vendor-demo.shawnlin.online
+
+# 部署時指定環境檔案
+helm upgrade --install vendor-plugins vendor-plugins-chart \
+  -f values-staging.yaml \
+  -n vendor-staging --create-namespace
+
+# CLI --set 可以覆蓋 yaml 中的值（但容易 typo 出錯）
+# 不建議：helm upgrade ... --set images[0].tag=latest</code></pre>
+    <p class="why">💭 原理：Helm 在渲染 template 前會依序 merge 多個 values 來源：built-in defaults → 多個 -f 檔案順序 → --set 鍵值對。後者永遠蓋前者。--set 沒有 type check 或 key 名稱驗證，typo 會靜默新增一個沒在 template 中用到的 key。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 GitHub Actions CI Gate 三階段防護：contract-lint → build-smoke → unit-test</h4>
+    <p>Plugin repos 的 CI gate 包含三個 sequentially 執行的 job，任一失敗即阻止 PR merge。第一關 contract-lint 檢查 OpenAPI spec 是否存在並包含必備 endpoint（/health, /）。第二關 build-smoke 先 build Docker image、run container、用 retry loop（10 次×2 秒間隔）curl /health 確認回應。第三關 unit-test 跑 pytest + coverage。</p>
+    <pre><code># build-smoke job 的 retry loop（關鍵：取代 sleep 3 碰運氣）
+for i in $(seq 1 10); do
+  sleep 2
+  RESP=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8888/health)
+  [ "$RESP" = "200" ] && echo "SMOKE OK" && break
+done
+if [ "$RESP" != "200" ]; then
+  docker logs $CONTAINER_NAME  # 失敗時印 container log 幫助除錯
+  exit 1
+fi
+
+# unit-test 改用 pyproject.toml dev deps
+pip install -e ".[dev]"    # ✅ 正確：同時裝 runtime + test deps
+# pip install -r requirements.txt && pip install pytest  # ❌ 少了 app package</code></pre>
+    <p class="why">💭 原理：CI Gate 是 merge 前的最後一道防線，越早發現問題修復成本越低。Contract lint → Build smoke → Unit test 的順序是故意設計的：lint 最快最便宜（秒級），build medium（分鐘級），test 最完整（分鐘級），失敗時快速回饋。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 Dockerfile pip install --user 搭配 USER 切換導致 ModuleNotFoundError</h4>
+    <p>Multi-stage build 使用 <code>pip install --user</code> 將套件安裝在 <code>/root/.local/</code>，但 runtime 用 <code>USER plugin</code> 切換使用者後，該使用者找不到 root 目錄下的套件。解法：移除 <code>--user</code> flag，直接 pip install 進 system site-packages，這樣不受 USER 切換影響。</p>
+    <pre><code># ❌ 錯誤做法（--user + USER plugin 搭配）
+FROM python:3.12-slim
+RUN pip install --user fastapi uvicorn  # 裝在 /root/.local/
+USER plugin                             # 切過去後讀不到
+COPY app/main.py .
+CMD ["python", "main.py"]               # ModuleNotFoundError!
+
+# ✅ 正確：移除 --user，裝到 system site-packages
+FROM python:3.12-slim
+RUN pip install --no-cache-dir -r requirements.txt
+# 不需 USER plugin，用預設 root 或明確定義 USER 前就裝好套件
+COPY app/ ./app/
+ENTRYPOINT ["python", "-m", "app.main"]</code></pre>
+    <p class="why">💭 原理：Python 的 site-packages 搜尋路徑依使用者和 virtualenv 而異。pip install --user 將套件裝到 <code>$HOME/.local/lib/pythonX.Y/site-packages</code>，USER 切換後 <code>$HOME</code> 改變，Python 就找不到套件。若想用非 root 用戶，應在 pip install 之後才切換 USER。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Python module 執行模式（python -m app.main）支援相對匯入</h4>
+    <p>Container 中執行 Python 應用時，<code>python main.py</code>（script mode）不支援相對匯入（如 <code>from .catapi import ...</code>），會報 <code>ImportError: attempted relative import with no known parent package</code>。改用 <code>python -m app.main</code>（module mode）即可。Dockerfile 中必須用 <code>COPY app/ ./app/</code> 保持 package 目錄結構。</p>
+    <pre><code># ❌ script mode — 不支援相對匯入
+# COPY app/main.py .
+# CMD ["python", "main.py"]
+# → ImportError: attempted relative import with no known parent package
+
+# ✅ module mode — 支援相對匯入
+FROM python:3.12-slim
+WORKDIR /app
+COPY app/ ./app/           # 保持 app/ 目錄結構
+RUN touch app/__init__.py  # 確保 app 是 package
+ENTRYPOINT ["python", "-m", "app.main"]
+
+# 本地測試也應使用 module mode
+python -m app.main</code></pre>
+    <p class="why">💭 原理：Python 的相對匯入依賴 <code>__package__</code> 變數。script mode（python main.py）將 <code>__name__</code> 設為 <code>__main__</code>、<code>__package__</code> 為 None，所以相對匯入找不到 parent package。module mode（python -m app.main）正確設定 package hierarchy，相對匯入才能正常運作。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 Helm Ingress template 結構與控制開關</h4>
+    <p>Helm chart 中的 Ingress template 以 <code>{{- if .Values.ingress.enabled }}</code> 控制是否建立。配合 <code>values-staging.yaml</code> 啟用 <code>ingress.enabled: true</code> 和 <code>host</code> 設定，可以精確控制哪些環境對外暴露。Ingress annotations 控制 nginx 行為（如 force-ssl-redirect、backend-protocol）。</p>
+    <pre><code># templates/ingress.yaml（Helm template 範例）
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "{{ .Values.ingress.sslRedirect }}"
+    nginx.ingress.kubernetes.io/backend-protocol: "{{ .Values.ingress.backendProtocol }}"
+spec:
+  rules:
+  - host: {{ .Values.ingress.host | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}
+            port:
+              number: {{ .Values.service.port }}
+{{- end }}
+
+# values-staging.yaml
+ingress:
+  enabled: true
+  host: vendor-demo.shawnlin.online
+  sslRedirect: true
+  backendProtocol: HTTP</code></pre>
+    <p class="why">💭 原理：Kubernetes Ingress 是一個 L7 負載平衡器，透過 rules 將外部請求路由到內部 Service。Helm 的 template conditional（if enabled）讓同一份 chart 可以在開發環境關閉 Ingress、staging/production 開啟，避免新增不必要的 K8s 資源。</p>
+  </article>
+
+  <article class="kp-card" id="kp6">
+    <h4>💡 scan-and-sync 自動部署 Pipeline：repo scan → values update → ArgoCD sync</h4>
+    <p>自動化 pipeline 讓新增 plugin repo 就能自動上線。scan-plugins.sh 用 <code>gh repo list</code> 掃描所有 <code>vendor-plugin-*</code> repos，自動產生 Helm <code>values.yaml</code> 的 plugin entries，commit + push 後 ArgoCD 偵測到 values 變更便自動 sync。GitHub Actions 同時支援 <code>repository_dispatch</code>（publish 後立即觸發）和 cron（每 15 分鐘 fallback）。</p>
+    <pre><code># scan-plugins.sh 核心邏輯
+#!/bin/bash
+# 掃描所有 vendor-plugin-* repos（排除 template）
+gh repo list shawnlin0125 --json name --jq '.[].name' \
+  | grep '^vendor-plugin-' \
+  | grep -v 'template' \
+  | while read repo; do
+      # 產生 plugin entry 寫入 values.yaml
+      echo "    - name: ${repo#vendor-plugin-}"
+      echo "      image: ghcr.io/shawnlin0125/${repo}"
+      echo "      tag: latest"
+    done
+
+# GitHub Actions scan-sync.yaml trigger
+on:
+  schedule:
+    - cron: '*/15 * * * *'        # fallback 每 15 分鐘
+  repository_dispatch:
+    types: [plugin-created]       # publish.yml 觸發後立即執行
+  push:
+    branches: [main]</code></pre>
+    <p class="why">💭 原理：ArgoCD 的 GitOps 模式持續監控 git repo 中 Helm values 的變更。scan-and-sync 將「新增 repo」這個 action 轉譯為 values.yaml 的 diff，ArgoCD 自動 sync。repository_dispatch 提供即時觸發，cron 作為安全網（防止 dispatch 遺失）。</p>
+  </article>
+</div>
+
+<!-- Section 2 -->
+<div class="kp-section">
+  <h2>🌐 Cloudflare 連線問題排查：'Connection reset by peer' 診斷</h2>
+
+  <article class="kp-card" id="kp7">
+    <h4>💡 curl 診斷 HTTPS 連線參數：-I / -v / -X GET 各有用處</h4>
+    <p>排查 HTTPS 連線問題時，不同 curl 參數回答不同問題：<code>-I</code>（HEAD request）快速確認 method 是否允許；<code>-v</code>（verbose）看完整 TLS handshake、HTTP response header、certificate 資訊；<code>-X GET</code> 明確指定 method（某些 endpoint 只接受 GET）。curl exit code 35 表示 SSL/TLS handshake 失敗，通常是 server-side 或中間人問題。</p>
+    <pre><code># 先確認 DNS 解析
+dig +short vendor-demo.shawnlin.online
+# → 104.21.77.199 (Cloudflare edge IP)
+
+# 確認 method 是否允許
+curl -I https://vendor-demo.shawnlin.online
+# → HTTP/2 405  (HEAD not allowed)
+
+# 完整 TLS handshake + response header
+curl -v https://vendor-demo.shawnlin.online
+# → * TLSv1.3 (IN), TLS handshake, CERT verify (15):
+# → * TLS_AES_256_GCM_SHA384
+# → * Server certificate: *.shawnlin.online (Let's Encrypt)
+# → HTTP/2 200
+
+# 明確指定 GET（部分 API 只接受 GET）
+curl -X GET https://vendor-demo.shawnlin.online/health</code></pre>
+    <p class="why">💭 原理：curl -I 發送 HEAD 請求（只需 response header，不需 body），比完整 GET 更快確認服務是否存活，但部分 server 會回 405 拒絕 HEAD。curl -v 在 stderr 輸出連線過程，是 TLS 問題排查的必備工具。curl exit code 35（CURLE_RECV_ERROR）表示 SSL/TLS 階段的收資料失敗，通常是遠端主動 reset。</p>
+  </article>
+
+  <article class="kp-card" id="kp8">
+    <h4>💡 Cloudflare Proxy 模式：orange cloud 的連線阻斷排查</h4>
+    <p>Cloudflare 的 Proxied（orange cloud）模式會將流量經由 Cloudflare 邊緣伺服器代理，隱藏 origin IP、提供 TLS 加速與 DDoS 防護，但也可能因 WAF（Web Application Firewall）或 Browser Integrity Check（BIC）阻擋特定來源 IP。當使用者得到 <code>Connection reset by peer</code> 但伺服器端 curl 完全正常時，問題通常出在 Cloudflare → 使用者之間的連線，不是 origin server。</p>
+    <pre><code># 從伺服器端測試（會經過 Cloudflare 回源）
+curl -v https://vendor-demo.shawnlin.online
+# → HTTP/2 200 ✅ 伺服器正常
+
+# 使用者端測試
+curl https://vendor-demo.shawnlin.online
+# → curl: (35) Recv failure: Connection reset by peer ❌
+
+# 排查方法
+# 1. 從伺服器端改測 origin 直連（跳過 Cloudflare）
+curl -H "Host: vendor-demo.shawnlin.online" http://43.167.10.119:80
+# 2. 或設 DNS only（gray cloud）暫時繞過 Cloudflare
+# 3. 使用者換 mobile hotspot / VPN 確認是否 IP 被封
+# 4. Cloudflare Dashboard → Security → WAF / Bot Fight Mode
+#    查是否有阻擋記錄
+
+# 檢查 DNS 是否 proxied
+dig vendor-demo.shawnlin.online +short
+# → Cloudflare IP（104.21.x.x / 172.67.x.x）= 有 proxy
+# → origin IP（43.167.x.x）= DNS only</code></pre>
+    <p class="why">💭 原理：Cloudflare Proxy 模式在 client 和 origin server 之間插入一層反向代理。當 Cloudflare 認為 client IP 有風險（WAF/BIC/Bot Fight Mode），它會在 TLS handshake 完成後直接 reset 連線，不回任何 HTTP response。這是 Cloudflare 的「安全阻斷」機制，而非 server 端故障。</p>
+  </article>
+
+  <article class="kp-card" id="kp9">
+    <h4>💡 kubectl describe ingress 診斷 backend 與 nginx sync 狀態</h4>
+    <p><code>kubectl describe ingress</code> 比 <code>kubectl get ingress -o yaml</code> 更適合快速診斷：它顯示 backend service:port 是否正確、Events 欄位是否出現 nginx-ingress-controller 成功 sync 的事件、Annotations 是否正確設定（如 ingress class）。如果 Events 欄位空白或有 Error，代表 ingress-nginx 沒有成功 sync 到該 Ingress 資源。</p>
+    <pre><code># 快速檢查 ingress backend 與事件
+kubectl describe ingress vendor-plugin-demo-ingress -n vendor-staging
+# → Events:
+#   Type    Reason  Age   From                      Message
+#   ----    ------  ----  ----                      -------
+#   Normal  Sync    10m   nginx-ingress-controller   Scheduled for sync
+#   Normal  Sync    10m   nginx-ingress-controller   Successfully synced
+
+# 看 backend 是否指向正確的 service:port
+# → Rules:
+#   Host                              Path  Backends
+#   vendor-demo.shawnlin.online       /     vendor-plugin-demo:80 (10.42.0.226:8080)
+
+# 檢查 annotations
+kubectl get ingress vendor-plugin-demo-ingress -n vendor-staging -o yaml
+# → annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/backend-protocol: HTTP
+
+# 看 pod IP（確認 ingress 有正確 routing）
+kubectl get pods -n vendor-staging -o wide</code></pre>
+    <p class="why">💭 原理：Ingress controller（ingress-nginx）是一個不斷 watch Ingress 資源變化的 Daemon/Deployment。當新的 Ingress 被 create 或修改，controller 重建內部 routing table（nginx.conf）。Events 欄位是 controller 的回饋機制：Sync 代表它看到了這個 Ingress 並成功處理。沒有 Events 代表 controller 根本沒注意到這個 Ingress。</p>
+  </article>
+</div>
+
+<!-- Section 3 -->
+<div class="kp-section">
+  <h2>🔐 ArgoCD 存取與 K8s Secret 管理</h2>
+
+  <article class="kp-card" id="kp10">
+    <h4>💡 K8s Secret base64 解碼取密碼（kubectl jsonpath + base64 -d）</h4>
+    <p>Kubernetes Secret 的資料欄位是 base64 encoded，需要 decode 才能看到明文。ArgoCD 的初始 admin 密碼存在 <code>argocd-initial-admin-secret</code> 中，不是平常的 <code>argocd-secret</code>。用 <code>kubectl get secret -o jsonpath</code> 搭配 <code>base64 -d</code> 解碼。注意記憶體中記錄的密碼可能過期或有 typo，應優先直接從 K8s Secret 查詢。</p>
+    <pre><code># 從 K8s Secret 取得 ArgoCD admin 初始密碼
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+# → -V5O5CkubtzVUnGa
+
+# 登入 ArgoCD
+argocd login argocd.shawnlin.online \
+  --username admin --password -V5O5CkubtzVUnGa
+
+# 查看 ArgoCD ingress 路徑
+kubectl get ingress -n argocd
+# → NAME      CLASS   HOSTS                         ADDRESS       PORTS
+#   argocd    nginx   argocd.shawnlin.online         10.7.1.243    80
+
+# ArgoCD Ingress 配置重點
+kubectl get ingress argocd -n argocd -o yaml
+# → annotations:
+#     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+#     nginx.ingress.kubernetes.io/backend-protocol: HTTP
+#     nginx.ingress.kubernetes.io/ssl-passthrough: "false"</code></pre>
+    <p class="why">💭 原理：Kubernetes Secret 的 .data 欄位內容經過 base64 編碼（不是加密！）。任何人只要有 kubectl get secret 權限就能 decode。初始密碼隨 ArgoCD 安裝自動生成，存在專屬的 <code>argocd-initial-admin-secret</code> 中，第一次登入後建議立即修改。ArgoCD 的 Ingress 採 SSL termination at nginx（ssl-passthrough: false），由 nginx 處理 TLS、backend 走 HTTP。</p>
+  </article>
+</div>
+
+<!-- Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查</h3>
+  <pre><code># Helm values 分層部署
+helm upgrade --install vendor-plugins vendor-plugins-chart \
+  -f values-staging.yaml -n vendor-staging --create-namespace
+
+# Python module mode 執行（支援相對匯入）
+python -m app.main
+
+# curl 診斷 HTTPS 連線問題
+curl -v https://vendor-demo.shawnlin.online         # 完整 TLS + response
+curl -I https://vendor-demo.shawnlin.online          # HEAD 確認 method
+dig +short vendor-demo.shawnlin.online               # DNS 查 IP（有無 proxy）
+
+# kubectl describe ingress 看 backend 與 event
+kubectl describe ingress &lt;name&gt; -n &lt;ns&gt;
+
+# K8s Secret 解碼拿密碼
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d</code></pre>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bottom">
+  <span><a href="2026-05-27.html">← 05/27 k3s 部署流程 · TWSE 單位陷阱 · Cron timeout · 緊急熱修復</a></span>
+  <span><a href="../index.html">📖 回首頁</a></span>
+  <span class="disabled">05/29 →（尚未發布）</span>
+</div>
+
+</div>
+</body>
+</html>

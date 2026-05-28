@@ -1,0 +1,152 @@
+[
+  {
+    "id": "2026-05-28-kp1",
+    "date": "2026-05-28",
+    "title": "Helm values 分層覆蓋與環境區隔（values.yaml → values-staging.yaml → --set）",
+    "summary": "Helm chart 的 values 分層覆蓋：values.yaml（預設）→ values-staging.yaml（環境覆蓋）→ --set（CLI 覆蓋）。後者 merge 覆蓋前者同名 key，讓同一 chart 可部署到 staging/production 等環境。--set 無 type check，typo 會靜默新增不存在的 key。",
+    "tags": [
+      "Helm",
+      "values",
+      "環境區隔",
+      "部署",
+      "staging"
+    ],
+    "anchor": "kp1",
+    "conversation": "20260528_144319_fca1fd88"
+  },
+  {
+    "id": "2026-05-28-kp2",
+    "date": "2026-05-28",
+    "title": "GitHub Actions CI Gate 三階段防護：contract-lint → build-smoke → unit-test",
+    "summary": "Plugin CI gate 包含三個 job：contract-lint 檢查 OpenAPI spec 必備 endpoint、build-smoke（Docker build + retry loop curl /health確認回應）、unit-test（pytest + coverage）。任一失敗阻止 PR merge，越早失敗回饋越快。",
+    "tags": [
+      "GitHub Actions",
+      "CI/CD",
+      "CI Gate",
+      "GitHub",
+      "pipeline"
+    ],
+    "anchor": "kp2",
+    "conversation": "20260528_144319_fca1fd88"
+  },
+  {
+    "id": "2026-05-28-kp3",
+    "date": "2026-05-28",
+    "title": "Dockerfile pip install --user 搭配 USER 切換導致 ModuleNotFoundError",
+    "summary": "pip install --user 將套件裝在 /root/.local/，但 runtime USER plugin 切換後讀不到 root 目錄套件。解法：移除 --user flag，直接 pip install 進 system site-packages，或在 pip install 完成後才切換 USER。",
+    "tags": [
+      "Docker",
+      "Dockerfile",
+      "pip",
+      "USER",
+      "ModuleNotFoundError"
+    ],
+    "anchor": "kp3",
+    "conversation": "20260528_144319_fca1fd88"
+  },
+  {
+    "id": "2026-05-28-kp4",
+    "date": "2026-05-28",
+    "title": "Python module 執行模式（python -m app.main）支援相對匯入",
+    "summary": "python main.py（script mode）不支援相對匯入如 from .catapi import ...，會報 ImportError。改用 python -m app.main（module mode）即可。Dockerfile 需 COPY app/ ./app/ 保持 package 目錄結構，加上 __init__.py。",
+    "tags": [
+      "Python",
+      "module",
+      "相對匯入",
+      "Dockerfile",
+      "entrypoint"
+    ],
+    "anchor": "kp4",
+    "conversation": "20260528_144319_fca1fd88"
+  },
+  {
+    "id": "2026-05-28-kp5",
+    "date": "2026-05-28",
+    "title": "Helm Ingress template 結構與控制開關（{{- if .Values.ingress.enabled }}）",
+    "summary": "Ingress template 以 conditional 控制是否建立，配合 values-staging.yaml 啟用 enabled: true 和 host 設定。Annotations 控制 nginx 行為（force-ssl-redirect、backend-protocol）。讓同一 chart 可精確控制各環境對外暴露的行為。",
+    "tags": [
+      "Helm",
+      "Ingress",
+      "template",
+      "nginx",
+      "Kubernetes"
+    ],
+    "anchor": "kp5",
+    "conversation": "20260528_144319_fca1fd88"
+  },
+  {
+    "id": "2026-05-28-kp6",
+    "date": "2026-05-28",
+    "title": "scan-and-sync 自動部署 Pipeline：repo scan → values update → ArgoCD sync",
+    "summary": "gh repo list 掃描 vendor-plugin-* repos → scan-plugins.sh 自動更新 Helm values.yaml → commit+push → ArgoCD 偵測變更自動 sync。GitHub Actions 支援 repository_dispatch（即時觸發）和 cron（每15分鐘 fallback）雙重觸發機制。",
+    "tags": [
+      "GitOps",
+      "ArgoCD",
+      "Helm",
+      "automation",
+      "GitHub Actions"
+    ],
+    "anchor": "kp6",
+    "conversation": "20260528_144319_fca1fd88"
+  },
+  {
+    "id": "2026-05-28-kp7",
+    "date": "2026-05-28",
+    "title": "curl 診斷 HTTPS 連線參數：-I / -v / -X GET 各有用處",
+    "summary": "-I（HEAD）快速確認 method 是否允許；-v（verbose）看 TLS handshake、response header、certificate；-X GET 明確指定 method（部分 API 只接受 GET）。curl exit code 35 表示 SSL/TLS handshake 階段連線被遠端 reset。",
+    "tags": [
+      "curl",
+      "HTTPS",
+      "TLS",
+      "網路排查",
+      "診斷"
+    ],
+    "anchor": "kp7",
+    "conversation": "20260528_152745_90a5746b"
+  },
+  {
+    "id": "2026-05-28-kp8",
+    "date": "2026-05-28",
+    "title": "Cloudflare Proxy（orange cloud）模式下 Connection reset 排查",
+    "summary": "Proxied 模式經 Cloudflare 邊緣代理流量，但 WAF/Browser Integrity Check 可能阻擋特定來源 IP。使用者端 Connection reset by peer 但伺服器端 curl 正常時，問題在 Cloudflare→使用者之間，非 origin。解法：換網路測試或暫時改 DNS only。",
+    "tags": [
+      "Cloudflare",
+      "Proxy",
+      "WAF",
+      "Connection reset",
+      "CDN"
+    ],
+    "anchor": "kp8",
+    "conversation": "20260528_152745_90a5746b"
+  },
+  {
+    "id": "2026-05-28-kp9",
+    "date": "2026-05-28",
+    "title": "kubectl describe ingress 診斷 backend 與 nginx sync 狀態",
+    "summary": "kubectl describe ingress 比 -o yaml 更適合快速診斷：Events 欄位顯示 nginx-ingress-controller 是否成功 sync、Rules 顯示 backend service:port 是否正確。Events 空白或 Error 代表 ingress-nginx 沒有正確 sync 該資源。",
+    "tags": [
+      "kubectl",
+      "Ingress",
+      "nginx",
+      "診斷",
+      "Kubernetes"
+    ],
+    "anchor": "kp9",
+    "conversation": "20260528_152745_90a5746b"
+  },
+  {
+    "id": "2026-05-28-kp10",
+    "date": "2026-05-28",
+    "title": "K8s Secret base64 解碼取密碼（kubectl jsonpath + base64 -d）",
+    "summary": "K8s Secret .data 欄位為 base64 encoded。ArgoCD 初始密碼在 argocd-initial-admin-secret 中（非 argocd-secret）。用 kubectl get secret -o jsonpath 搭配 base64 -d 解碼。記憶體中記錄的密碼可能有 typo，應優先從 K8s Secret 直接查詢。",
+    "tags": [
+      "kubectl",
+      "Secret",
+      "base64",
+      "ArgoCD",
+      "密碼管理"
+    ],
+    "anchor": "kp10",
+    "conversation": "20260528_151434_55da2272"
+  }
+]
