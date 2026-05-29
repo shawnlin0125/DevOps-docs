@@ -1,0 +1,74 @@
+[
+  {
+    "id": "2026-05-29-kp1",
+    "date": "2026-05-29",
+    "title": "kubectl 看資源使用：top / describe Allocated",
+    "summary": "kubectl top nodes 看 node 即時 CPU/RAM；kubectl top pods -A --sort-by=memory 看 pod 用量排行；kubectl describe node | grep -A 8 Allocated 看 scheduler request/limit 佔比。top 是即時用量，describe Allocated 是容量規劃依據。",
+    "tags": [
+      "kubectl",
+      "資源監控",
+      "capacity planning",
+      "metrics-server"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-29-kp2",
+    "date": "2026-05-29",
+    "title": "Docker 多階段建置縮小 image 大小",
+    "summary": "Dockerfile 多個 FROM 階段：build stage 含全部工具鏈，runtime stage 只 COPY 建置產物。Go 可 FROM scratch 到 ~12MB，Next.js 靜態站台用 nginx:alpine 到 ~10MB。docker images 查看各 image 大小。",
+    "tags": [
+      "Docker",
+      "multi-stage build",
+      "image optimization",
+      "FROM scratch"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-29-kp3",
+    "date": "2026-05-29",
+    "title": "systemd 服務診斷：failed units / journalctl / daemon-reload",
+    "summary": "systemctl list-units --state=failed 快速查失敗服務；journalctl -u <service> -n 50 看特定服務 log；systemctl daemon-reload 改完 unit file 後重載。搭配 systemctl status 看完整狀態含最近 log。",
+    "tags": [
+      "systemd",
+      "journalctl",
+      "systemctl",
+      "Linux 管理"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-29-kp4",
+    "date": "2026-05-29",
+    "title": "GitHub PR 標準流程：branch → commit → PR → merge",
+    "summary": "Feature branch 開發：git checkout -b → commit → git push -u → gh pr create → review → gh pr merge --squash --delete-branch。gh CLI 大幅簡化流程，squash merge 保持 main 歷史乾淨。",
+    "tags": [
+      "GitHub",
+      "PR",
+      "gh CLI",
+      "Git",
+      "CI/CD"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-29-kp5",
+    "date": "2026-05-29",
+    "title": "Cloudflare DNS 管理：Proxy mode vs DNS only",
+    "summary": "Proxied（橙色雲朵）流量經 Cloudflare 邊緣：隱藏 origin IP、免費 TLS、DDoS 防護。DNS only（灰色雲朵）只做解析。dig +short 看回傳 IP 判斷模式。Cloudflare API 可程式化管理 DNS records。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
