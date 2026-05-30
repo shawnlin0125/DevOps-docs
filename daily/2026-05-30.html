@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-05-30（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* Notice */
+.notice { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.3); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.notice p { color: var(--text); font-size: 0.9rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .alert { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-red); }
+.kp-card .alert::before { content: "⚠️ "; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+
+/* Navigation */
+.nav-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.9rem; flex-wrap: wrap; }
+.nav-bottom a { color: var(--accent); text-decoration: none; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1><span class="emoji">🏋️</span> DevOps 學習筆記 — May 30, 2026（自主練習）</h1>
+  <p class="subtitle">0 對話 · 5 知識點</p>
+  <p class="meta-line">今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+</div>
+
+<!-- Notice -->
+<div class="notice">
+  <p>📌 今天沒有 DevOps 相關對話。以下 5 個知識點選自內建知識庫，涵蓋 kubectl exec 容器內排查、OOM Killer 診斷、Git stash 暫存管理、Helm values 分層覆蓋、網路排查四指令，適合日常複習與強化基礎。</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp1">kubectl exec 進 Pod 內排查：變數、連線、DNS</a></li>
+    <li><a href="#kp2">查 OOM 紀錄：dmesg / 了解 OOM Killer 行為</a></li>
+    <li><a href="#kp3">Git stash：暫存工作區的未完成改動</a></li>
+    <li><a href="#kp4">Helm values 分層覆蓋：default → env → CLI</a></li>
+    <li><a href="#kp5">網路排查四指令：curl / dig / ss / nc</a></li>
+  </ol>
+</div>
+
+<!-- Section -->
+<div class="kp-section">
+  <h2>🏋️ 自主練習知識點</h2>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl exec 進 Pod 內排查：變數、連線、DNS</h4>
+    <p>當 Pod 啟動成功但服務不正常時，進 Pod 內部看實際狀態是最直接的方法。<code>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</code> 可進到容器內執行互動式 shell。常用 inside-pod 指令：<code>env | grep -i</code> 確認環境變數是否正確傳入；<code>nc -zv &lt;svc&gt; &lt;port&gt;</code> 測試能否連到其他 Service（例如資料庫）；<code>cat /etc/resolv.conf</code> 確認 DNS 設定和 search domain。</p>
+    <pre><code># 進到 Pod 內（互動式 shell）
+kubectl exec -it vendor-plugin-demo-79bb7 -- sh
+
+# 確認環境變數
+env | grep -i db
+# → DATABASE_URL=postgres://user:pass@shared-db:5432/plugins
+
+# 測試 Service 連線（Container 內常用 busybox 沒有 telnet）
+nc -zv shared-db 5432
+# → Connection to shared-db (10.43.100.50) 5432 port [tcp/postgresql] succeeded!
+
+# 確認 DNS 解析
+cat /etc/resolv.conf
+# → search vendor-staging.svc.cluster.local svc.cluster.local cluster.local
+# → nameserver 10.43.0.10
+
+# 或直接從外部測 Pod 的 IP
+kubectl run -it --rm debug --restart=Never --image=busybox -- sh
+# 在 debug 容器內：
+# wget -qO- http://vendor-plugin-demo:8080/health</code></pre>
+    <p class="why">💭 原理：kubectl exec 透過 kubelet 的 API 在容器內執行指令，不需要 SSH 或直接登入 node。Pod 內的 /etc/resolv.conf 由 kubelet 自動注入，search domain 讓 Pod 可以用 short name（如 "shared-db"）解析同 namespace 的 Service。nc（netcat）是容器內最通用的連線測試工具，大部份 distroless image 也支援。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 查 OOM 紀錄：dmesg / 了解 OOM Killer 行為</h4>
+    <p>當系統因記憶體不足而觸發 OOM（Out Of Memory）Killer 時，Linux 核心會終止某個 process 來釋放記憶體。<code>sudo dmesg -T | grep -i oom</code> 可查詢 OOM 事件紀錄。OOM Killer 會挑選 oom_score 最高的 process（通常是最吃 RAM 的）來終止。在 K8s 中，如果 Pod 的 memory limits 總和超過節點的實體 RAM，OOM 會連鎖殺掉 Pod 進程。</p>
+    <pre><code># 查詢 OOM 事件（-T 顯示人類可讀時間戳）
+sudo dmesg -T | grep -i oom
+
+# 輸出範例：
+# [Sun May 30 02:30:15 2026] oom-kill: constraining gfp_mask=...
+# [Sun May 30 02:30:15 2026] oom_reaper: reaped process 12345 (java), ...
+
+# 查看更多細節（只看最近一次 OOM）
+sudo dmesg -T | grep -A 20 "oom-kill" | tail -30
+
+# 查看 process oom_score
+cat /proc/&lt;PID&gt;/oom_score
+# → 0-1000（越高越容易被殺）
+
+# K8s 中查看 Pod 是否被 OOM 殺掉
+kubectl describe pod &lt;pod-name&gt; -n &lt;ns&gt;
+# → Status:         OOMKilled
+# → Exit Code:      137  # SIGKILL = 128 + 9</code></pre>
+    <p class="why">💭 原理：Linux 核心的 OOM Killer 是記憶體用罄時的最後防線。oom_score 基於 process 記憶體用量（rss, swap, page table）計算，管理者可透過 oom_score_adj 調整特定 process 的分數。K8s 中 exit code 137 表示容器被 SIGKILL，通常來自 OOM Killer（因為 memory limit 被超過）或 node 級別的記憶體壓力。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 Git stash：暫存工作區的未完成改動</h4>
+    <p>當正在開發某個功能，但需要緊急切換 branch 處理其他事（修 bug、開 PR review），手上的改動還沒 commit 時，可以用 <code>git stash</code> 暫存工作區修改。stash 本質是一個 LIFO 堆疊，可以用 <code>git stash list</code> 查看所有暫存記錄，用 <code>git stash pop</code> 還原並移除最近一次暫存。<code>git stash apply</code> 則只還原不移除，適合套用多次 stash 到不同 branch。</p>
+    <pre><code># 暫存目前所有未 commit 的改動
+git stash
+# → Saved working directory and index state WIP on feature/xxx: abc1234 ...
+
+# 暫存並加上標籤，方便辨識
+git stash push -m "WIP: 修改了資料庫連線設定"
+# → Saved "WIP: 修改了資料庫連線設定"
+
+# 查看所有暫存
+git stash list
+# → stash@{0}: On feature/xxx: WIP: 修改了資料庫連線設定
+# → stash@{1}: WIP on feature/xxx: abc1234 ...
+
+# 還原最近一次暫存（同時從堆疊移除）
+git stash pop
+# → Dropped refs/stash@{0}
+
+# 還原但不移除（可套用到多個 branch）
+git stash apply
+
+# 還原特定 stash
+git stash apply stash@{1}
+
+# 清除所有暫存
+git stash clear</code></pre>
+    <p class="why">💭 原理：git stash 將工作目錄和 index（staging area）的改動儲存為一個獨立的 commit-like 物件（實際上是一個特殊的 merge commit），記錄在 .git/refs/stash。stash 的 LIFO 行為意味著最近的 stash 在最上面（stash@{0}）。注意：stash 不會保存 untracked files（需要加 -u/--include-untracked）和 ignored files（需要加 -a/--all）。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Helm values 分層覆蓋：default → env → CLI</h4>
+    <p>Helm values 支援多層級覆蓋：<code>values.yaml</code>（預設值）← <code>values/production.yaml</code>（環境覆蓋）← <code>--set key=value</code>（CLI 直接覆蓋）。後面的層級 merge 覆蓋前面的同名 key。這種分層設計讓同一個 chart 可以部署到多個環境（staging/production），且不須複製 chart。注意：<code>--set</code> 很方便但也容易出錯（typo 不會報錯，只會新增一個沒人用的 key）。</p>
+    <pre><code># === Helm values 分層結構 ===
+#
+# vendor-plugins-chart/
+# ├── values.yaml              # 預設值（所有環境共用）
+# ├── values-staging.yaml      # staging 環境覆蓋
+# └── values-production.yaml   # production 環境覆蓋
+
+# === values.yaml（預設）===
+# replicaCount: 1
+# image:
+#   repository: ghcr.io/shawnlin0125/vendor-plugin-demo
+#   tag: latest
+# ingress:
+#   enabled: false
+#   host: ""
+#
+# === values-staging.yaml（staging 覆蓋）===
+# ingress:
+#   enabled: true
+#   host: "vendor-demo.shawnlin.online"
+
+# 部署 staging（合併預設 + staging values）
+helm install vendor-plugin-demo ./chart \
+  -f values-staging.yaml \
+  -n vendor-staging
+
+# 部署時用 --set 臨時覆蓋 tag
+helm upgrade vendor-plugin-demo ./chart \
+  -f values-staging.yaml \
+  --set image.tag=v1.2.3 \
+  -n vendor-staging
+
+# 查看最終 values（debug 用）
+helm get values vendor-plugin-demo -n vendor-staging
+# → USER-SUPPLIED VALUES:
+# → ingress.enabled: true
+# → ingress.host: vendor-demo.shawnlin.online
+# → image.tag: v1.2.3
+
+# 🚨 --set 陷阱：typo 不報錯
+helm upgrade ... --set image.tag=v1.2.3  # tag 多打一個 g 不會報錯
+# → 只會新增 image.tagg=v1.2.3，實際 tag 還是用舊值</code></pre>
+    <p class="why">💭 原理：Helm 使用 Go template + 合併策略（JSON Merge Patch）來疊加 values。合併時，後面的值只覆蓋前面的同層級 key，不同層級的 key 不受影響。這讓 charts 可以擁有一個合理的預設值（values.yaml），每個環境只需要指定與預設不同的部分。--set 的 key path 用點分隔（如 ingress.enabled），在底層等同於 YAML 路徑。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 網路排查四指令：curl / dig / ss / nc</h4>
+    <p>網路問題診斷是 DevOps 日常。四個必備指令：<code>curl -v &lt;url&gt;</code> 看完整 HTTP request/response header，包括 TLS 握手、Redirect、Response code；<code>dig +short &lt;domain&gt;</code> 快速查 DNS 解析結果（看是 Cloudflare IP 還是真實 IP）；<code>ss -tlnp</code> 取代 netstat，看哪些 port 在 listen；<code>nc -zv &lt;host&gt; &lt;port&gt;</code> 測試 TCP 連線是否通暢（Z 表示不傳資料，V 表示顯示結果）。</p>
+    <pre><code># === curl：完整 HTTP 診斷 ===
+# 看完整 request/response（含 TLS handshake header）
+curl -v https://vendor-demo.shawnlin.online/health
+# → * Trying 104.21.77.199:443...
+# → * TLSv1.3 handshake completed
+# → > GET /health HTTP/2
+# → < HTTP/2 200
+# → {"status":"ok"}
+
+# 只看 Response Header（HEAD request）
+curl -I https://vendor-demo.shawnlin.online
+
+# 只看特定 response header
+curl -s -o /dev/null -w "%{http_code}" https://example.com
+# → 200
+
+# === dig：DNS 診斷 ===
+# 快速解析（只看 IP）
+dig +short vendor-demo.shawnlin.online
+# → 104.21.77.199 (Proxied = Cloudflare IP)
+# → 172.67.211.112
+
+# 查詢指定 DNS server
+dig @1.1.1.1 vendor-demo.shawnlin.online
+
+# === ss：port 監聽狀態 ===
+# 看所有 listening TCP port 及對應 process
+ss -tlnp
+# → LISTEN 0 128 0.0.0.0:80  0.0.0.0:*  users:(("nginx",pid=1234))
+# → LISTEN 0 128 0.0.0.0:443 0.0.0.0:*  users:(("nginx",pid=1234))
+
+# === nc：TCP 連線測試 ===
+# 測試 port 是否通（z = zero-I/O, v = verbose）
+nc -zv vendor-demo 80
+# → Connection to vendor-demo (10.43.159.167) 80 port [tcp/http] succeeded!</code></pre>
+    <p class="why">💭 原理：curl 是 HTTP 層級工具，可以看到應用層的互動（status code、header、body）。dig 是 DNS 層級，查詢的是域名如何解析成 IP。ss 從 kernel socket table 讀取資訊，比 netstat 更快、更詳細。nc（netcat）是 TCP/UDP 層級的工具，不經由應用層協議，可以純粹測試 Transport Layer 的連通性。這四個指令由高到低覆蓋了 OSI 模型的各層（應用層→網路層），是完整的診斷工具箱。</p>
+  </article>
+</div>
+
+<!-- Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查</h3>
+  <pre><code># kubectl exec Pod 內部排查
+kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh
+nc -zv &lt;svc&gt; &lt;port&gt;          # 容器內測連線
+cat /etc/resolv.conf          # 檢查 DNS
+
+# OOM 診斷
+sudo dmesg -T | grep -i oom   # 查 OOM 事件
+kubectl describe pod &lt;name&gt;   # 看 Exit Code 137 = OOM
+
+# Git stash 暫存
+git stash push -m "WIP: ..."
+git stash list
+git stash pop                 # 還原並移除
+
+# Helm values 分層部署
+helm install &lt;name&gt; ./chart -f values-staging.yaml -n &lt;ns&gt;
+helm upgrade &lt;name&gt; ./chart --set image.tag=v1.2.3
+helm get values &lt;name&gt; -n &lt;ns&gt;
+
+# 網路排查四指令
+curl -v https://example.com
+dig +short example.com
+ss -tlnp                      # listening ports
+nc -zv example.com 80         # TCP 連線測試</code></pre>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bottom">
+  <span><a href="2026-05-29.html">← 05/29 自主練習：kubectl 資源診斷、Docker 多階段建置、systemd、GitHub PR、Cloudflare DNS</a></span>
+  <span><a href="../index.html">📖 回首頁</a></span>
+  <span class="disabled">05/31 →（尚未發布）</span>
+</div>
+
+</div>
+</body>
+</html>

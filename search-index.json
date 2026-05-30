@@ -2555,5 +2555,78 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-30-kp1",
+    "date": "2026-05-30",
+    "title": "kubectl exec 進 Pod 內排查：變數、連線、DNS",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進容器，env | grep 看變數，nc -zv <svc> <port> 測連線，cat /etc/resolv.conf 確認 DNS search domain。debug 容器 kubectl run -it --rm --image=busybox -- sh 也可用。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "DNS",
+      "troubleshooting"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-30-kp2",
+    "date": "2026-05-30",
+    "title": "查 OOM 紀錄：dmesg / 了解 OOM Killer 行為",
+    "summary": "sudo dmesg -T | grep -i oom 查 OOM 事件。OOM Killer 殺 oom_score 最高的 process（吃最多 RAM 的）。K8s 中 OOMKilled = exit code 137（SIGKILL），kubectl describe pod 可確認。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "Linux",
+      "memory",
+      "kubectl"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-30-kp3",
+    "date": "2026-05-30",
+    "title": "Git stash：暫存工作區的未完成改動",
+    "summary": "git stash 將未 commit 的改動暫存到 LIFO 堆疊。git stash push -m 'WIP: ...' 加標籤，git stash list 查看所有，git stash pop 還原並移除，git stash apply 只還原不移除。stash 不存 untracked files（需 -u）。",
+    "tags": [
+      "Git",
+      "stash",
+      "workflow"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-30-kp4",
+    "date": "2026-05-30",
+    "title": "Helm values 分層覆蓋：default → env → CLI",
+    "summary": "values.yaml（預設）← values-staging.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）。後面 merge 覆蓋前面同名 key。--set 的 typo 不會報錯只會新增無用 key。helm get values <release> 查看最終值。",
+    "tags": [
+      "Helm",
+      "values",
+      "deployment",
+      "configuration"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-30-kp5",
+    "date": "2026-05-30",
+    "title": "網路排查四指令：curl / dig / ss / nc",
+    "summary": "curl -v 看完整 HTTP（含 TLS），dig +short 查 DNS，ss -tlnp 取代 netstat 看 listening ports，nc -zv host port 測 TCP 連通性。四指令由高到低覆蓋 OSI 各層。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
