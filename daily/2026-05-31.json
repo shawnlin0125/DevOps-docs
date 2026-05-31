@@ -1,0 +1,73 @@
+[
+  {
+    "id": "2026-05-31-kp1",
+    "date": "2026-05-31",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "按順序使用 kubectl get pods → describe pod → logs → get events 四步驟定位 Pod 啟動失敗原因。Status 欄位區分 CrashLoopBackOff、ImagePullBackOff、Pending 等問題類型，Events 區塊揭露 kubelet 層級的錯誤原因。",
+    "tags": [
+      "kubectl",
+      "debug",
+      "pod",
+      "troubleshooting"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-31-kp2",
+    "date": "2026-05-31",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "uptime 看 load average（超過核心數表示排隊），free -h 看 available（非 free，cache 可回收），df -h / 看根目錄磁碟與 inode 使用率。三個指令涵蓋 CPU、RAM、Disk 基礎監控。",
+    "tags": [
+      "linux",
+      "monitoring",
+      "system",
+      "resource"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-31-kp3",
+    "date": "2026-05-31",
+    "title": "Git 復原操作：reset / restore / reflog",
+    "summary": "git reset --soft HEAD~1 退回 commit 保留 staged；git restore <file> 丟棄工作區改動；git reflog 看所有 HEAD 移動記錄可救回誤刪的 commit。三者涵蓋 Git 失誤後的三大復原情境。",
+    "tags": [
+      "git",
+      "recovery",
+      "reset",
+      "reflog"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-31-kp4",
+    "date": "2026-05-31",
+    "title": "Helm 常用操作：list / history / rollback / get values",
+    "summary": "helm list -A 看所有 release；helm history 看版本記錄；helm rollback 退回指定 revision；helm get values 看目前使用者設定的 values（--all 顯示完整渲染值）。用於 Helm 部署的日常維運。",
+    "tags": [
+      "helm",
+      "kubernetes",
+      "deploy",
+      "rollback"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-05-31-kp5",
+    "date": "2026-05-31",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 自建鏡像部署流程：docker build → docker save img | sudo k3s ctr images import - → Deployment 設 imagePullPolicy: Never。可用 timestamp tag 避免版本混淆。適合單節點或測試環境。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "docker",
+      "image",
+      "deploy"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
