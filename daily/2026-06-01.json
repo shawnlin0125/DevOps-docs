@@ -1,0 +1,79 @@
+[
+  {
+    "id": "2026-06-01-kp1",
+    "date": "2026-06-01",
+    "title": "kubectl 看資源使用：kubectl top + describe node Allocated",
+    "summary": "kubectl top nodes/pods 看即時用量，describe node Allocated resources 看 scheduler 視角的 requests/limits 佔比。top 是實際使用，Allocated 是排程預訂量，兩者差異就是 overcommit 空間。",
+    "tags": [
+      "kubectl",
+      "資源監控",
+      "metrics",
+      "requests",
+      "limits"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-01-kp2",
+    "date": "2026-06-01",
+    "title": "Docker 多階段建置縮小 image",
+    "summary": "Multi-stage build：build stage 編譯 artifacts，runtime stage 只複製必要檔案。Go 可用 FROM scratch 瘦身，Node.js 用 Alpine standalone。最終 image 只有 runtime stage 的 layers。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "container",
+      "image optimization",
+      "build"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-01-kp3",
+    "date": "2026-06-01",
+    "title": "systemd 服務管理：systemctl + journalctl",
+    "summary": "systemctl list-units --state=failed 快速找出異常服務；journalctl -u <service> -n 50 看特定服務 log；改完 unit file 必執行 systemctl daemon-reload。連同 restart/enable/status 形成完整服務生命週期管理。",
+    "tags": [
+      "systemd",
+      "journalctl",
+      "systemctl",
+      "Linux",
+      "service management"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-01-kp4",
+    "date": "2026-06-01",
+    "title": "GitHub PR 流程：branch → commit → PR → merge",
+    "summary": "標準流程：git checkout -b → commit → git push -u → gh pr create → CI/review → gh pr merge --squash → git checkout main && git pull。gh CLI 可在終端機完成整個流程，不必開瀏覽器。",
+    "tags": [
+      "GitHub",
+      "PR",
+      "git",
+      "gh CLI",
+      "CI/CD",
+      "collaboration"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-01-kp5",
+    "date": "2026-06-01",
+    "title": "Cloudflare DNS 管理：Proxy Mode vs DNS Only",
+    "summary": "Proxy mode（橘雲）經 Cloudflare 邊緣節點代理，隱藏 origin IP、提供免費 TLS/DDoS/WAF；DNS only（灰雲）只做解析，流量直達 origin。用 Cloudflare API 管理 DNS records，proxied 欄位控制模式。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS",
+      "WAF"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]

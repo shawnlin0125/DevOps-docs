@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-01（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* Notice */
+.notice { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.3); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.notice p { color: var(--text); font-size: 0.9rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.kp-section { margin-bottom: 2rem; }
+.kp-section h2 { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5; }
+.kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+.kp-card pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .alert { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-red); }
+.kp-card .alert::before { content: "⚠️ "; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; }
+.cheatsheet pre code { color: var(--accent); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+
+/* Navigation */
+.nav-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.9rem; flex-wrap: wrap; }
+.nav-bottom a { color: var(--accent); text-decoration: none; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-header">
+  <h1><span class="emoji">🏋️</span> DevOps 學習筆記 — June 01, 2026（自主練習）</h1>
+  <p class="subtitle">0 對話 · 5 知識點</p>
+  <p class="meta-line">今天沒有 DevOps 相關對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+</div>
+
+<!-- Notice -->
+<div class="notice">
+  <p>📌 今天沒有 DevOps 對話。以下 5 個知識點選自內建知識庫，涵蓋 kubectl 資源診斷、Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Cloudflare DNS 管理。</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ol>
+    <li><a href="#kp1">kubectl 看資源使用：top / describe Allocated</a></li>
+    <li><a href="#kp2">Docker 多階段建置縮小 image</a></li>
+    <li><a href="#kp3">systemd 服務管理：systemctl + journalctl</a></li>
+    <li><a href="#kp4">GitHub PR 流程：branch → commit → PR → merge</a></li>
+    <li><a href="#kp5">Cloudflare DNS 管理：Proxy Mode vs DNS Only</a></li>
+  </ol>
+</div>
+
+<!-- Section -->
+<div class="kp-section">
+  <h2>🏋️ 自主練習知識點</h2>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl 看資源使用：top / describe Allocated</h4>
+    <p>當叢集出現資源壓力時，用三個指令從不同維度診斷。 <code>kubectl top nodes</code> 即時看每個節點的 CPU / Memory 實際用量；<code>kubectl top pods -A</code> 看所有 Pod 的即時資源消耗，快速找到吃最多的 Pod；<code>kubectl describe node &lt;node&gt; | grep -A 8 Allocated</code> 看 scheduler 視角的資源佔比（requests / limits 被排程時計算，不是即時用量）。三者缺一不可：top 告訴你「現在用多少」，describe Allocated 告訴你「K8s 認為這個節點被佔用了多少（不管實際上用不用）」，這差異就是 resource overcommit 的空間。</p>
+    <pre><code># 節點即時用量
+kubectl top nodes
+# NAME              CPU     MEMORY
+# k3s-master        342m    3.5Gi
+# k3s-worker1       1.2Gi   8.1Gi
+
+# Pod 即時用量（找出吃資源大戶）
+kubectl top pods -A
+# NAMESPACE  NAME              CPU    MEMORY
+# default    my-app-7d6f8      250m   1.2Gi
+# kube-system traefik-xxx      120m   256Mi
+
+# Scheduler 視角的資源佔比（requests/limits）
+kubectl describe node k3s-worker1 | grep -A 8 Allocated
+#   Namespace    Name              CPU Requests  CPU Limits  Memory Requests  Memory Limits
+#   ──────────   ─────────────    ────────────   ──────────  ───────────────  ─────────────
+#   default      my-app-7d6f8     250m (12%)     500m (25%)  1024Mi (12%)     2Gi (25%)
+#   kube-system  traefik-xxx      100m (5%)      300m (15%)  128Mi (1%)       512Mi (6%)
+#   Allocated resources:
+#   CPU Requests: 350m (17%)   CPU Limits: 800m (40%)
+#   Memory Requests: 1152Mi (13%)  Memory Limits: 2560Mi (31%)</code></pre>
+    <p class="why">💭 原理：kubectl top 從 Metrics Server 取得 cAdvisor 收集的即時資源使用數據；describe node 的 Allocated resources 則是 scheduler 根據 Pod spec 的 resources.requests 和 resources.limits 計算的「預訂量」— Pod 實際用得少但 request 已保留，這就是為何 requests 設太高會浪費資源、設太低會導致 overcommit 過度。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 Docker 多階段建置縮小 image</h4>
+    <p>多階段建置（Multi-stage Build）是 Docker 最有效的 image 瘦身技巧：第一階段（build stage）包含完整 SDK / 編譯器 / 開發依賴來建置 artifacts；第二階段（runtime stage）只複製必要的 binary 或 artifacts，搭配極輕量的 base image。Go 語言特別適合 <code>FROM scratch</code>（static binary，最終 image 只有 binary 本身）；Node.js 可用 Alpine 搭配 standalone output。查看 image 大小用 <code>docker images | grep &lt;name&gt;</code>。</p>
+    <pre><code># === Go 多階段建置範例 ===
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server
+
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+ENTRYPOINT ["/server"]
+# → image 可能只有 10-15MB
+
+# === Node.js 多階段建置範例 ===
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build    # 產生 standalone output
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/public ./public
+EXPOSE 3000
+ENV NODE_ENV=production
+CMD ["node", "server.js"]
+
+# 查看 image 大小
+docker images | grep my-app
+# my-app    latest     abc1234    10 minutes ago   128MB
+# （相比沒多階段：通常 1GB+）</code></pre>
+    <p class="why">💭 原理：Docker image 由多層（layer）組成，每個 RUN / COPY 指令產生一層。多階段建置讓最終 image 只包含 runtime stage 的 layer，builder stage 的所有 layer（Go SDK、npm cache、原始碼）在最終 image 中完全不存在。FROM scratch 是完全空的 base image，連 shell 都沒有，適合 static binary（Go / Rust）極致瘦身。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 systemd 服務管理：systemctl + journalctl</h4>
+    <p>DevOps 日常維運中，systemd 是管理後台服務的核心工具。三個最常用的情境：<code>systemctl list-units --state=failed</code> 快速找出所有異常服務（比一個個檢查快很多）；<code>journalctl -u &lt;service&gt; -n 50 --no-pager</code> 查看特定服務最近 50 行 log（不加 -u 會看所有系統 log）；<code>systemctl daemon-reload</code> 在修改了 <code>/etc/systemd/system/*.service</code> 後必執行，否則 systemd 還是用舊的 unit file。結合 <code>systemctl restart</code> / <code>enable</code> / <code>status</code> 形成完整服務生命週期管理。</p>
+    <pre><code># 1. 快速找出所有失敗的服務
+systemctl list-units --state=failed
+# UNIT                    LOAD   ACTIVE SUB    DESCRIPTION
+# vendor-scan.service     loaded failed failed Vendor Plugin Scanner
+
+# 2. 看服務最近的 log
+journalctl -u vendor-scan.service -n 50 --no-pager
+# Jun 01 03:00:01 k3s-master vendor-scan.sh[1234]: ERROR: connection timeout
+# Jun 01 03:00:02 k3s-master systemd[1]: vendor-scan.service: Main process exited, code=exited
+
+# 3. 改完 .service 檔案後重載
+sudo systemctl daemon-reload
+sudo systemctl restart vendor-scan.service
+sudo systemctl status vendor-scan.service
+
+# 其他常用
+sudo systemctl enable my-service    # 開機自動啟動
+sudo systemctl disable my-service   # 取消開機啟動
+sudo systemctl is-active my-service  # 檢查是否 running</code></pre>
+    <p class="why">💭 原理：systemd 是 Linux 的 init 系統（PID 1），管理所有服務的啟動、停止、監控、依賴關係。list-units 查詢 systemd 內部狀態機（loaded / active / failed）；journalctl 從 binary journal 檔案讀取結構化日誌（比純文字 log 多了 timestamp 索引、priority 過濾）；daemon-reload 強制 systemd 重新解析所有 unit file。journalctl 日誌預設保存在 <code>/var/log/journal/</code>，若磁碟空間不足會自動輪轉（rotate）。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 GitHub PR 流程：branch → commit → PR → merge</h4>
+    <p>GitHub Pull Request 是 DevOps CI/CD 的工作流核心。標準流程：從 main branch 開出 feature branch → 開發 → commit → push → 開 PR（用 <code>gh pr create</code>）→ 等 CI 通過 → code review → merge。善用 gh CLI 直接在終端機操作 PR，不必開瀏覽器。merge 後切回 main branch 並 pull 最新 code。多人協作時，保持 PR 小而專注（single responsibility）能加速 review。</p>
+    <pre><code># === 完整 PR 流程 ===
+# 1. 從最新的 main 開 branch
+git checkout main
+git pull origin main
+git checkout -b feature/add-health-endpoint
+
+# 2. 開發、commit、push
+git add .
+git commit -m "feat: add health check endpoint for k8s probes"
+git push -u origin feature/add-health-endpoint
+
+# 3. 開 PR（使用 gh CLI）
+gh pr create \
+  --title "feat: add health check endpoint" \
+  --body "Adds /health and /ready endpoints for liveness/readiness probes" \
+  --base main
+
+# 4. 查看 PR 狀態
+gh pr status
+gh pr view --web    # 瀏覽器開啟
+
+# 5. CI 通過 + review 後 merge（Squash and Merge）
+gh pr merge feature/add-health-endpoint --squash --delete-branch
+
+# 6. 回到 main 更新
+git checkout main
+git pull origin main</code></pre>
+    <p class="why">💭 原理：GitHub PR 本質是 request 要求 maintainer 將一個 branch 的 commits 合併到另一個 branch。gh CLI 透過 GitHub REST / GraphQL API 與 GitHub 互動，不需要瀏覽器。Squash merge 將 feature branch 上的多個 commits 壓成一個 commit 合併到 main，保持 git history 乾淨。--delete-branch 在 merge 後自動刪除遠端 branch，避免堆積。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 Cloudflare DNS 管理：Proxy Mode vs DNS Only</h4>
+    <p>Cloudflare DNS 提供兩種模式控制流量路由，選擇會直接影響安全性和效能。Proxy mode（橘色雲朵）啟用 Cloudflare CDN 代理：所有流量經過 Cloudflare 邊緣節點，隱藏真實 Origin IP、提供免費 TLS / DDoS 防護 / WAF / 快取；DNS only（灰色雲朵）只做 DNS 解析，流量直接打到 Origin Server，Cloudflare 不代理。大部分生產服務建議用 Proxy mode，但以下情境需要 DNS only：SSH 連線（非 HTTP 流量無法代理）、Email SMTP / IMAP、TCP/UDP 非 Web 服務、以及 Websocket 有特殊限制時。</p>
+    <pre><code># 使用 Cloudflare API 管理 DNS 記錄
+# API Token 需要 Zone:DNS:Edit 權限
+
+# 建立 A record（Proxy mode，橘色雲）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type": "A",
+    "name": "vendor-demo",
+    "content": "43.167.10.119",
+    "ttl": 120,
+    "proxied": true
+  }'
+
+# 查詢 DNS 記錄
+curl -s "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=A&name=vendor-demo.shawnlin.online" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" | jq '.result[] | {name, content, proxied}'
+# {
+#   "name": "vendor-demo.shawnlin.online",
+#   "content": "43.167.10.119",
+#   "proxied": true
+# }
+
+# 切換模式（修改 proxied 欄位）
+curl -X PATCH "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${RECORD_ID}" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  --data '{"proxied": false}'</code></pre>
+    <p class="why">💭 原理：Proxy mode 時，Cloudflare 邊緣節點作為反向代理接收客戶端請求，同時與 Origin Server 建立獨立的 TCP+TLS 連線。客戶端看到的是 Cloudflare IP（104.16.0.0/12 等），Origin IP 對外不可見。DNS only 時，dig 查詢直接返回真實 IP，客戶端直連 Origin Server，Cloudflare 只做名稱解析。TLS 憑證在 Proxy mode 下由 Cloudflare 管理（Edge Certificate），支援自動 renew。</p>
+  </article>
+
+</div>
+
+<!-- 🛠️ Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <pre><code># === kubectl 資源診斷 ===
+kubectl top nodes
+kubectl top pods -A
+kubectl describe node &lt;node&gt; | grep -A 8 Allocated
+
+# === Docker 多階段建置 ===
+# Go: FROM golang:1.22 AS builder → FROM scratch
+# Node: FROM node:20-alpine AS builder → FROM node:20-alpine AS runner
+
+# === systemd 服務管理 ===
+systemctl list-units --state=failed
+journalctl -u &lt;service&gt; -n 50 --no-pager
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart &lt;service&gt;
+
+# === GitHub PR 流程 ===
+git checkout -b feature/xxx &amp;&amp; git push -u origin feature/xxx
+gh pr create --title "..." --body "..." --base main
+gh pr merge feature/xxx --squash --delete-branch
+
+# === Cloudflare DNS API ===
+curl -s "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=A&amp;name=example.com" \
+  -H "Authorization: Bearer ${CF_API_TOKEN}" | jq '.result[] | {name, content, proxied}'</code></pre>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bottom">
+  <span><a href="2026-05-31.html">← 05/31 自主練習：kubectl Pod 診斷、資源監控、Git 復原、Helm 生命週期、k3s 鏡像</a></span>
+  <span><a href="../index.html">📖 回首頁</a></span>
+  <span class="disabled">06/02 →（尚未發布）</span>
+</div>
+
+</div>
+</body>
+</html>
