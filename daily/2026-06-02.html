@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-02</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+  /* Header */
+  .page-header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  .page-header h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.3rem; }
+  .page-header .subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+  .page-header .links { margin-top: 0.5rem; font-size: 0.85rem; }
+  .page-header .links a { color: var(--accent); text-decoration: none; }
+  .page-header .links a:hover { text-decoration: underline; }
+
+  /* TOC */
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+  .toc h3 { color: var(--accent); font-size: 1rem; margin-bottom: 0.5rem; }
+  .toc ol { padding-left: 1.2rem; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .toc-section { margin-top: 0.6rem; padding-top: 0.4rem; border-top: 1px solid var(--border); }
+
+  /* KP Cards */
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; margin: 0.4rem 0; }
+  .kp-card code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.82rem; color: var(--accent-orange); }
+  .kp-card pre code { color: var(--accent-orange); white-space: pre; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card .conversation-source { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem; font-style: italic; }
+
+  /* Cheatsheet */
+  .cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 1.5rem 0; }
+  .cheatsheet h3 { color: var(--accent-orange); font-size: 1rem; margin-bottom: 0.5rem; }
+  .cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem; overflow-x: auto; }
+  .cheatsheet code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.82rem; color: var(--accent-orange); white-space: pre; }
+
+  /* Navigation */
+  .nav-row { display: flex; justify-content: space-between; gap: 0.5rem; margin: 1.5rem 0; flex-wrap: wrap; }
+  .nav-row a { color: var(--accent); text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+  .nav-row a:hover { background: rgba(88,166,255,0.1); }
+  .nav-row .disabled { color: var(--text-secondary); cursor: default; border-color: var(--border); opacity: 0.5; }
+
+  /* Alert box */
+  .alert-box { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1.2rem; }
+  .alert-box strong { color: var(--accent-orange); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container { padding: 1rem 0.8rem; }
+    .page-header h1 { font-size: 1.2rem; }
+    .nav-row { flex-direction: column; }
+    .nav-row a { text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1>🚢 DevOps 學習筆記 — June 02, 2026</h1>
+    <div class="subtitle">1 對話 · 12 知識點 — k3s 部署 Pipeline、Hermes Cron 排程除錯、TWSE 掃描器維運</div>
+    <div class="links">
+      <a href="../index.html">📋 回首頁</a>
+      <span style="color:var(--text-secondary);"> · </span>
+      <a href="https://github.com/shawnlin0125/DevOps-docs">🔗 GitHub</a>
+    </div>
+  </div>
+
+  <!-- Alert if any major incident -->
+  <div class="alert-box">
+    <strong>⚠️ 重大議題：</strong>Hermes cron no_agent script mode 有 120 秒硬性超時限制，全市場掃描腳本（需 5-10 分鐘）無法在排程內完成，需使用 terminal(background=true, timeout=3600) 手動執行或改用 agent-mode cron。
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ol>
+      <li><a href="#kp1">k3s 部署前清除建置快取</a></li>
+      <li><a href="#kp2">使用唯一 timestamp tag 繞過 image digest 快取</a></li>
+      <li><a href="#kp3">Docker build --no-cache 避免 COPY 層快取</a></li>
+      <li><a href="#kp4">k3s containerd 鏡像匯入流程</a></li>
+      <li><a href="#kp5">k3s containerd namespace 為 k8s.io</a></li>
+      <li><a href="#kp6">部署前從 Running Pod 複製資料</a></li>
+      <li><a href="#kp7">imagePullPolicy: Never 的 digest 快取行為</a></li>
+      <li><a href="#kp8">Hermes cron no_agent mode 120 秒超時限制</a></li>
+      <li><a href="#kp9">Hermes cron 腳本必須實體複製到 ~/.hermes/scripts/</a></li>
+      <li><a href="#kp10">背景程序 stdout buffering 改用 /tmp/ status file</a></li>
+      <li><a href="#kp11">五處 MACD 條件副本須保持同步</a></li>
+      <li><a href="#kp12">部署後驗證 compiled chunk 的 function 數量</a></li>
+    </ol>
+  </div>
+
+  <!-- Knowledge Points -->
+  <h3 style="color:var(--accent); margin-bottom:0.6rem;">🔧 k3s 部署 Pipeline</h3>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kp1: k3s 部署前必須完全清除建置快取</h4>
+    <p>Next.js 增量建置不會覆蓋既有 <code>out/</code> 目錄中的舊檔案。若不清除直接 <code>docker build</code>，Docker 的 COPY 層會保留上次的 <code>out/</code> 內容，導致部署的仍是舊版頁面。</p>
+    <pre><code>rm -rf out .next && npx next build</code></pre>
+    <p class="why">💭 原理：Next.js 的 <code>next build</code> 對已存在的 <code>out/</code> 檔案採非破壞性寫入，只新增不覆蓋。手動清除才能保證 100% 乾淨匯出。這個陷阱在輪廓式編譯（Turbopack）下更常見。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 kp2: 使用唯一 timestamp tag 繞過 k3s image digest 快取</h4>
+    <p>k3s 搭配 <code>imagePullPolicy: Never</code> 時，Pod 根據 image digest（SHA256）決定是否重拉。即使重新匯入相同名稱的 tag，k3s 仍使用舊 digest，除非 tag 不同。</p>
+    <pre><code>TAG="stock-analysis:v$(date +%s)"
+sudo docker build --no-cache -t $TAG .
+sudo docker save $TAG | sudo ctr -n k8s.io images import -
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=$TAG</code></pre>
+    <p class="why">💭 原理：containerd 的 image store 以 digest 為主鍵。re-import 同 tag 的新 image 時，舊 digest 不會自動失效。唯一 tag 強制 kubelet 辨識為新 image 觸發重拉。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 kp3: Docker legacy builder 快取 COPY 層必須用 --no-cache 避開</h4>
+    <p>Docker legacy builder 會對 <code>COPY out/ ./</code> 這類指令做 layer 快取。如果 <code>out/</code> 的檔案 mtime 沒變或內容被快取判定為相同，就會沿用舊 layer，導致新靜態檔案沒進去。</p>
+    <pre><code>sudo docker build --no-cache -t $TAG .</code></pre>
+    <p class="why">💭 原理：Docker 的 layer 快取比對每個 COPY 檔案的 checksum，但若在新容器內重新產生相同內容的檔案（如 CI 重複 build），hash 可能相同。--no-cache 強制跳過所有快取重新執行每個指令。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 kp4: k3s containerd 鏡像匯入指令</h4>
+    <p>k3s 預設不使用 Docker CLI 或 Docker registry，而是透過 containerd（namespace <code>k8s.io</code>）管理鏡像。部署本地建置的 image 時：<code>docker build</code> → <code>docker save</code> → pipe 進 <code>ctr images import</code>。</p>
+    <pre><code>sudo docker save $TAG | sudo ctr -n k8s.io images import -</code></pre>
+    <p class="why">💭 原理：<code>docker save</code> 輸出 tar stream，pipe 給 <code>ctr images import</code> 直接寫入 containerd 的 content store，繞過 Docker registry。k3s 的 containerd 使用獨立 namespace <code>k8s.io</code>，不是預設的 <code>default</code>。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 kp5: k3s containerd namespace 為 k8s.io</h4>
+    <p>查詢 k3s 的 containerd 鏡像清單必須指定 namespace，否則預設 namespace（<code>default</code>）不會顯示 k8s 使用的鏡像。</p>
+    <pre><code># ✅ 正確：指定 k8s.io namespace
+sudo ctr -n k8s.io images ls
+
+# ❌ 錯誤：crictl 不適用於鏡像管理（只能看容器）
+sudo crictl images</code></pre>
+    <p class="why">💭 原理：k3s 安裝時將 containerd 的 k8s 相關 namespace 設為 <code>k8s.io</code> 以隔離 kubernetes 與系統容器的鏡像。若不指定 namespace，<code>ctr images ls</code> 只會顯示 <code>default</code> namespace 的鏡像，通常是空的。</p>
+  </article>
+
+  <article class="kp-card" id="kp6">
+    <h4>💡 kp6: 部署前必須從 Running Pod 複製資料到建置目錄</h4>
+    <p><code>rm -rf out</code> 會同時刪除 <code>out/data/</code> 中的掃描結果。Docker build 時必須先重建 <code>out/data/</code> 並從已在運行的 Pod 複製最新資料。</p>
+    <pre><code>mkdir -p out/data
+sudo kubectl exec -n stock-analysis deploy/stock-analysis -- \
+  cat /usr/share/nginx/html/data/scan-results.json > out/data/scan-results.json</code></pre>
+    <p class="why">💭 原理：<code>out/data/</code> 包含動態產生的掃描結果（不在版控中），由 cron 掃描器定時寫入。部署時若從頭 build，資料目錄會消失，Pod 重啟後直到下次掃描前頁面都無資料可顯示。</p>
+  </article>
+
+  <article class="kp-card" id="kp7">
+    <h4>💡 kp7: imagePullPolicy: Never 的 digest 快取行為</h4>
+    <p>當 Deployment 設為 <code>imagePullPolicy: Never</code> 時，kubelet 完全依賴本地 containerd image store 的 digest。同一個 tag 重複匯入不同內容的 image 後，Pod 仍使用舊 digest 啟動。</p>
+    <pre><code># 驗證 Pod 實際使用的 image digest
+sudo kubectl get pods -o jsonpath='{.items[0].status.containerStatuses[0].imageID}'</code></pre>
+    <p class="why">💭 原理：kubelet 在 container 建立時從 CRI（containerd）查詢 image 的 digest 並鎖定。ctr images import 雖然能 overwrite 同名的 tag，但 containerd 的 reference store 可能保留舊 mapping。唯一 tag 是唯一可靠解法。</p>
+  </article>
+
+  <h3 style="color:var(--accent); margin: 1rem 0 0.6rem;">⏰ Hermes Cron 排程除錯</h3>
+
+  <article class="kp-card" id="kp8">
+    <h4>💡 kp8: Hermes cron no_agent mode 有 120 秒硬性超時限制</h4>
+    <p>Hermes 的 <code>no_agent</code> script cron job 有不可設定的 120 秒超時保護。全市場掃描腳本因需逐一查詢每檔股票 API，至少需 5-10 分鐘，必然觸發 timeout。</p>
+    <pre><code># 工作區手動執行（無超時限制）
+terminal(background=true, command="python3 -u scan-all-stocks-v3.py", timeout=3600)</code></pre>
+    <p class="why">💭 原理：no_agent mode 的 cron job 由 Hermes gateway 的簡化執行器驅動，設計上為輕量腳本（health check、curl）服務。掃描類長時間任務應使用 agent-mode cron（無 timeout，但消耗更多 token）或 background terminal。</p>
+  </article>
+
+  <article class="kp-card" id="kp9">
+    <h4>💡 kp9: Hermes cron 腳本必須實體複製到 ~/.hermes/scripts/</h4>
+    <p>Hermes cron job 的 <code>script:</code> 欄位指定腳本路徑時，只能位於 <code>~/.hermes/scripts/</code> 目錄內，不支援絕對路徑或 symlink（symlink 會被偵測為 path traversal 拒絕執行）。</p>
+    <pre><code># ✅ 正確：實體複製
+cp /home/ubuntu/scripts/scan-wrapper.py ~/.hermes/scripts/
+
+# ❌ 錯誤：symlink 會被拒絕
+ln -s /home/ubuntu/scripts/scan-wrapper.py ~/.hermes/scripts/</code></pre>
+    <p class="why">💭 原理：Hermes 的安全機制限制 cron script 只能在沙箱目錄 <code>~/.hermes/scripts/</code> 內，防止路徑穿越攻擊。更新腳本後必須重新手動複製，兩邊不會自動同步。</p>
+  </article>
+
+  <article class="kp-card" id="kp10">
+    <h4>💡 kp10: 背景程序 stdout buffering 改用 /tmp/ status file 輪詢</h4>
+    <p>Python 背景程序在 stdout 被重導向時，即使使用 <code>flush=True</code> 或 <code>PYTHONUNBUFFERED=1</code>，Hermes 的 background process manager 仍可能緩衝輸出。改用寫入 <code>/tmp/scan-status.json</code> 狀態檔並定期讀取更可靠。</p>
+    <pre><code># 在掃描腳本中定期寫入狀態
+import json
+with open("/tmp/scan-status.json", "w") as f:
+    json.dump({"progress": i, "total": total, "status": "running"}, f)
+
+# 由外部定期輪詢
+cat /tmp/scan-status.json</code></pre>
+    <p class="why">💭 原理：檔案寫入是 fsync 後原子化的（小於 PIPE_BUF 的 JSON），不像 pipe/stdout 受 buffer 層級影響。JSON status file 可同時解決進度追蹤和中途 crash 狀態保存兩個問題。</p>
+  </article>
+
+  <h3 style="color:var(--accent); margin: 1rem 0 0.6rem;">🔍 監控與除錯</h3>
+
+  <article class="kp-card" id="kp11">
+    <h4>💡 kp11: 五處 MACD 條件副本必須保持同步</h4>
+    <p>MACD 動能篩選條件在 codebase 中重複定義了五個獨立副本：backtest engine、StrategyCheck 元件、三個 page 元件的 runScan/runBatch。修改條件時必須同步更新所有五處。</p>
+    <pre><code># 搜索所有 MACD 條件定義的位置
+grep -rn "hasMomentumBuy\|momentum\|MACD動能" lib/backtest.ts components/StrategyCheck.tsx app/page.tsx app/strategy/page.tsx app/quick/page.tsx</code></pre>
+    <p class="why">💭 原理：歷史因素導致條件定義散落在 backtest（原始實作）和 UI 元件（後來加入即時掃描功能）之間。理想做法是提取到共用 module（如 <code>lib/strategy-conditions.ts</code>），但尚未重構前只能靠手動同步。</p>
+  </article>
+
+  <article class="kp-card" id="kp12">
+    <h4>💡 kp12: 部署後驗證 compiled chunk 的 function 數量</h4>
+    <p>Next.js Turbopack static export 可能會意外 tree-shake 掉 client-side JavaScript 中的 function（如 <code>window.open</code>）。部署後檢查 compiled chunk 中特定 function 的出現次數可確認 tree-shaking 正常。</p>
+    <pre><code># 驗證 window.open 在 page chunk 中的出現次數
+grep -c 'window.open' out/_next/static/chunks/*.js
+
+# 若為 3，表示三個頁面的呼叫都正確保留</code></pre>
+    <p class="why">💭 原理：Turbopack（Next.js 的 Rust 編譯器）在 static export 時會做 aggressive tree-shaking。如果某個 function 被編譯器判定為「未使用」，即使 runtime 有條件式引用也會被移除。post-deploy grep 驗證是低成本檢查手段。</p>
+  </article>
+
+  <!-- Cheatsheet -->
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># === k3s 部署完整流程 ===
+
+# 1. 清除快取並重建
+rm -rf out .next && npx next build
+
+# 2. 從 Running Pod 複製最新資料
+mkdir -p out/data
+sudo kubectl exec -n stock-analysis deploy/stock-analysis -- \
+  cat /usr/share/nginx/html/data/scan-results.json > out/data/scan-results.json
+
+# 3. 建置並匯入 containerd
+TAG="stock-analysis:v$(date +%s)"
+sudo docker build --no-cache -t $TAG .
+sudo docker save $TAG | sudo ctr -n k8s.io images import -
+
+# 4. 更新 Deployment 並驗證
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=$TAG
+sudo kubectl -n stock-analysis rollout status deploy/stock-analysis
+
+# === 驗證與除錯 ===
+
+# 查看 Pod 實際使用的 image digest
+sudo kubectl get pods -o jsonpath='{.items[0].status.containerStatuses[0].imageID}'
+
+# 列出 containerd 鏡像（k8s.io namespace）
+sudo ctr -n k8s.io images ls
+
+# 背景掃描腳本手動執行
+python3 -u scan-all-stocks-v3.py &
+
+# 檢查掃描進度
+cat /tmp/scan-status.json</code></pre>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-row">
+    <a href="2026-06-01.html">← 🏋️ 06/01 · 自主練習</a>
+    <a href="../index.html">📋 回首頁</a>
+    <span class="disabled">下一頁 →</span>
+  </div>
+
+</div>
+</body>
+</html>
