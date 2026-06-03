@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-03（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* Notice */
+.notice { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.3); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.notice p { color: var(--text); font-size: 0.9rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.section-title { font-size: 1.2rem; color: var(--accent); margin: 1.5rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+.kp-card pre { background: #111; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; color: #e6edf3; margin: 0.4rem 0; }
+.kp-card code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .source { color: var(--text-secondary); font-size: 0.78rem; margin-top: 0.3rem; display: inline-block; background: rgba(88,166,255,0.1); padding: 0.1rem 0.5rem; border-radius: 4px; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 2rem 0; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #111; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; color: #e6edf3; }
+.cheatsheet code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Navigation */
+.nav-bottom { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-top: 1px solid var(--border); margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+.nav-bottom a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1><span class="emoji">🏋️</span> DevOps 學習筆記 — 2026-06-03</h1>
+    <div class="subtitle">自主練習 · 0 對話 · 5 知識點（含 5 自主練習）</div>
+    <div class="meta-line">📅 Wednesday, June 03, 2026</div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice">
+    <p>📝 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ol>
+      <li><a href="#kp1">kubectl 診斷 Pod 啟動失敗的完整流程</a></li>
+      <li><a href="#kp2">k3s containerd 鏡像管理完整流程</a></li>
+      <li><a href="#kp3">查 OOM 紀錄</a></li>
+      <li><a href="#kp4">Git 暫存管理：stash</a></li>
+      <li><a href="#kp5">網路排查指令：curl、dig、ss、nc</a></li>
+    </ol>
+  </div>
+
+  <!-- KPs -->
+  <div class="section-title">🏋️ 自主練習知識點</div>
+
+  <!-- kp1 -->
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl 診斷 Pod 啟動失敗的完整流程</h4>
+    <p>四步驟診斷流程：<code>kubectl get pods</code> 看狀態欄位 → <code>kubectl describe pod</code> 看 Events 與 Conditions → <code>kubectl logs</code> 看應用程式輸出 → <code>kubectl get events --sort-by=.lastTimestamp</code> 看叢集事件。從 Status/Events 可判斷是 ImagePullBackOff（鏡像無法拉取）、CrashLoopBackOff（Container 不斷重啟）、OOMKilled（記憶體超額）、還是 Pending（資源不足/PVC 未就緒）。</p>
+    <pre><code># 1. 列出所有 Pod 及狀態
+kubectl get pods -A
+
+# 2. 查看特定 Pod 的詳細事件與 Condition
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;
+
+# 3. 看 application log
+kubectl logs &lt;pod&gt; -n &lt;ns&gt; --tail=50
+kubectl logs &lt;pod&gt; -n &lt;ns&gt; --previous  # CrashLoop 時看上一次的 log
+
+# 4. 看叢集層級事件
+kubectl get events --sort-by='.lastTimestamp' -n &lt;ns&gt;</code></pre>
+    <p class="why">💭 原理：describe 的 Events 區段記錄了 kubelet 的決策過程（拉鏡像→建立 Container→啟動→失敗→重啟循環），是除錯的第一站。</p>
+  </article>
+
+  <!-- kp2 -->
+  <article class="kp-card" id="kp2">
+    <h4>💡 k3s containerd 鏡像管理完整流程</h4>
+    <p>k3s 使用 containerd 而非 Docker daemon，鏡像需手動匯入到 containerd 的 <code>k8s.io</code> namespace。完整流程：<code>docker build</code>（或 docker pull）→ <code>docker save</code> → <code>sudo ctr -n k8s.io images import</code> → <code>kubectl set image</code> 觸發更新。注意 <code>imagePullPolicy: Never</code> 時 digest 會被快取，必須用唯一 timestamp tag 強制更新。</p>
+    <pre><code># === 完整部署 Pipeline ===
+TAG="stock-analysis:v$(date +%s)"
+
+# 1. 建置新映像
+sudo docker build --no-cache -t $TAG .
+
+# 2. 匯出並匯入至 k3s containerd
+sudo docker save $TAG | sudo ctr -n k8s.io images import -
+
+# 3. 檢查是否成功匯入
+sudo ctr -n k8s.io images ls | grep stock-analysis
+
+# 4. 更新 Deployment 使用新 tag
+sudo kubectl -n stock-analysis set image deploy/stock-analysis stock-analysis=$TAG
+
+# 5. 驗證新 Pod 是否使用新映像
+sudo kubectl get pods -n stock-analysis -o jsonpath='{.items[0].status.containerStatuses[0].imageID}'</code></pre>
+    <p class="why">💭 原理：k3s 不需 Docker registry；containerd 的 <code>k8s.io</code> namespace 是 k3s 專用，<code>crictl</code> 預設連不到。相同 tag 重新匯入不會更新 digest，這是很多人踩過的坑。</p>
+  </article>
+
+  <!-- kp3 -->
+  <article class="kp-card" id="kp3">
+    <h4>💡 查 OOM 紀錄</h4>
+    <p>Linux OOM Killer 會在系統記憶體不足時終止 process。用 <code>dmesg -T | grep -i oom</code> 查詢被終止的 process 名稱、oom_score、以及觸發條件。在 K8s 環境中，Pod 的 memory limits 總和超過節點實體 RAM 時，OOM 會連鎖殺 Pod。</p>
+    <pre><code># 查 OOM 紀錄（需 root）
+sudo dmesg -T | grep -i oom
+
+# 只看最近的 OOM kill
+sudo dmesg -T | grep -i "killed process"
+
+# 即時監控記憶體用量
+free -h                    # 看 available（不是 free）
+cat /proc/meminfo | grep -E "(MemTotal|MemAvailable|MemFree)"
+
+# Pod 層級查詢記憶體限制
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; | grep -A 2 Limits</code></pre>
+    <p class="why">💭 原理：OOM Killer 選 oom_score 最高的 process 終止（通常是最吃 RAM 的）。Linux 用閒置 RAM 做 page cache，所以 <code>free</code> 的數字低不代表記憶體不足，要看 <code>available</code>。</p>
+  </article>
+
+  <!-- kp4 -->
+  <article class="kp-card" id="kp4">
+    <h4>💡 Git 暫存管理：stash</h4>
+    <p>當工作目錄有未 commit 的改動、需要切換 branch 時，用 <code>git stash</code> 暫存目前修改。回來後用 <code>git stash pop</code> 還原。stash 是 LIFO 堆疊，可用 <code>git stash list</code> 查看所有暫存，用 <code>git stash apply stash@{n}</code> 恢復特定暫存而不移除。</p>
+    <pre><code># 暫存目前改動（包含 staged 和 unstaged）
+git stash
+
+# 暫存並包含 untracked files
+git stash -u
+
+# 查看所有暫存清單
+git stash list
+
+# 還原最近一次暫存（同時從 list 移除）
+git stash pop
+
+# 恢復特定暫存但不移除
+git stash apply stash@{1}
+
+# 清除所有暫存
+git stash clear</code></pre>
+    <p class="why">💭 原理：stash 本質是產生兩個臨時 commit（index 和 working tree），儲存在 <code>.git/refs/stash</code> 的 reflog 中。LIFO 順序確保最近暫存的先恢復。</p>
+  </article>
+
+  <!-- kp5 -->
+  <article class="kp-card" id="kp5">
+    <h4>💡 網路排查指令：curl、dig、ss、nc</h4>
+    <p>四個排查指令各有用途：<code>curl -v</code> 看完整 HTTP request/response header（含 SSL/TLS handshake）；<code>dig +short</code> 快速查 DNS 解析結果；<code>ss -tlnp</code> 看 listening port 及佔用的 process；<code>nc -zv</code> 測特定 port 是否可連線（三向交握確認）。</p>
+    <pre><code># HTTP 診斷（看完整 header + 回應碼）
+curl -v https://example.com
+curl -s -o /dev/null -w '%{http_code}' https://example.com  # 只看狀態碼
+
+# DNS 查詢
+dig +short example.com
+nslookup example.com
+
+# 看本機 listening port
+sudo ss -tlnp
+
+# 測遠端 port 連線
+nc -zv example.com 443
+nc -zv 10.0.0.1 6443</code></pre>
+    <p class="why">💭 原理：<code>dig</code> 直接問 DNS 伺服器（跳過系統 cache），<code>ss</code> 讀取 <code>/proc/net/tcp</code> 等核心資料結構，<code>nc -z</code> 只做 TCP 三向交握後中斷連線（不傳資料）。</p>
+  </article>
+
+  <!-- 🛠️ Cheatsheet -->
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># === Pod 故障診斷四步驟 ===
+kubectl get pods -A
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;
+kubectl logs &lt;pod&gt; -n &lt;ns&gt; --tail=50 --previous
+kubectl get events --sort-by='.lastTimestamp' -n &lt;ns&gt;
+
+# === k3s 完整部署 Pipeline ===
+TAG="app:v$(date +%s)"
+sudo docker build --no-cache -t $TAG .
+sudo docker save $TAG | sudo ctr -n k8s.io images import -
+sudo kubectl set image deploy/app app=$TAG -n &lt;ns&gt;
+
+# === OOM 診斷 ===
+sudo dmesg -T | grep -i oom
+free -h
+
+# === Git stash ===
+git stash -u
+git stash pop
+git stash list
+
+# === 網路排查 ===
+curl -v https://example.com
+dig +short example.com
+sudo ss -tlnp
+nc -zv example.com 443</code></pre>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-bottom">
+    <span><a href="2026-06-02.html">← 06/02 🚢 部署 Pipeline</a></span>
+    <span><a href="../index.html">📖 回首頁</a></span>
+    <span class="disabled">下一頁 →</span>
+  </div>
+
+</div>
+</body>
+</html>

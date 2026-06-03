@@ -1,0 +1,47 @@
+[
+  {
+    "id": "2026-06-03-kp1",
+    "date": "2026-06-03",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "四步驟：kubectl get pods 看狀態 → describe pod 看 Events/Conditions → logs 看應用輸出 → get events 看叢集事件。從 Status/Events 可判斷是 ImagePullBackOff、CrashLoopBackOff、OOMKilled 還是 Pending。",
+    "tags": ["kubectl", "pod", "debug", "diagnosis", "troubleshooting"],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-03-kp2",
+    "date": "2026-06-03",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 使用 containerd k8s.io namespace，鏡像需 docker build → docker save | sudo ctr -n k8s.io images import - → kubectl set image。imagePullPolicy: Never 時用唯一 timestamp tag 強制更新 digest 快取。",
+    "tags": ["k3s", "containerd", "Docker", "image", "deploy", "ctr"],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-03-kp3",
+    "date": "2026-06-03",
+    "title": "查 OOM 紀錄",
+    "summary": "sudo dmesg -T | grep -i oom 查記憶體不足被終止的 process。free -h 的 available 才是真正可用的記憶體。K8s memory limits 總和超過節點 RAM 時 OOM 會連鎖殺 Pod。",
+    "tags": ["OOM", "Linux", "memory", "dmesg", "kernel", "diagnosis"],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-03-kp4",
+    "date": "2026-06-03",
+    "title": "Git 暫存管理：stash",
+    "summary": "git stash 暫存未 commit 改動（含 -u 包含 untracked），git stash pop 還原。stash list 查看全部，stash apply stash@{n} 恢復指定版本。LIFO 堆疊，本質是兩個臨時 commit。",
+    "tags": ["Git", "stash", "workflow", "temporary", "snapshot"],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-03-kp5",
+    "date": "2026-06-03",
+    "title": "網路排查指令：curl、dig、ss、nc",
+    "summary": "curl -v 看完整 HTTP 流程，dig +short 快速查 DNS，ss -tlnp 看 listening port，nc -zv 測 port 連線。四指令涵蓋 HTTP/DNS/TCP 三層網路診斷。",
+    "tags": ["network", "curl", "dig", "ss", "nc", "DNS", "troubleshooting"],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
