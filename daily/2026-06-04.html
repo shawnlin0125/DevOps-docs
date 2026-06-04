@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-04（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* Notice */
+.notice { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.3); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.notice p { color: var(--text); font-size: 0.9rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.section-title { font-size: 1.2rem; color: var(--accent); margin: 1.5rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+.kp-card pre { background: #111; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; color: #e6edf3; margin: 0.4rem 0; }
+.kp-card code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .source { color: var(--text-secondary); font-size: 0.78rem; margin-top: 0.3rem; display: inline-block; background: rgba(88,166,255,0.1); padding: 0.1rem 0.5rem; border-radius: 4px; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 2rem 0; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #111; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; color: #e6edf3; }
+.cheatsheet code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Navigation */
+.nav-bottom { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-top: 1px solid var(--border); margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+.nav-bottom a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1><span class="emoji">🏋️</span> DevOps 學習筆記 — 2026-06-04</h1>
+    <div class="subtitle">自主練習 · 0 對話 · 5 知識點（含 5 自主練習）</div>
+    <div class="meta-line">📅 Thursday, June 04, 2026</div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice">
+    <p>📝 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ol>
+      <li><a href="#kp1">Docker 多階段建置縮小 Image</a></li>
+      <li><a href="#kp2">systemd 服務管理：systemctl + journalctl</a></li>
+      <li><a href="#kp3">GitHub PR 流程：gh CLI</a></li>
+      <li><a href="#kp4">Helm values 分層覆蓋原則</a></li>
+      <li><a href="#kp5">Cloudflare DNS 管理：Proxy vs DNS only</a></li>
+    </ol>
+  </div>
+
+  <!-- KPs -->
+  <div class="section-title">🏋️ 自主練習知識點</div>
+
+  <!-- kp1 -->
+  <article class="kp-card" id="kp1">
+    <h4>💡 Docker 多階段建置縮小 Image</h4>
+    <p>Docker 多階段建置（multi-stage build）讓你在一個 Dockerfile 中使用多個 <code>FROM</code> 指令：build stage 安裝所有建置依賴（編譯器、npm 套件等），runtime stage 只複製編譯後的 artifacts，大幅縮小最終 image。Go 語言可以 <code>FROM scratch</code>（static binary，連 base OS 都不需要），Node.js 可以用 standalone output。查看 image 大小用 <code>docker images</code> 或 <code>docker image history</code>。</p>
+    <pre><code># === Go 範例（FROM scratch） ===
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server
+
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+
+# === Next.js 範例 ===
+FROM node:20 AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+EXPOSE 3000
+CMD ["node", "server.js"]
+
+# 查看 image 大小
+docker images | grep &lt;name&gt;
+docker image history &lt;image&gt;  # 看每層的大小</code></pre>
+    <p class="why">💭 原理：Docker image 由唯讀層疊加而成，每層都會永久佔用空間。多階段建置讓最終 image 只包含 runtime 層，build 階段的工具鏈（go compiler、node_modules、npm cache）全部捨棄。</p>
+  </article>
+
+  <!-- kp2 -->
+  <article class="kp-card" id="kp2">
+    <h4>💡 systemd 服務管理：systemctl + journalctl</h4>
+    <p>systemd 是現代 Linux 的 init 系統。常用維運流程：<code>systemctl list-units --state=failed</code> 快速找出所有失敗的服務；<code>journalctl -u &lt;service&gt; -n 50 --no-pager</code> 看最近服務的 log；修改 <code>/etc/systemd/system/&lt;service&gt;.service</code> 後，執行 <code>systemctl daemon-reload</code> 重載設定。用 <code>systemctl status &lt;service&gt;</code> 確認服務是否正在執行。</p>
+    <pre><code># === 服務狀態診斷 ===
+systemctl list-units --state=failed        # 列出所有失敗的服務
+systemctl status &lt;service&gt;                  # 看單一服務狀態（含最近 log）
+systemctl is-active &lt;service&gt;               # 只看是否 active（回傳字串）
+
+# === 日誌診斷 ===
+journalctl -u &lt;service&gt; -n 50 --no-pager   # 看最近 50 行 log
+journalctl -u &lt;service&gt; --since "1 hour ago"  # 看過去 1 小時
+journalctl -u &lt;service&gt; -f                  # 即時追蹤 log（類似 tail -f）
+
+# === 服務操作 ===
+sudo systemctl restart &lt;service&gt;            # 重啟服務
+sudo systemctl daemon-reload                # 修改 unit file 後重載
+sudo systemctl enable &lt;service&gt;             # 設定開機啟動
+sudo systemctl disable &lt;service&gt;            # 取消開機啟動</code></pre>
+    <p class="why">💭 原理：<code>journalctl</code> 讀取 systemd-journald 的二進位日誌（位於 <code>/var/log/journal/</code>），支援結構化過濾（-u、--since、_PID= 等），比傳統 syslog 功能更強且無需 log rotate。</p>
+  </article>
+
+  <!-- kp3 -->
+  <article class="kp-card" id="kp3">
+    <h4>💡 GitHub PR 流程：gh CLI</h4>
+    <p>標準 PR 流程：從 <code>main</code> 開 feature branch → 提交程式碼 → push 到 origin → 用 <code>gh pr create</code> 開 PR → 等 review 與 CI 通過 → merge。用 <code>gh pr view</code> 看 PR 內容、<code>gh pr status</code> 看所有 PR 狀態。merge 後回到 main branch 同步。</p>
+    <pre><code># === 完整 PR 流程 ===
+# 1. 開 feature branch
+git checkout main
+git pull origin main
+git checkout -b feature/xxx
+
+# 2. 開發、commit、push
+git add .
+git commit -m "feat: add xxx"
+git push -u origin feature/xxx
+
+# 3. 開 PR
+gh pr create --title "feat: add xxx" --body "實作 xxx 功能，請 review" --assignee @me
+
+# 4. review 與 CI 通過後 merge
+gh pr merge --squash --auto  # squash merge + 啟用 auto-merge
+
+# 5. 同步 main
+git checkout main && git pull
+
+# === 查看 PR 狀態 ===
+gh pr status              # 列出所有 PR（含需 review 的）
+gh pr view &lt;pr-number&gt;    # 看特定 PR 內容
+gh pr list --state open   # 列出所有 open PR</code></pre>
+    <p class="why">💭 原理：<code>gh</code> CLI 透過 GitHub REST API 與 GraphQL API 操作 PR，支援 token 認證（<code>gh auth status</code>）。<code>--squash</code> 將多個 commit 壓成一個，保持 main 的歷史乾淨。</p>
+  </article>
+
+  <!-- kp4 -->
+  <article class="kp-card" id="kp4">
+    <h4>💡 Helm values 分層覆蓋原則</h4>
+    <p>Helm 的 values 有多層覆蓋順序：<code>values.yaml</code>（chart 內建的預設值）← <code>values/production.yaml</code>（環境特定覆蓋）← <code>--set key=value</code>（CLI 執行時覆蓋）。後面的層級 merge 覆蓋前面的同名 key。用 <code>helm get values</code> 查看 release 當前的實際 values。<code>--set</code> 很方便但容易打錯字，建議 CI/CD 中使用明確的 values 檔案。</p>
+    <pre><code># === Helm values 層級 ===
+# 第一層：values.yaml（chart 內建預設）
+#   replicaCount: 1
+#   image.tag: latest
+
+# 第二層：values/production.yaml（環境覆蓋）
+#   replicaCount: 3
+#   image.tag: v1.2.3
+
+# 第三層：--set（最高優先，執行時指定）
+helm upgrade my-app ./chart --values values/production.yaml \
+  --set image.tag=v1.2.4 --set ingress.enabled=true
+
+# === 查看目前已部署的 values ===
+helm get values my-app -n &lt;ns&gt;          # 看使用者覆蓋的 values
+helm get values my-app -n &lt;ns&gt; --all    # 看所有 values（含 chart 預設）
+
+# === diff 檢查變更 ===
+helm diff upgrade my-app ./chart --values values/production.yaml  # 需安裝 helm-diff plugin</code></pre>
+    <p class="why">💭 原理：Helm 使用 Go template 渲染 YAML，多層 values 透過 <code>helm.sh/helm/v3/pkg/cli/values</code> 的 <code>MergeValues</code> 合併。相同層級遇到 key 衝突時，後寫入者覆蓋前者。map 是深度合併，scalar 直接取代。</p>
+  </article>
+
+  <!-- kp5 -->
+  <article class="kp-card" id="kp5">
+    <h4>💡 Cloudflare DNS 管理：Proxy vs DNS only</h4>
+    <p>Cloudflare DNS 有兩種模式：Proxy mode（橘雲）隱藏 origin IP，所有流量經過 Cloudflare 邊緣節點，提供免費 TLS、DDoS 防護、CDN 快取；DNS only（灰雲）單純解析 IP，流量直接連到 origin server。用 Cloudflare API 可以程式化管理 DNS records，適合自動化部署。</p>
+    <pre><code># === DNS 模式切換 ===
+# 橘雲（Proxy）：隱藏 origin IP，走 Cloudflare CDN
+# dig 會回傳 Cloudflare 邊緣 IP（104.x.x.x 等）
+dig +short example.com
+
+# 灰雲（DNS only）：直接解析到 origin IP
+# 可在 Cloudflare Dashboard 切換，或透過 API
+
+# === Cloudflare API 管理 DNS ===
+# 取得 Zone ID（從 Dashboard 或 API）
+ZONE_ID="your-zone-id"
+API_TOKEN="your-api-token"
+
+# 查詢 DNS records
+curl -s -H "Authorization: Bearer $API_TOKEN" \
+  "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A"
+
+# 新增 A record（proxied=true=橘雲, false=灰雲）
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"A","name":"www","content":"1.2.3.4","ttl":120,"proxied":true}'</code></pre>
+    <p class="why">💭 原理：橘雲模式下，Cloudflare 反代所有 HTTP(S) 流量，用戶看到的是 Cloudflare IP，origin 只接收 Cloudflare 的連線。這層 proxy 實現了 TLS termination、WAF 過濾、快取加速。DNS only 適合 SSH、API 等非 HTTP 服務。</p>
+  </article>
+
+  <!-- 🛠️ Cheatsheet -->
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># === Docker 多階段建置（查看大小） ===
+docker images | grep &lt;name&gt;
+docker image history &lt;image&gt;
+
+# === systemd 服務管理 ===
+systemctl list-units --state=failed
+journalctl -u &lt;service&gt; -n 50 --no-pager
+sudo systemctl daemon-reload
+
+# === GitHub PR 流程 ===
+git checkout -b feature/xxx
+git push -u origin feature/xxx
+gh pr create --title "..." --body "..."
+gh pr merge --squash
+
+# === Helm values ===
+helm get values &lt;release&gt; -n &lt;ns&gt; --all
+helm diff upgrade &lt;release&gt; ./chart -f values/prod.yaml
+
+# === Cloudflare DNS API ===
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records"</code></pre>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-bottom">
+    <span><a href="2026-06-03.html">← 06/03 🏋️ 自主練習</a></span>
+    <span><a href="../index.html">📖 回首頁</a></span>
+    <span class="disabled">下一頁 →</span>
+  </div>
+
+</div>
+</body>
+</html>
