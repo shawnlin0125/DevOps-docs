@@ -3104,5 +3104,82 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-05-kp1",
+    "date": "2026-06-05",
+    "title": "kubectl 進 Pod 內排查：exec + 常用內部指令",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進入容器內部，用 env、nc -zv、cat /etc/resolv.conf 等輕量指令診斷環境變數、網路連線與 DNS 設定",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "Pod",
+      "K8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-05-kp2",
+    "date": "2026-06-05",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 用 containerd 非 Docker daemon：docker build → docker save | sudo k3s ctr images import - → kubectl set image；需用唯一 timestamp tag 繞過 imagePullPolicy: Never 的 digest 快取",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "deploy",
+      "kubectl"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-05-kp3",
+    "date": "2026-06-05",
+    "title": "Linux 資源監控三指令：uptime、free、df",
+    "summary": "uptime 看 load average（超過 CPU 核心數表示瓶頸）、free -h 看 available（非 free）、df -h / 看磁碟使用率；load 高但 CPU idle 也高代表 I/O 瓶頸",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "resource"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-05-kp4",
+    "date": "2026-06-05",
+    "title": "Git 復原操作：reset、restore、reflog",
+    "summary": "git reset --soft HEAD~1 退回 commit 保留 staged、git restore <file> 丟棄工作區改動、git reflog 救回誤刪的 commit",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "復原"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-05-kp5",
+    "date": "2026-06-05",
+    "title": "Helm 常用操作：list、history、rollback、get values",
+    "summary": "helm list -A 列出所有 release、helm history 看版本、helm rollback 快速退回、helm get values --all 看所有實際 values",
+    "tags": [
+      "Helm",
+      "K8s",
+      "rollback",
+      "values",
+      "deploy"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
