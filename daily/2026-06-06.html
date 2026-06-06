@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-06</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+.page-header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.7rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+.page-header h1 .emoji { color: var(--accent-green); }
+.page-header .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+.page-header .meta-line { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.4rem; }
+
+/* Notice */
+.notice { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.3); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.notice p { color: var(--text); font-size: 0.9rem; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 2rem; }
+.toc h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; }
+.toc ol { padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; }
+.toc ol li a { color: var(--accent-green); text-decoration: none; }
+.toc ol li a:hover { text-decoration: underline; }
+
+/* Section */
+.section-title { font-size: 1.2rem; color: var(--accent); margin: 1.5rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+
+/* KP Card */
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+.kp-card pre { background: #111; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; color: #e6edf3; margin: 0.4rem 0; }
+.kp-card code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card .source { color: var(--text-secondary); font-size: 0.78rem; margin-top: 0.3rem; display: inline-block; background: rgba(88,166,255,0.1); padding: 0.1rem 0.5rem; border-radius: 4px; }
+
+/* Cheatsheet */
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 2rem 0; }
+.cheatsheet h3 { font-size: 1rem; color: var(--accent-orange); margin-bottom: 0.6rem; }
+.cheatsheet pre { background: #111; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; color: #e6edf3; }
+.cheatsheet code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+
+/* Navigation */
+.nav-bottom { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-top: 1px solid var(--border); margin-top: 2rem; flex-wrap: wrap; gap: 0.5rem; }
+.nav-bottom a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.nav-bottom a:hover { text-decoration: underline; }
+.nav-bottom .disabled { color: var(--text-secondary); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1><span class="emoji">📅</span> DevOps 學習筆記 — 2026-06-06</h1>
+    <div class="subtitle">1 對話 · 10 知識點（含 4 補充）</div>
+    <div class="meta-line">📅 Saturday, June 06, 2026</div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice">
+    <p>📋 今天的 DevOps 對話討論了雲端伺服器資訊查詢：如何透過 IP 定位、系統指令確認主機廠商與地理位置。以下從對話中提取 6 個知識點，並補充 4 個基礎知識點達到 10 個。</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ol>
+      <li><a href="#kp1">curl ifconfig.me — 快速查詢對外 IP</a></li>
+      <li><a href="#kp2">curl ipinfo.io — 一站查 ISP、地理位置、ASN</a></li>
+      <li><a href="#kp3">curl ipapi.co — 另一組 IP 資訊 API</a></li>
+      <li><a href="#kp4">系統資訊查詢：OS 版本、核心、主機名稱</a></li>
+      <li><a href="#kp5">Tencent Cloud 主機命名慣例</a></li>
+      <li><a href="#kp6">IP 區段判斷雲端廠商</a></li>
+      <li><a href="#kp7">Git stash 暫存管理</a></li>
+      <li><a href="#kp8">Helm values 分層覆蓋</a></li>
+      <li><a href="#kp9">kubectl 資源診斷：top + describe node</a></li>
+      <li><a href="#kp10">systemd 服務管理：systemctl + journalctl</a></li>
+    </ol>
+  </div>
+
+  <!-- Section: Conversation KPs -->
+  <div class="section-title">🗣️ 對話知識點</div>
+
+  <!-- kp1 -->
+  <article class="kp-card" id="kp1">
+    <h4>💡 curl ifconfig.me — 快速查詢對外 IP</h4>
+    <p>只需要 <code>curl ifconfig.me</code> 就能取得伺服器的對外 public IP，不需要 root 權限，也不需要安裝任何套件（curl 幾乎是所有 Linux 發行版內建）。對比 <code>hostname -I</code>（回傳內網 IP）或 <code>ip addr</code>，<code>ifconfig.me</code> 回傳的是 NAT/防火牆之外的公網 IP，非常適合確認伺服器真實對外位置。</p>
+    <pre><code># === 查詢對外 IP ===
+curl ifconfig.me                    # 最簡潔，回傳純 IP
+curl -s ifconfig.me                 # -s 靜默模式，只回傳 IP 不顯示進度
+
+# === 其他類似服務 ===
+curl icanhazip.com                  # 一樣回傳純 IP
+curl ip.sb                           # 回傳純 IP（新增選項）
+curl ifconfig.co                     # 回傳純 IP（有 JSON 模式）
+
+# === 確認內外網差異 ===
+hostname -I                          # 回傳內網 IP（通常 10.x.x.x 或 192.168.x.x）
+ip route get 1 | head -1            # 看透過哪個介面與 IP 出去</code></pre>
+    <p class="why">💭 原理：這些服務（ifconfig.me、icanhazip.com 等）是簡單的 HTTP 伺服器，收到請求後讀取 TCP connection 的 remote address（即你的公網出口 IP）並回傳。它們不存 log 或只存短時間 log，適合快速確認。記得在 NAT/VPN 環境下，回傳的是 NAT 閘道的出口 IP 而非本機 IP。</p>
+  </article>
+
+  <!-- kp2 -->
+  <article class="kp-card" id="kp2">
+    <h4>💡 curl ipinfo.io — 一站查 ISP、地理位置、ASN</h4>
+    <p><code>curl ipinfo.io/&lt;IP&gt;</code> 回傳 JSON 格式的 IP 詳細資料，包含 ISP 組織（org）、國家（country）、城市（city）、經緯度（loc）、ASN 編號。不帶 IP 時自動查詢來源 IP。比 whois 指令更快、更簡潔，特別適合快速判斷伺服器託管在 AWS/GCP/騰訊雲 等哪家廠商以及哪個地區。</p>
+    <pre><code># === 查詢自己的 IP 資訊 ===
+curl ipinfo.io                       # 查自己的 IP（含 ISP/城市/國家/經緯度）
+curl -s ipinfo.io | jq .             # 用 jq 格式化 JSON
+
+# === 查詢特定 IP ===
+curl ipinfo.io/43.167.10.119         # 範例輸出包含：
+# {
+#   "ip": "43.167.10.119",
+#   "city": "Tokyo",
+#   "region": "Tokyo",
+#   "country": "JP",
+#   "loc": "35.6895,139.6917",
+#   "org": "AS132203 Tencent Building, Kejizhongyi Avenue",
+#   "timezone": "Asia/Tokyo"
+# }
+
+# === 常用欄位解讀 ===
+# org → ISP 組織名稱（含 ASN 編號）
+# AS132203 → Tencent Cloud（騰訊雲）
+# country: JP → 日本
+# timezone: Asia/Tokyo → 時區（可判斷實體位置是否在東京）</code></pre>
+    <p class="why">💭 原理：ipinfo.io 是一個 IP 地理位置資料庫服務（背後整合 MaxMind GeoIP 和 WHOIS/RDAP 資料），透過 HTTP API 提供結構化回傳。IP 區段分配是由 IANA → RIR（如 APNIC）→ ISP 管理的，因此從 IP 範圍可以反推 ISP 和大致地理位置。免費版每日有查詢次數限制（約 5 萬次/月），一般維運使用非常足夠。</p>
+  </article>
+
+  <!-- kp3 -->
+  <article class="kp-card" id="kp3">
+    <h4>💡 curl ipapi.co — 另一組 IP 資訊 API（更詳細欄位）</h4>
+    <p><code>curl ipapi.co/&lt;IP&gt;/json/</code> 提供另一套 IP 地理定位資料，欄位比 ipinfo.io 更豐富——包含郵遞區號（postal）、貨幣代碼（currency）、國際電話國碼（country_calling_code）、緯度經度分開（latitude/longitude）等。兩個服務可交叉驗證，避免單一來源資料有誤。</p>
+    <pre><code># === 查詢 IP 詳細資訊 ===
+curl ipapi.co/43.167.10.119/json/    # 回傳 JSON
+curl -s ipapi.co/43.167.10.119/json/ | jq .
+
+# === 範例輸出欄位 ===
+# {
+#   "ip": "43.167.10.119",
+#   "city": "Tokyo",
+#   "country": "JP",
+#   "country_name": "Japan",
+#   "postal": "151-0053",
+#   "latitude": 35.6895,
+#   "longitude": 139.6917,
+#   "timezone": "Asia/Tokyo",
+#   "currency": "JPY",
+#   "country_calling_code": "+81",
+#   "org": "AS132203 Tencent Building, Kejizhongyi Avenue"
+# }
+
+# === 與 ipinfo.io 的比較 ===
+# ipapi.co 多提供：postal（郵遞區號）、currency（貨幣）、country_calling_code（國碼）
+# ipinfo.io 多提供：loc（合併經緯度）、hostname（反向 DNS，若有）
+# 兩者可交叉驗證 city/country/org 欄位</code></pre>
+    <p class="why">💭 原理：ipapi.co 也是基於 MaxMind GeoIP 資料庫的付費/免費 API，但其商業模式是「免費層較小但欄位多」。兩個服務互相備援的好處是：當一個服務掛掉或 rate limit 時，另一個還能用。如果公司環境不允許外部 API，可以自建 MaxMind GeoLite2 資料庫做本地查詢。</p>
+  </article>
+
+  <!-- kp4 -->
+  <article class="kp-card" id="kp4">
+    <h4>💡 系統資訊查詢：OS 版本、核心、主機名稱</h4>
+    <p><code>cat /etc/os-release</code> 顯示 Linux 發行版名稱與版本（如 Ubuntu 24.04 LTS），<code>uname -a</code> 顯示核心版本、主機名稱、系統架構（x86_64/aarch64）。這兩個指令是接手陌生伺服器時的第一手資訊——知道 OS 版本才能決定安裝什麼套件（apt vs yum），知道架構才能下載正確的二進位檔。</p>
+    <pre><code># === OS 發行版資訊 ===
+cat /etc/os-release                  # 看發行版名稱與版本
+# 範例輸出：
+# NAME="Ubuntu"
+# VERSION="24.04 LTS (Noble Numbat)"
+# ID=ubuntu
+# VERSION_ID="24.04"
+
+# === 核心與主機資訊 ===
+uname -a                             # 全部資訊
+# 範例：Linux VM-1-243-ubuntu 6.8.0-51-generic #52-Ubuntu SMP x86_64
+
+uname -r                             # 只看核心版本（如 6.8.0-51-generic）
+uname -m                             # 只看架構（x86_64 / aarch64）
+hostname                             # 只看主機名稱
+
+# === 其他常用系統資訊 ===
+cat /etc/os-release                  # systemd 風格的發行版資訊
+lsb_release -a                       # LSB 格式（需安裝 lsb-release）
+hostnamectl                          # systemd 的完整系統摘要（OS + 核心 + 架構）
+lscpu                                # CPU 詳細資訊（型號、核心數、時脈）</code></pre>
+    <p class="why">💭 原理：<code>/etc/os-release</code> 是 systemd 時代的標準發行版識別檔案，幾乎所有現代 Linux（Ubuntu 15.04+、Debian 8+、CentOS 7+）都支援。<code>uname</code> 是 POSIX 標準指令，直接讀取核心的 <code>utsname</code> 系統呼叫（syscall），因此不需要任何套件或檔案系統存取。</p>
+  </article>
+
+  <!-- kp5 -->
+  <article class="kp-card" id="kp5">
+    <h4>💡 Tencent Cloud 主機命名慣例</h4>
+    <p>騰訊雲 CVM 實例的預設主機名稱格式為 <code>VM-&lt;區域編號&gt;-&lt;執行個體ID&gt;-&lt;OS名稱&gt;</code>。例如 <code>VM-1-243-ubuntu</code> 代表：區域 1（通常是騰訊雲的某個可用區）、執行個體 ID 243、作業系統 Ubuntu。這個命名規則可以作為判斷伺服器是否為騰訊雲主機的快速線索。</p>
+    <pre><code># === 騰訊雲預設主機名稱 ===
+hostname                             # 例如：VM-1-243-ubuntu
+# 解析：
+# VM        → Virtual Machine（虛擬機）
+# 1         → 區域/可用區編號
+# 243       → 執行個體序號
+# ubuntu    → 作業系統名稱
+
+# === 其他雲端廠商的預設命名 ===
+# AWS EC2:   ip-172-31-xx-xx.ec2.internal
+# GCP:       &lt;instance-name&gt;.c.&lt;project-id&gt;.internal
+# Azure:     &lt;vm-name&gt;.&lt;region&gt;.cloudapp.azure.com
+# 阿里雲:    iZ&lt;random&gt;Z（如 iZ2ze5hx1q5j8x）
+
+# === 如何驗證雲端廠商 ===
+# 方法 1: IP 查詢（ipinfo.io / ipapi.co）
+# 方法 2: 查看 systemd 或 cloud-init 相關檔案
+cat /etc/cloud/cloud.cfg | grep -i datasource  # 看 datasource 設定
+cat /var/log/cloud-init.log | head -20         # 看開機初始化 log
+dmidecode -s system-manufacturer               # 看 BIOS 廠商（可能顯示 Tencent）</code></pre>
+    <p class="why">💭 原理：雲端廠商在建立 VM 時，透過 cloud-init 或客製化 image 寫入預設主機名稱。不同廠商有各自的命名習慣（AWS 用 ip-xx-xx-xx-xx、騰訊雲用 VM-區域-ID-OS），這些命名慣例沒有強制標準，但實務上非常穩定。從 hostname 就可以「看一眼」知道大概的雲端廠商。</p>
+  </article>
+
+  <!-- kp6 -->
+  <article class="kp-card" id="kp6">
+    <h4>💡 IP 區段判斷雲端廠商</h4>
+    <p>每個雲端廠商都有自己的 IP 區段（IP range），這些區段由 IANA 分配給 RIR（亞太區為 APNIC），再分配給 ISP/雲端廠商。例如 <code>43.167.x.x</code> 屬於 Tencent Cloud（騰訊雲），ASN 為 AS132203。透過 IP 前綴（subnet），可以快速判斷伺服器的雲端廠商——不需要登入任何管理後台。</p>
+    <pre><code># === 查詢 IP 的 ASN 與組織 ===
+curl -s ipinfo.io/43.167.10.119 | jq -r .org
+# AS132203 Tencent Building, Kejizhongyi Avenue
+
+# === 常用雲端廠商的 IP 區段前綴 ===
+# Tencent Cloud:   43.128.x.x ~ 43.136.x.x, 43.153.x.x ~ 43.167.x.x
+# AWS:             3.x.x.x, 13.x.x.x, 18.x.x.x, 35.x.x.x, 52.x.x.x, 54.x.x.x
+# GCP:             34.x.x.x, 35.x.x.x, 8.34.x.x, 8.35.x.x
+# Azure:           13.x.x.x, 20.x.x.x, 40.x.x.x, 52.x.x.x
+# Cloudflare:      104.16.x.x, 172.64.x.x（CDN edge）
+
+# === 常用查詢指令 ===
+whois 43.167.10.119 | grep -i "descr\|org-name\|netname"
+# 直接看 whois 紀錄中的組織描述
+
+# === 批量查詢（透過 bgp.he.net）===
+# 也可以上 https://bgp.he.net/AS132203 看完整 IP 區段清單
+# 或透過 curl bgp.he.net/AS132203 抓取</code></pre>
+    <p class="why">💭 原理：IP 位址不是隨機分配的——IANA 將大區段分配給 RIR，RIR 再分配給 ISP/雲端廠商。一旦知道某 IP 的 /24 或 /16 區段屬於哪家廠商，就能合理推斷同 subnet 的其他 IP 也屬於同一家（但 VPN/CDN/Proxy 可能混淆）。/8 區段（如 3.0.0.0/8 是 AWS）是最可靠的線索。</p>
+  </article>
+
+  <!-- Section: Supplementary KPs -->
+  <div class="section-title">📚 補充知識點</div>
+
+  <!-- kp7 -->
+  <article class="kp-card" id="kp7">
+    <h4>💡 Git stash 暫存管理</h4>
+    <p><code>git stash</code> 是一個「暫存工作區改動」的工具，讓你在不 commit 的情況下切換 branch 或 pull 最新程式碼。本質是 LIFO（後進先出）堆疊——<code>git stash push</code> 將當前改動壓入堆疊頂端，<code>git stash pop</code> 彈出最近一次的暫存並恢復到工作區。<code>git stash list</code> 查看所有暫存，<code>git stash drop</code> 刪除指定暫存。</p>
+    <pre><code># === 基本操作 ===
+git stash push -m "wip: refactoring in progress"    # 暫存並附上訊息
+git stash pop                                       # 還原最近一次的暫存（並移除）
+git stash list                                      # 看所有暫存（stash@{0}, stash@{1}...）
+git stash show stash@{0}                            # 看指定暫存的 diff
+
+# === 進階用法 ===
+git stash push -p                                   # 互動選擇哪些檔案要暫存
+git stash push --keep-index                         # 暫存工作區但保留 staging area
+git stash branch &lt;branch-name&gt; stash@{0}            # 從暫存建立新 branch
+git stash drop stash@{1}                            # 刪除指定暫存
+git stash clear                                     # 清空所有暫存（⚠️ 不可回復）
+
+# === 實用情境 ===
+# 情境 1：正在開發新功能，但 production bug 需要緊急修復
+git stash push -m "feature wip"
+git checkout main && git pull
+# ...修 bug、commit、push...
+git checkout feature-branch
+git stash pop
+
+# 情境 2：git pull 前發現本地有未 commit 的改動
+git stash push -m "before-pull"
+git pull
+git stash pop</code></pre>
+    <p class="why">💭 原理：<code>git stash</code> 本質上是在 Git 物件庫中建立兩個臨時 commit（一個記錄 index，一個記錄 working tree），然後透過 <code>refs/stash</code> 這個參考來追蹤堆疊。stash@{N} 是 reflog-style 的參考，每次 stash push 都會往前移動。因為是 commit，所以 stash 的內容在超過 git gc 保留期限前都可以救回。</p>
+  </article>
+
+  <!-- kp8 -->
+  <article class="kp-card" id="kp8">
+    <h4>💡 Helm values 分層覆蓋</h4>
+    <p>Helm 的 values 可以在三個層級定義，由後往前依序覆蓋：<code>values.yaml</code>（chart 內建預設）→ <code>values/環境.yaml</code>（部署時指定）→ <code>--set key=value</code>（CLI 傳入）。後面的層級會 merge 覆蓋前面的同名 key。<code>--set</code> 很方便但也容易因為拼寫錯誤而無人檢查——typo 不會報錯，只是不生效。</p>
+    <pre><code># === values 分層結構 ===
+# chart/values.yaml        ← chart 內建預設（版本控制）
+# chart/values/prod.yaml   ← 環境特定覆蓋（版本控制）
+# chart/values/staging.yaml
+# --set replicaCount=3     ← CLI 即時覆蓋（不持久）
+
+# === 部署範例 ===
+# 1. 用預設 values 安裝（開發環境）
+helm install my-app ./chart -n dev
+
+# 2. 用環境 values 安裝（正式環境）
+helm upgrade my-app ./chart -f values/prod.yaml -n prod
+
+# 3. 加上 CLI 覆蓋（hotfix 臨時調參）
+helm upgrade my-app ./chart \
+  -f values/prod.yaml \
+  --set image.tag=v2.1.0 \
+  --set resources.requests.cpu=500m \
+  --set replicaCount=5 \
+  -n prod
+
+# === 檢視最終 values ===
+helm get values my-app -n prod           # 看使用者設定的 values
+helm get values my-app -n prod --all     # 看所有值（含 chart 預設）
+helm get manifest my-app -n prod         # 看實際部署的 K8s 資源
+
+# === values 的資料型態覆蓋 ===
+# YAML merge 是深層合併（deep merge）：
+# 值層的 image 只覆蓋 image 底下的子欄位，不會整個取代 image 區塊
+# 但陣列（list）是整個取代，不是 append</code></pre>
+    <p class="why">💭 原理：Helm 使用 Go template 的 <code>merge</code> / <code>mergeOverwrite</code> 函式來合併多層 values。合併順序：chart 內建的預設 values.yaml → 父 chart（若有）→ 多個 -f 檔案（按順序）→ --set 值。最終結果快取在 K8s Secret 中（<code>kubectl get secret -n &lt;ns&gt; sh.helm.release.v1.&lt;release&gt;.v&lt;rev&gt;</code>）。</p>
+  </article>
+
+  <!-- kp9 -->
+  <article class="kp-card" id="kp9">
+    <h4>💡 kubectl 資源診斷：top + describe node</h4>
+    <p><code>kubectl top nodes</code> 與 <code>kubectl top pods -A</code> 顯示節點和 Pod 的即時 CPU / 記憶體使用量（由 metrics-server 提供）。<code>kubectl describe node &lt;node&gt; | grep -A 8 Allocated</code> 則顯示 scheduler 視角的資源佔比（基於 Pod 的 requests/limits 而非即時用量）。兩者結合看：top 看「實際上用多少」，describe Allocated 看「預訂了多少」。</p>
+    <pre><code># === 即時用量診斷 ===
+kubectl top nodes                          # 看所有節點的 CPU/Memory 即時用量
+kubectl top pods -A                        # 看所有 Pod 的即時用量
+kubectl top pod &lt;pod&gt; -n &lt;ns&gt;             # 看單個 Pod
+
+# === Scheduler 視角的資源佔比 ===
+kubectl describe node vm-1-243-ubuntu | grep -A 8 Allocated
+# 輸出範例：
+# Allocated resources:
+#   (Total limits may be over 100 percent, i.e., overcommitted.)
+#   Resource           Requests     Limits
+#   --------           --------     ------
+#   cpu                950m (47%)   2 (100%)
+#   memory             512Mi (13%)  1Gi (26%)
+
+# === 兩者比較 ===
+# top → 實際即時用量（現在吃掉多少 CPU/RAM）
+# describe Allocated → 預留量（K8s 保證有多少資源）
+# 即時用量 + 預留量的差距就是可用的超額分配空間
+
+# === 詳細節點診斷 ===
+kubectl describe node &lt;node&gt;              # 完整節點資訊
+kubectl get nodes -o wide                  # 所有節點的 IP、版本、角色
+kubectl get pods -o wide --all-namespaces  # 看每個 Pod 在哪個節點上</code></pre>
+    <p class="why">💭 原理：<code>kubectl top</code> 需要 <code>metrics-server</code> 或 k3s 內建的 metrics 組件（k3s 預設啟用）。metrics-server 從 kubelet 的 cAdvisor API 收集資源統計，約每 15 秒更新一次。而 <code>describe node</code> 的 Allocated 是累計所有 Pod 的 spec.containers[].resources.requests/limits，由 scheduler 在排程時使用。</p>
+  </article>
+
+  <!-- kp10 -->
+  <article class="kp-card" id="kp10">
+    <h4>💡 systemd 服務管理：systemctl + journalctl</h4>
+    <p>systemd 是現代 Linux 的 init 系統，負責管理服務（unit）的啟動、停止、監控、日誌。<code>systemctl</code> 管理服務狀態，<code>journalctl</code> 管理日誌。常用指令：<code>systemctl list-units --state=failed</code> 快速找出所有失敗的服務；<code>journalctl -u &lt;service&gt; -n 50 --no-pager</code> 看最近日誌；修改 unit file 後需 <code>systemctl daemon-reload</code> 讓 systemd 重新載入。</p>
+    <pre><code># === 服務狀態管理 ===
+systemctl status &lt;service&gt;               # 看服務狀態（含最近日誌）
+systemctl start/stop/restart &lt;service&gt;   # 啟動/停止/重啟
+systemctl enable/disable &lt;service&gt;       # 設定開機自動啟動/關閉
+systemctl list-units --state=failed      # 找出所有失敗的服務
+systemctl list-units --type=service      # 列出所有服務 unit
+
+# === unit file 管理 ===
+systemctl daemon-reload                  # 修改 .service 檔後一定要重載
+systemctl cat &lt;service&gt;                  # 看完整的 unit file 內容
+systemctl edit &lt;service&gt;                 # 建立 override 片段（不直接修改原檔案）
+systemctl show &lt;service&gt;                 # 看所有屬性（含環境變數、路徑等）
+
+# === 日誌管理（journalctl）===
+journalctl -u &lt;service&gt; -n 50 --no-pager           # 最近 50 行
+journalctl -u &lt;service&gt; --since "10 min ago"        # 過去 10 分鐘
+journalctl -u &lt;service&gt; -f                          # 即時追蹤（tail -f）
+journalctl -u &lt;service&gt; --since today --until now   # 今天的 log
+journalctl -p err -b                                # 本次開機以來的 ERROR 級別以上
+
+# === 實用診斷流程 ===
+# 1. systemctl list-units --state=failed        → 看誰掛了
+# 2. systemctl status &lt;failed-service&gt;          → 看錯誤訊息
+# 3. journalctl -u &lt;failed-service&gt; -n 100      → 深入看日誌
+# 4. systemctl daemon-reload && systemctl restart &lt;service&gt;  → 修復後重啟</code></pre>
+    <p class="why">💭 原理：systemd 使用 cgroup 來追蹤和管理服務行程，確保服務停止時所有子行程都被正確清理（不像 SysVinit 可能留下孤兒行程）。<code>journalctl</code> 讀取 binary journal 檔案（<code>/var/log/journal/</code> 或 <code>/run/log/journal/</code>），比傳統的純文字 log 更有結構（可依 priority、unit、time range 過濾），也支援 metadata 如 PID、UID、GID。</p>
+  </article>
+
+  <!-- 🛠️ Cheatsheet -->
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># === IP 與系統資訊查詢 ===
+curl ifconfig.me                          # 查對外 IP
+curl ipinfo.io                            # 查 IP + ISP + 地理位置
+curl ipapi.co/&lt;IP&gt;/json/                  # 另一 IP 資訊 API
+cat /etc/os-release                       # 看 OS 版本
+uname -a                                  # 看核心/主機名稱/架構
+hostname                                  # 看主機名稱
+
+# === 雲端廠商判斷 ===
+curl -s ipinfo.io/&lt;IP&gt; | jq -r .org      # 看 ISP 組織
+whois &lt;IP&gt; | grep -i "descr\|org-name"   # whois 查廠商
+
+# === Git stash ===
+git stash push -m "訊息"                  # 暫存
+git stash pop                             # 還原最近暫存
+git stash list                            # 看所有暫存
+
+# === Helm 除錯 ===
+helm get values &lt;release&gt; -n &lt;ns&gt; --all  # 看最終 values
+helm history &lt;release&gt; -n &lt;ns&gt;           # 看版本歷史
+helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;   # 快速退回
+
+# === kubectl 資源診斷 ===
+kubectl top nodes                         # 即時用量
+kubectl describe node &lt;node&gt; | grep -A 8 Allocated  # 預留量
+
+# === systemd 服務管理 ===
+systemctl list-units --state=failed       # 看失敗服務
+journalctl -u &lt;service&gt; -n 50 --no-pager # 看最近日誌</code></pre>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-bottom">
+    <span><a href="2026-06-05.html">← 06/05 🏋️ 自主練習</a></span>
+    <span><a href="../index.html">📖 回首頁</a></span>
+    <span class="disabled">下一頁 →</span>
+  </div>
+
+</div>
+</body>
+</html>

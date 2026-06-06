@@ -3181,5 +3181,159 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-06-kp1",
+    "date": "2026-06-06",
+    "title": "curl ifconfig.me — 快速查詢對外 IP",
+    "summary": "curl ifconfig.me 可快速取得伺服器對外 public IP，不需要 root 權限，回傳 HTTP remote address 而非內網 IP",
+    "tags": [
+      "curl",
+      "IP",
+      "network",
+      "Linux",
+      "troubleshooting"
+    ],
+    "anchor": "kp1",
+    "conversation": "Shawn: 伺服器資訊查詢"
+  },
+  {
+    "id": "2026-06-06-kp2",
+    "date": "2026-06-06",
+    "title": "curl ipinfo.io — 一站查 ISP、地理位置、ASN",
+    "summary": "curl ipinfo.io/<IP> 回傳 JSON 格式的 IP 詳細資料，含 ISP 組織、國家、城市、經緯度、ASN，快速判斷伺服器託管廠商與地區",
+    "tags": [
+      "curl",
+      "IP",
+      "geolocation",
+      "ISP",
+      "ASN",
+      "Tencent Cloud"
+    ],
+    "anchor": "kp2",
+    "conversation": "Shawn: 伺服器資訊查詢"
+  },
+  {
+    "id": "2026-06-06-kp3",
+    "date": "2026-06-06",
+    "title": "curl ipapi.co — 另一組 IP 資訊 API（更詳細欄位）",
+    "summary": "curl ipapi.co/<IP>/json/ 提供郵遞區號、貨幣、國碼等更多欄位，可與 ipinfo.io 交叉驗證避免單一來源資料錯誤",
+    "tags": [
+      "curl",
+      "IP",
+      "geolocation",
+      "api",
+      "ipapi"
+    ],
+    "anchor": "kp3",
+    "conversation": "Shawn: 伺服器資訊查詢"
+  },
+  {
+    "id": "2026-06-06-kp4",
+    "date": "2026-06-06",
+    "title": "系統資訊查詢：OS 版本、核心、主機名稱",
+    "summary": "cat /etc/os-release 看發行版版本，uname -a 看核心/主機名稱/架構，是接手陌生伺服器時的第一手資訊",
+    "tags": [
+      "Linux",
+      "OS",
+      "uname",
+      "os-release",
+      "system-info"
+    ],
+    "anchor": "kp4",
+    "conversation": "Shawn: 伺服器資訊查詢"
+  },
+  {
+    "id": "2026-06-06-kp5",
+    "date": "2026-06-06",
+    "title": "Tencent Cloud 主機命名慣例",
+    "summary": "騰訊雲 CVM 預設 hostname 格式 VM-<區域>-<ID>-<OS>（如 VM-1-243-ubuntu），可作為快速判斷雲端廠商的線索",
+    "tags": [
+      "Tencent Cloud",
+      "VM",
+      "hostname",
+      "cloud",
+      "naming"
+    ],
+    "anchor": "kp5",
+    "conversation": "Shawn: 伺服器資訊查詢"
+  },
+  {
+    "id": "2026-06-06-kp6",
+    "date": "2026-06-06",
+    "title": "IP 區段判斷雲端廠商",
+    "summary": "雲端廠商有固定 IP 區段（如 43.167.x.x 屬於 Tencent Cloud AS132203），透過 whois 或 ipinfo.io 可反向判斷伺服器屬於哪家廠商",
+    "tags": [
+      "IP",
+      "cloud",
+      "whois",
+      "Tencent Cloud",
+      "ASN",
+      "networking"
+    ],
+    "anchor": "kp6",
+    "conversation": "Shawn: 伺服器資訊查詢"
+  },
+  {
+    "id": "2026-06-06-kp7",
+    "date": "2026-06-06",
+    "title": "Git stash 暫存管理",
+    "summary": "git stash push/pop/list 提供 LIFO 暫存切換工作區改動，適合在 bug hotfix 前暫存進行中的 feature，不 commit 就可切換 branch",
+    "tags": [
+      "Git",
+      "stash",
+      "temporary",
+      "workflow",
+      "version-control"
+    ],
+    "anchor": "kp7",
+    "conversation": "自主補充"
+  },
+  {
+    "id": "2026-06-06-kp8",
+    "date": "2026-06-06",
+    "title": "Helm values 分層覆蓋",
+    "summary": "Helm values 覆蓋順序：values.yaml 預設 ← 環境檔案 ← --set CLI；--set typo 不會報錯只會不生效，helm get values --all 查看最終合併結果",
+    "tags": [
+      "Helm",
+      "K8s",
+      "values",
+      "config",
+      "deploy"
+    ],
+    "anchor": "kp8",
+    "conversation": "自主補充"
+  },
+  {
+    "id": "2026-06-06-kp9",
+    "date": "2026-06-06",
+    "title": "kubectl 資源診斷：top + describe node",
+    "summary": "kubectl top 看即時 CPU/Memory 用量，kubectl describe node | grep Allocated 看 scheduler 視角的 request/limit 佔比，兩者結合判斷資源是否足夠",
+    "tags": [
+      "kubectl",
+      "K8s",
+      "monitoring",
+      "resources",
+      "top",
+      "capacity"
+    ],
+    "anchor": "kp9",
+    "conversation": "自主補充"
+  },
+  {
+    "id": "2026-06-06-kp10",
+    "date": "2026-06-06",
+    "title": "systemd 服務管理：systemctl + journalctl",
+    "summary": "systemctl 管理服務狀態，journalctl 管理日誌；systemctl list-units --state=failed 快速找出失敗服務，journalctl -u <service> -n 50 看最近日誌",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "Linux",
+      "service",
+      "monitoring"
+    ],
+    "anchor": "kp10",
+    "conversation": "自主補充"
   }
 ]
