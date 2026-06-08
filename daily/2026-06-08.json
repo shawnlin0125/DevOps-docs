@@ -1,0 +1,74 @@
+[
+  {
+    "id": "2026-06-08-kp1",
+    "date": "2026-06-08",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "Pod 故障排查四步驟：get pods（宏觀狀態）→ describe pod（Events 精華）→ logs --previous（CrashLoop 應用日誌）→ get events（叢集層級事件），從 Status/Events 判斷是 ImagePull / CrashLoop / OOMKilled / Pending",
+    "tags": [
+      "kubectl",
+      "debug",
+      "pod",
+      "troubleshooting"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-08-kp2",
+    "date": "2026-06-08",
+    "title": "Docker 多階段建置縮小 Image",
+    "summary": "Multi-stage build 用一個 Dockerfile 分 build/runtime 兩階段，build 階段裝編譯工具，runtime 階段只複製 artifacts。Go 可用 FROM scratch，Node.js 用 alpine。最後 image 只含 runtime 必要檔案",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "image optimization"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-08-kp3",
+    "date": "2026-06-08",
+    "title": "查 OOM 紀錄：dmesg OOM Killer 診斷",
+    "summary": "dmesg -T | grep -i oom 查看 OOM Killer 記錄，確認哪個 process 被殺。OOM Killer 挑 oom_score 最高的殺。K8s Pod memory limits 總和超過節點 RAM 時會連鎖 OOM 殺 Pod",
+    "tags": [
+      "OOM",
+      "Linux",
+      "dmesg",
+      "memory",
+      "kernel"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-08-kp4",
+    "date": "2026-06-08",
+    "title": "Git stash 暫存管理",
+    "summary": "Git stash LIFO 堆疊暫存工作區改動：stash push 暫存、stash list 列出、stash pop 還原並移除、stash apply 還原不移除、stash drop 移除指定暫存。適合切 branch 前暫存進行中的工作",
+    "tags": [
+      "Git",
+      "stash",
+      "workflow"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-08-kp5",
+    "date": "2026-06-08",
+    "title": "網路排查四指令：curl、dig、ss、nc",
+    "summary": "四把瑞士刀對應 OSI 四層：dig +short（DNS 層）、curl -v（HTTP 層）、nc -zv（傳輸層連線測試）、ss -tlnp（傳輸層 listening port 檢視），由上而下排查網路問題",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
