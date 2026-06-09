@@ -3482,5 +3482,81 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-09-kp1",
+    "date": "2026-06-09",
+    "title": "kubectl 資源使用診斷：top + describe node Allocated",
+    "summary": "三個資源監控指令：kubectl top nodes（節點即時用量）、kubectl top pods -A（Pod 即時用量）、kubectl describe node | grep Allocated（scheduler request/limit 佔比）。即時用量 vs 分配率是不同視角，top 看 current usage，describe Allocated 看 pod request 加總",
+    "tags": [
+      "kubectl",
+      "top",
+      "resources",
+      "monitoring",
+      "node"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-09-kp2",
+    "date": "2026-06-09",
+    "title": "kubectl exec 進 Pod 內排查",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進入容器診斷。常用內部指令：env | grep（檢查環境變數）、nc -zv <svc> <port>（測試 Service 連線）、cat /etc/resolv.conf（確認 DNS 設定）。容器內診斷避開網路抽象層直接驗證實例",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "troubleshooting"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-09-kp3",
+    "date": "2026-06-09",
+    "title": "systemd 服務管理：systemctl + journalctl",
+    "summary": "Linux 服務健康三指令：systemctl list-units --state=failed（掃描所有異常服務）、journalctl -u <service> -n 50（精準過濾特定服務 log）、systemctl daemon-reload（改完 unit file 後重載）。systemctl list-units 是幾秒內掃完全部服務的儀表板",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "Linux",
+      "service management"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-09-kp4",
+    "date": "2026-06-09",
+    "title": "Git 復原操作：reset --soft、restore、reflog",
+    "summary": "三種復原情境：git reset --soft HEAD~1（撤回最近 commit 保留 staged 變更）、git restore <file>（丟棄工作區未提交改動）、git reflog（看所有 HEAD 移動記錄，可找回誤刪或 hard reset 遺失的 commit）",
+    "tags": [
+      "Git",
+      "reset",
+      "reflog",
+      "restore",
+      "recovery"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-09-kp5",
+    "date": "2026-06-09",
+    "title": "Helm 常用操作：部署生命週期管理",
+    "summary": "Helm 維運四指令：helm list -A（所有 release）、helm history <release> -n <ns>（版本演進）、helm rollback <release> <rev> -n <ns>（回退指定版本）、helm get values <release> -n <ns>（查看生效 values）。rollback 會產生新 revision 而非減少",
+    "tags": [
+      "Helm",
+      "rollback",
+      "history",
+      "list",
+      "values",
+      "K8s"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
