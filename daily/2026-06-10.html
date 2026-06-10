@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-10（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 2rem 1rem;
+}
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.25rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+.self-practice-notice {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-orange);
+  border-left: 4px solid var(--accent-orange);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--accent-orange);
+}
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+.toc h3 { font-size: 0.9rem; color: var(--accent); margin-bottom: 0.5rem; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { margin-bottom: 0.3rem; }
+.toc a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; }
+.toc a:hover { color: var(--accent); }
+.section-title { font-size: 1.1rem; color: var(--accent); margin: 1.5rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.3rem; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+pre {
+  background: #1c2128;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: #e6edf3;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.cheatsheet { margin-top: 2rem; }
+.cheatsheet h3 { color: var(--accent); margin-bottom: 0.5rem; font-size: 1rem; }
+.cheatsheet pre { background: #1c2128; }
+.nav { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 0.85rem; }
+.nav a { color: var(--accent); text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🏋️ DevOps 學習筆記 — 2026-06-10（自主練習）</h1>
+<p class="subtitle">0 對話 · 5 知識點</p>
+
+<div class="self-practice-notice">
+📝 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<div class="toc">
+<h3>📑 目錄</h3>
+<ul>
+  <li><a href="#kp1">kp1 · kubectl 診斷 Pod 啟動失敗的完整流程</a></li>
+  <li><a href="#kp2">kp2 · Docker 多階段建置縮小 Image</a></li>
+  <li><a href="#kp3">kp3 · 查 OOM 紀錄：dmesg OOM Killer 診斷</a></li>
+  <li><a href="#kp4">kp4 · GitHub PR 流程：gh CLI</a></li>
+  <li><a href="#kp5">kp5 · Helm values 分層覆蓋原則</a></li>
+  <li><a href="#cheatsheet">🛠️ 本日指令速查表</a></li>
+</ul>
+</div>
+
+<h3 class="section-title">🔧 自主練習知識點</h3>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 kubectl 診斷 Pod 啟動失敗的完整流程</h4>
+  <p>用 kubectl 四步驟排查 Pod 啟動問題：看狀態 → 看 Events → 看容器輸出 → 看集群事件。從 Status/Events 欄位能快速判斷問題類型。</p>
+  <pre><code># 1. 查看 Pod 狀態（關注 STATUS 和 READY 欄位）
+kubectl get pods -n &lt;namespace&gt;
+
+# 2. 查看 Pod 詳細事件和 Conditions
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+
+# 3. 查看容器 stdout/stderr
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; --previous  # 前一次重啟的 log
+
+# 4. 查看集群層級事件（過濾特定 namespace）
+kubectl get events -n &lt;namespace&gt; --sort-by='.lastTimestamp'</code></pre>
+  <p class="why">💭 原理：kubectl describe 的 Events 和 Conditions 區段包含 error pulling image、OOMKilled、back-off restarting 等核心資訊；Events 是集群層級記錄，describe 是 Pod 層級。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 Docker 多階段建置縮小 Image</h4>
+  <p>Dockerfile 中用多個 FROM 指令區分 build stage（裝所有 deps 做編譯）和 runtime stage（只複製 artifacts）。Go 可以 FROM scratch（static binary），Node.js 用 standalone output。</p>
+  <pre><code># Dockerfile 範例：Go 專案多階段建置
+# Stage 1: Build
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server .
+
+# Stage 2: Runtime
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+
+# 查看 image 大小
+docker images | grep &lt;name&gt;</code></pre>
+  <p class="why">💭 原理：每個 FROM 開始一個新 stage，只有 COPY --from=builder 的檔案會進入最終 image。建置工具（gcc、go、npm）留在 builder stage，不佔 runtime image 空間。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 查 OOM 紀錄：dmesg OOM Killer 診斷</h4>
+  <p>OOM Killer 紀錄存在核心環緩衝區。K8s 中 Pod 被 OOMKilled 時，kubectl describe pod 的 Last State 會顯示 Reason: OOMKilled。若 Node 所有 Pod 的 memory limits 總和超過實體 RAM，OOM 會連鎖殺 Pod。</p>
+  <pre><code># 查 OOM Killer 紀錄（核心訊息）
+sudo dmesg -T | grep -i oom
+
+# OOMKilled 時的 kubectl 診斷
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+# 在 Containers[].LastState 區查看
+#   Last State: Terminated
+#     Reason: OOMKilled
+#     Exit Code: 137
+
+# 查看 node 記憶體壓力
+kubectl describe node | grep -A 8 Allocated
+free -h                               # 系統層級記憶體
+cat /proc/meminfo | grep -i oom       # OOM 相關核心參數</code></pre>
+  <p class="why">💭 原理：OOM Killer 由核心在記憶體不足時觸發，選 oom_score 最高的 process 殺（rss + swap + 父程序權重）。Process exit code 137 = SIGKILL(9)，而 139 = SIGSEGV(11)，兩者不同。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 GitHub PR 流程：gh CLI</h4>
+  <p>完整 PR 流程從開 branch 到 merge 全部可用 gh CLI 完成，不需開瀏覽器。已 clone 的 repo 直接操作，gh 自動對應 remote 和目前 branch。</p>
+  <pre><code># 完整 PR 流程
+git checkout main && git pull           # 確保 main 最新
+git checkout -b feature/xxx            # 開功能分支
+# ... 修改程式碼 ...
+git add . && git commit -m "feat: xxx"
+git push -u origin feature/xxx         # 第一次 push 需設 upstream
+gh pr create --title "feat: xxx" --body "Summary of changes"
+# 等 CI pass 和 review
+gh pr merge --squash                   # squash merge（或 --rebase）
+git checkout main && git pull          # 回 main 拉最新
+
+# 其他常用 gh 指令
+gh pr view -w                          # 瀏覽器打開 PR 頁面
+gh pr checkout 42                      # 切到 PR #42 的 branch
+gh pr list --state open                # 列出開啟的 PR</code></pre>
+  <p class="why">💭 原理：gh 使用 GitHub API 操作 PR，不需手動設定 remote。--squash 把 feature branch 所有 commits 壓成一個，維持 main 線性歷史。gh pr create 會自動偵測當前 branch 名稱和 commit 訊息。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 Helm values 分層覆蓋原則</h4>
+  <p>Helm values 有三層覆蓋：Chart 內 values.yaml（預設值）← -f 載入環境檔案 ← --set CLI 覆蓋。後面的層級會 merge 覆蓋前面的同名 key。用 helm get values 查看目前生效值。</p>
+  <pre><code># 分層覆蓋示範
+# 1. values.yaml（Chart 內建預設值）
+# replicaCount: 1
+# image:
+#   tag: latest
+
+# 2. values/production.yaml（環境覆蓋）
+# replicaCount: 3
+# image:
+#   tag: v1.2.3
+
+# 3. CLI 部署時套用
+helm upgrade --install my-app ./chart \
+  -f values/production.yaml \
+  --set image.tag=v1.2.4 \
+  -n production
+
+# 查看最終生效值
+helm get values my-app -n production
+helm get values my-app -n production --all  # 顯示所有層級的來源
+
+# 預覽 template 渲染結果
+helm template my-app ./chart \
+  -f values/production.yaml \
+  --debug</code></pre>
+  <p class="why">💭 原理：Helm 用後進先覆蓋（last-write-wins）策略。--set 優先級最高但容易因 typo 出錯（無法檢查 key 是否存在）。建議 production 使用 -f 載入檔案 + CI 自動化，--set 只用於臨時測試。</p>
+</article>
+
+<div class="cheatsheet" id="cheatsheet">
+<h3>🛠️ 本日指令速查表</h3>
+<pre><code># kubectl Pod 診斷四步驟
+kubectl get pods -n &lt;ns&gt;
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;
+kubectl logs &lt;pod&gt; -n &lt;ns&gt; --previous
+kubectl get events -n &lt;ns&gt; --sort-by='.lastTimestamp'
+
+# OOM Killer 查詢
+sudo dmesg -T | grep -i oom
+kubectl describe node | grep -A 8 Allocated
+
+# GitHub PR 流程
+gh pr create --title "feat: xxx" --body "..."
+gh pr merge --squash
+
+# Helm values 分層
+helm upgrade --install my-app ./chart -f values/prod.yaml --set key=val -n prod
+helm get values my-app -n production --all</code></pre>
+</div>
+
+<div class="nav">
+  <a href="2026-06-09.html">← 2026-06-09</a>
+  <a href="../index.html">📋 目錄</a>
+  <a href="2026-06-11.html">2026-06-11 →</a>
+</div>
+
+</div>
+</body>
+</html>

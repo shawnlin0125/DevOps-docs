@@ -1,0 +1,75 @@
+[
+  {
+    "id": "2026-06-10-kp1",
+    "date": "2026-06-10",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "用 kubectl 四步驟排查 Pod 啟動問題：get pods 看狀態 → describe pod 看 Events 和 Conditions → logs 看容器輸出 → get events 看集群事件。從 Status 欄位能快速判斷是 ImagePullBackOff、CrashLoopBackOff、OOMKilled 還是 Pending（資源不足）。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "troubleshooting",
+      "diagnosis"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-10-kp2",
+    "date": "2026-06-10",
+    "title": "Docker 多階段建置縮小 Image",
+    "summary": "Dockerfile 中用多個 FROM 指令區分 build stage 和 runtime stage。build stage 安裝所有建置工具（gcc、npm、go mod），runtime stage 只複製建置好的 artifacts。Go 可 FROM scratch（靜態 binary），Node.js 用 standalone output。用 docker images | grep 查看各層大小。",
+    "tags": [
+      "docker",
+      "multi-stage",
+      "build",
+      "image-size"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-10-kp3",
+    "date": "2026-06-10",
+    "title": "查 OOM 紀錄：dmesg OOM Killer 診斷",
+    "summary": "OOM Killer 紀錄存在核心環緩衝區，用 sudo dmesg -T | grep -i oom 查。OOM Killer 會挑 oom_score 最高的 process 殺（通常是吃最多 RAM 的行程）。K8s 中 Pod 被 OOMKilled 時 kubectl describe pod 的 Last State 欄位會顯示 Reason: OOMKilled。若 Node 上所有 Pod 的 memory limits 總和超過實體 RAM，OOM 會連鎖殺 Pod。",
+    "tags": [
+      "linux",
+      "oom",
+      "dmesg",
+      "kernel",
+      "memory"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-10-kp4",
+    "date": "2026-06-10",
+    "title": "GitHub PR 流程：gh CLI",
+    "summary": "完整 PR 流程：git checkout -b feature/xxx → commit → git push -u origin feature/xxx → gh pr create --title \"...\" --body \"...\" → 等 review → gh pr merge --squash (或 gh pr merge --rebase) → git checkout main && git pull。gh pr view 可在 terminal 內看 PR 內容，gh pr checkout <number> 可快速切到他人 PR。",
+    "tags": [
+      "github",
+      "gh",
+      "pull-request",
+      "git",
+      "cli"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-10-kp5",
+    "date": "2026-06-10",
+    "title": "Helm values 分層覆蓋原則",
+    "summary": "Helm values 有三層覆蓋：values.yaml（Chart 內預設值）← values/production.yaml（環境專用檔案，用 -f 載入）← --set key=value（CLI 直接指定）。後面的層級 merge 覆蓋前面的同名 key。--set 最方便但也最容易出錯（typo 無人檢查），建議 production 用 -f 載入檔案。用 helm get values <release> -n <ns> 查看目前生效的值。",
+    "tags": [
+      "helm",
+      "values",
+      "k8s",
+      "configuration",
+      "override"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
