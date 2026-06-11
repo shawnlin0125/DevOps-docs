@@ -3631,5 +3631,87 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-11-kp1",
+    "date": "2026-06-11",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "uptime 看 CPU 負載歷史趨勢，free -h 的 available 欄位才是真實可用記憶體，df -h 看磁碟使用率。load average > CPU 核心數表示排隊中。Linux 拿閒置 RAM 做 cache 所以 free 低不代表記憶體不足。",
+    "tags": [
+      "Linux",
+      "監控",
+      "uptime",
+      "free",
+      "df",
+      "CPU",
+      "記憶體",
+      "磁碟"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-11-kp2",
+    "date": "2026-06-11",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only",
+    "summary": "Cloudflare Proxy mode（橙色雲）隱藏 origin IP、提供免費 SSL/CDN/DDoS 保護；DNS only（灰色雲）直接解析 IP、延遲最低。透過 Cloudflare API 可自動化管理 DNS 記錄的新增與更新。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "API",
+      "SSL"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-11-kp3",
+    "date": "2026-06-11",
+    "title": "Git stash 暫存管理",
+    "summary": "git stash 用 stack（LIFO）結構儲存未 commit 改動，適合切 branch 或應急修 bug 前使用。git stash list 看所有暫存，git stash pop 還原最新暫存，git stash -u 包含 untracked 檔案。",
+    "tags": [
+      "Git",
+      "stash",
+      "暫存",
+      "版本控制",
+      "工作流程"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-11-kp4",
+    "date": "2026-06-11",
+    "title": "Docker 多階段建置縮小 Image",
+    "summary": "Dockerfile 用多個 FROM 分離 build/runtime stage，只複製最終 artifacts 到 slim runtime image。Go 可 FROM scratch（~15MB），Node.js 用 standalone output。建置工具留在 builder stage 不佔空間。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "image",
+      "優化",
+      "Go",
+      "Node.js"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-11-kp5",
+    "date": "2026-06-11",
+    "title": "Helm values 分層覆蓋原則",
+    "summary": "Helm values 三層覆蓋：values.yaml（預設）← -f 環境檔案（覆蓋部分值）← --set CLI（最高優先）。後寫入覆蓋前值，深層合併。helm get values 查看生效值，helm template --debug 預覽渲染結果。",
+    "tags": [
+      "Helm",
+      "values",
+      "覆蓋",
+      "Kubernetes",
+      "部署",
+      "設定管理"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
