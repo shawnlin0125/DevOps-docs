@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-12（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 2rem 1rem;
+}
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.25rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+.self-practice-notice {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-orange);
+  border-left: 4px solid var(--accent-orange);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--accent-orange);
+}
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+.toc h3 { font-size: 0.9rem; color: var(--accent); margin-bottom: 0.5rem; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { margin-bottom: 0.3rem; }
+.toc a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; }
+.toc a:hover { color: var(--accent); }
+.section-title { font-size: 1.1rem; color: var(--accent); margin: 1.5rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.3rem; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+pre {
+  background: #1c2128;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: #e6edf3;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.cheatsheet { margin-top: 2rem; }
+.cheatsheet h3 { color: var(--accent); margin-bottom: 0.5rem; font-size: 1rem; }
+.cheatsheet pre { background: #1c2128; }
+.nav { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 0.85rem; }
+.nav a { color: var(--accent); text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🏋️ DevOps 學習筆記 — 2026-06-12（自主練習）</h1>
+<p class="subtitle">0 對話 · 5 知識點</p>
+
+<div class="self-practice-notice">
+📝 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<div class="toc">
+<h3>📑 目錄</h3>
+<ul>
+  <li><a href="#kp1">kp1 · kubectl 看資源使用：top + describe node</a></li>
+  <li><a href="#kp2">kp2 · k3s containerd 鏡像管理完整流程</a></li>
+  <li><a href="#kp3">kp3 · systemd 服務管理</a></li>
+  <li><a href="#kp4">kp4 · 網路排查四指令：curl / dig / ss / nc</a></li>
+  <li><a href="#kp5">kp5 · Helm 常用操作：生命週期管理</a></li>
+  <li><a href="#cheatsheet">🛠️ 本日指令速查表</a></li>
+</ul>
+</div>
+
+<h3 class="section-title">🔧 自主練習知識點</h3>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 kubectl 看資源使用：top + describe node</h4>
+  <p>用 kubectl 快速掌握叢集資源狀態：kubectl top nodes 看各節點即時 CPU/RAM 用量，kubectl top pods -A 看各 Pod 實際消耗，kubectl describe node 的 Allocated resources 區塊顯示 request/limit 佔比（scheduler 視角）。三者須搭配使用才能完整掌握資源壓力。</p>
+  <pre><code># 節點即時 CPU/RAM 用量
+kubectl top nodes
+# NAME       CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+# node-01    850m         21%    6144Mi           38%
+
+# 各 Pod 即時用量（跨 namespace）
+kubectl top pods -A
+
+# Scheduler 視角的資源佔比（request/limit）
+kubectl describe node node-01 | grep -A 8 Allocated
+# Allocated resources:
+#   Resource           Requests    Limits
+#   cpu                1800m/4000m 2500m/4000m
+#   memory             2.5Gi/8Gi   4Gi/8Gi
+# ↑ Requests 是保證量，Limits 是上限
+
+# 各 Pod 的 requests/limits 總覽
+kubectl get pods -A -o custom-columns=\
+'NAMESPACE:.metadata.namespace,\
+POD:.metadata.name,\
+CPU_REQ:.spec.containers[0].resources.requests.cpu,\
+CPU_LIM:.spec.containers[0].resources.limits.cpu,\
+MEM_REQ:.spec.containers[0].resources.requests.memory,\
+MEM_LIM:.spec.containers[0].resources.limits.memory'</code></pre>
+  <p class="why">💭 原理：kubectl top 讀取 metrics-server 彙整的即時數據（基於 kubelet cAdvisor），反映當下使用率。describe node Allocated 則是看 Pod spec 中聲明的 requests/limits — scheduler 用 requests 決定 Pod 能否排入節點，K8s 用 limits 做 cgroup 配額控制。兩者分別給出「實際壓力」和「理論容量」兩個維度。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 k3s containerd 鏡像管理完整流程</h4>
+  <p>k3s 預設使用 containerd 而非 Docker daemon，所以 docker build 後的鏡像不能直接用 imagePullPolicy: Always 推送到 registry。標準流程是：docker build → docker save → sudo k3s ctr images import → kubectl apply。使用 imagePullPolicy: Never 或 IfNotPresent 讓 k3s 從本地 containerd image store 拉取。</p>
+  <pre><code># Step 1: 建置 Docker image
+docker build -t my-app:20260612 .
+
+# Step 2: 匯出 tar 檔
+docker save my-app:20260612 -o my-app-20260612.tar
+
+# Step 3: 匯入 k3s containerd
+sudo k3s ctr images import my-app-20260612.tar
+
+# 確認匯入成功
+sudo k3s ctr images ls | grep my-app
+
+# Step 4: 部署（imagePullPolicy: Never）
+# deployment.yaml:
+# spec:
+#   template:
+#     spec:
+#       containers:
+#       - name: my-app
+#         image: my-app:20260612
+#         imagePullPolicy: Never
+kubectl apply -f deployment.yaml
+
+# Step 5: 重啟 Pod 載入新版本
+kubectl rollout restart deployment/my-app -n <ns>
+kubectl rollout status deployment/my-app -n <ns>
+
+# 一次完成：build + save + import + deploy
+docker build -t my-app:latest . && \
+  docker save my-app:latest -o my-app.tar && \
+  sudo k3s ctr images import my-app.tar && \
+  kubectl apply -f deployment.yaml</code></pre>
+  <p class="why">💭 原理：k3s 內嵌 containerd 作為容器 runtime，不用 dockerd。containerd 有自己的 image store（通常在 /var/lib/rancher/k3s/agent/containerd/）。docker save 將 image 層打包成 OCI tar，k3s ctr import 解壓到 containerd store。imagePullPolicy: Never 告訴 kubelet 不要嘗試拉取遠端 registry，直接從本地 store 找 image。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 systemd 服務管理</h4>
+  <p>systemd 是 Linux 標準 init 系統，控制所有服務的生命週期。常用操作包括：查看失敗服務、讀取服務日誌、重新載入設定檔。熟練 systemctl + journalctl 是 Linux 維運基本功。</p>
+  <pre><code># 查看所有失敗的服務
+systemctl list-units --state=failed
+# UNIT                   LOAD   ACTIVE SUB    DESCRIPTION
+# nginx.service          loaded failed Failed The nginx HTTP server
+
+# 查看特定服務的最近日誌
+journalctl -u nginx -n 50 --no-pager
+# -n 50: 只看最近 50 行
+# --no-pager: 直接輸出不分頁
+# -u nginx: 只過濾 nginx.service
+
+# 持續追蹤日誌（類似 tail -f）
+journalctl -u nginx -f
+
+# 重新載入 unit file 變更
+sudo systemctl daemon-reload
+
+# 服務控制
+sudo systemctl restart nginx      # 完整重啟
+sudo systemctl reload nginx       # 不中斷連線的重載設定
+sudo systemctl enable nginx       # 開機啟動
+sudo systemctl status nginx       # 看狀態 + 最近日誌
+
+# 查服務的 dependency 樹
+systemctl list-dependencies nginx
+
+# 查看 service unit 檔案內容
+systemctl cat nginx</code></pre>
+  <p class="why">💭 原理：systemd 以 unit 為核心管理單位（.service、.timer、.socket 等）。list-units --state=failed 掃描所有 active unit 中 SUB=failed 的服務。journald 收集所有 systemd 服務的 stdout/stderr 加上 kernel log，-u 過濾特定 unit。daemon-reload 通知 systemd 重新掃描 /etc/systemd/system/ 下的 unit 檔案變更。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 網路排查四指令：curl / dig / ss / nc</h4>
+  <p>四個指令分別對應 OSI 模型不同層級的網路診斷：curl 測試 HTTP(S)/TCP（應用層+傳輸層）、dig 查 DNS（應用層/DNS 專用）、ss 看 socket 與 port（傳輸層）、nc 測任意 TCP/UDP port 通不通。熟練這四者能覆蓋 90% 以上的網路問題場景。</p>
+  <pre><code># 1. curl -v: 看完整 HTTP request/response header
+curl -v https://example.com
+# * SSL certificate verify ok.
+# > GET / HTTP/2
+# > Host: example.com
+# < HTTP/2 200
+# < server: nginx
+# -v 會顯示 SSL 握手、request header、response header 全過程
+# 常見用法：
+curl -v http://host:8080/healthz          # 測 HTTP 服務
+curl -I https://example.com               # 只看 response header
+
+# 2. dig +short: 簡潔 DNS 查詢
+dig +short example.com
+# 93.184.216.34       ← 只顯示 A record IP
+dig +short MX example.com                # 查郵件交換記錄
+dig +short NS example.com                # 查 Name Server
+dig example.com ANY +noall +answer        # 看所有 record types
+nslookup example.com 8.8.8.8             # 指定 DNS server
+
+# 3. ss -tlnp: 看所有 listening TCP port（取代 netstat）
+ss -tlnp
+# State   Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process
+# LISTEN  0       511     0.0.0.0:80          0.0.0.0:*          users:(("nginx",pid=1234))
+# LISTEN  0       128     0.0.0.0:22          0.0.0.0:*          users:(("sshd",pid=5678))
+# -t TCP, -l listening, -n 數字格式, -p 顯示 process
+ss -tlnp | grep :443                       # 443 port 是誰在聽？
+ss -tup                                   # TCP+UDP 連線狀態
+ss -s                                     # socket 統計摘要
+
+# 4. nc -zv: 測 port 通不通
+nc -zv example.com 443
+# Connection to example.com (93.184.216.34) 443 port [tcp/https] succeeded!
+# -z: scan mode（不發送資料）, -v: verbose
+nc -zv 10.0.0.1 22                        # 測內部 SSH port
+nc -zv 10.0.0.1 3306                      # 測 MySQL port 是否開放
+nc -vz 10.0.0.1 1-1000                    # 掃描 port range</code></pre>
+  <p class="why">💭 原理：curl -v 輸出 SSL/TLS 握手細節和 HTTP headers，適合診斷 HTTPS 問題。dig 直接查 DNS 權威伺服器，+short 省略雜訊只給答案。ss 讀取核心 socket table（/proc/net/tcp），比舊 netstat 更快更完整。nc 做原始 TCP 連線測試，不依賴應用層協定，是判斷防火牆/port 是否開放的最直接工具。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 Helm 常用操作：生命週期管理</h4>
+  <p>Helm 是 K8s 套件管理工具，release 是 Helm 部署的一個應用實例。常用維運操作包括：列出所有 release、查看版本歷史、退回舊版、查看當前 values 設定。搭配 rollback 可以在部署出錯時快速恢復。</p>
+  <pre><code># 列出所有 namespace 的 release
+helm list -A
+# NAME    NAMESPACE  REVISION  UPDATED                 STATUS   CHART
+# my-app  default    3         2026-06-12 10:00:00     deployed app-1.2.0
+
+# 查看特定 release 的版本歷史
+helm history my-app -n default
+# REVISION  UPDATED          STATUS     CHART         DESCRIPTION
+# 1         Jun 12 09:00     deployed   app-1.0.0     Install complete
+# 2         Jun 12 09:30     deployed   app-1.1.0     Upgrade complete
+# 3         Jun 12 10:00     deployed   app-1.2.0     Upgrade complete
+
+# 退回指定版本
+helm rollback my-app 2 -n default
+# 退回 revision 2（app-1.1.0），Helm 會做 diff 然後只更新變更部分
+helm rollback my-app 1 --wait --timeout 5m  # 等資源就緒
+
+# 查看目前生效的 values
+helm get values my-app -n default          # 只看使用者自訂值
+helm get values my-app -n default --all    # 含 chart 預設值
+helm get manifest my-app -n default        # 看渲染後的 YAML
+
+# 升級時測試（不實際部署）
+helm upgrade --install my-app ./chart -f values/prod.yaml \
+  --dry-run --debug
+
+# 解除安裝 release
+helm uninstall my-app -n default</code></pre>
+  <p class="why">💭 原理：Helm release 每次升級建立一個新 revision（版本號遞增），store 在 k8s Secret 中（helm list 會讀這些 Secret）。rollback 是用上一版本的 template + values 重新部署，等同於 helm upgrade --revision N。helm get manifest 可以看到最終渲染的 YAML，對 debug 非常有用。--wait 讓 helm 等待所有資源 Ready 才回傳。</p>
+</article>
+
+<div class="cheatsheet" id="cheatsheet">
+<h3>🛠️ 本日指令速查表</h3>
+<pre><code># kubectl 資源診斷
+kubectl top nodes
+kubectl top pods -A
+kubectl describe node &lt;node&gt; | grep -A 8 Allocated
+
+# k3s containerd 鏡像匯入
+docker build -t my-app:tag . && \
+  docker save my-app:tag -o my-app.tar && \
+  sudo k3s ctr images import my-app.tar && \
+  kubectl rollout restart deploy/my-app
+
+# systemd 服務管理
+systemctl list-units --state=failed
+journalctl -u &lt;service&gt; -n 50 --no-pager
+sudo systemctl daemon-reload
+
+# 網路排查四指令
+curl -v http://host:port
+dig +short example.com
+ss -tlnp
+nc -zv host port
+
+# Helm 生命週期管理
+helm list -A
+helm history &lt;release&gt; -n &lt;ns&gt;
+helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;
+helm get values &lt;release&gt; -n &lt;ns&gt; --all</code></pre>
+</div>
+
+<div class="nav">
+  <a href="2026-06-11.html">← 2026-06-11</a>
+  <a href="../index.html">📋 目錄</a>
+  <a href="#" style="color: var(--text-secondary); text-decoration: none;">2026-06-13 →</a>
+</div>
+
+</div>
+</body>
+</html>
