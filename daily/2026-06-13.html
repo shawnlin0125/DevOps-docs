@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-13（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 2rem 1rem;
+}
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.25rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+.self-practice-notice {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-orange);
+  border-left: 4px solid var(--accent-orange);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--accent-orange);
+}
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+.toc h3 { font-size: 0.9rem; color: var(--accent); margin-bottom: 0.5rem; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { margin-bottom: 0.3rem; }
+.toc a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; }
+.toc a:hover { color: var(--accent); }
+.section-title { font-size: 1.1rem; color: var(--accent); margin: 1.5rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.3rem; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+pre {
+  background: #1c2128;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: #e6edf3;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.cheatsheet { margin-top: 2rem; }
+.cheatsheet h3 { color: var(--accent); margin-bottom: 0.5rem; font-size: 1rem; }
+.cheatsheet pre { background: #1c2128; }
+.nav { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 0.85rem; }
+.nav a { color: var(--accent); text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🏋️ DevOps 學習筆記 — 2026-06-13（自主練習）</h1>
+<p class="subtitle">0 對話 · 5 知識點</p>
+
+<div class="self-practice-notice">
+📝 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<div class="toc">
+<h3>📑 目錄</h3>
+<ul>
+  <li><a href="#kp1">1. kubectl exec 進 Pod 內排查</a></li>
+  <li><a href="#kp2">2. 查 OOM 紀錄：dmesg + exit code 137</a></li>
+  <li><a href="#kp3">3. Git 復原操作三步驟</a></li>
+  <li><a href="#kp4">4. Cloudflare DNS 管理：Proxy vs DNS only</a></li>
+  <li><a href="#kp5">5. Helm values 分層覆蓋與 --set 陷阱</a></li>
+  <li><a href="#cheatsheet">🛠️ 本日指令速查表</a></li>
+</ul>
+</div>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 kubectl exec 進 Pod 內排查</h4>
+  <p>kubectl exec -it <pod> -n <ns> -- sh 進入容器內。常用診斷指令：env | grep 確認環境變數、nc -zv <svc> <port> 測試服務連通性、cat /etc/resolv.conf 確認 DNS 設定、df -h 看磁碟、top 看 process。注意：容器內通常沒有 curl/vim，用 wget -qO- 替代 curl。</p>
+  <p class="why">💭 原理：kubectl exec 啟動一個 process 在容器內執行，共用容器 namespace（pid/net/ipc），所以容器內看到的 env、DNS、process 就是 Pod 的真實狀態。nc -zv 發送 SYN 封包確認 port 通不通，類似 telnet 但更輕量。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 查 OOM 紀錄：dmesg + exit code 137</h4>
+  <p>sudo dmesg -T | grep -i oom 查系統 OOM Killer 紀錄。K8s 中 Pod 因記憶體不足被殺會顯示 OOMKilled（exit code 137 = 128 + SIGKILL 9）。Pod memory limits 總和超過實體 RAM 時會連鎖殺 Pod。查看 Pod 資源：kubectl describe pod <pod> | grep -A 2 Limits。</p>
+  <p class="why">💭 原理：OOM Killer 是 Linux 核心在 memory pressure 超出臨界值時觸發的機制。exit code 137 = 128 + 9(SIGKILL)，K8s 從 exit code 判斷是正常退出還是被 OOM 殺死。Pod Memory limits 設定不當是 OOM 主因，建議預留 20% overhead。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 Git 復原操作三步驟</h4>
+  <p>git reset --soft HEAD~1 退回 commit 但保留 staged 變更（可重新 commit）、git restore <file> 丟棄工作區未暫存改動、git reflog 查看所有 HEAD 移動記錄可救回誤刪的 commit。--soft 不改工作區和 index，--mixed 退回 staged 但不動工作區，--hard 全部丟棄（謹慎使用）。</p>
+  <p class="why">💭 原理：Git 的資料模型是 immutable DAG（有向無環圖），reset 只是移動 HEAD 指標，commit object 不會立刻消失。reflog 記錄了 HEAD 的每一步移動，預設保留 90 天，是救回誤操作的最後防線。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 Cloudflare DNS 管理：Proxy vs DNS only</h4>
+  <p>Cloudflare Proxy mode（橙色雲朵）隱藏 origin IP 並提供免費 TLS 終止、DDoS 防護、CDN 快取。DNS only（灰色雲朵）直接解析到 origin IP，無保護但延遲更低。透過 Cloudflare API 管理 DNS record 可自動化：curl -X POST https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records -H 'Authorization: Bearer $TOKEN'。</p>
+  <p class="why">💭 原理：Cloudflare Proxy 模式本質是一個反向代理：流量先到 Cloudflare Edge，由它 terminate TLS、apply security rules、cache static content，再用自有憑證轉發到 origin。DNS only 則直接回 origin IP。選擇依據：需要安全/CDN 用 Proxy，需要即時連線（SSH/WebSocket）用 DNS only。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 Helm values 分層覆蓋與 --set 陷阱</h4>
+  <p>Helm values 三層覆蓋順序：values.yaml（chart 預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 最終覆蓋）。後層 merge 蓋前層同名 key。--set 方便但 typo 不會報錯（無效 key 直接忽略），建議 production 環境用 -f 檔案而非 --set。helm template --debug 可預覽渲染結果。</p>
+  <p class="why">💭 原理：Helm values 的 merge 策略是 shallow merge：list 型（如 containers[]）會整份取代，不會 append。--set 對巢狀 key 用點語法（service.port=8080），但無法對 list 元素設值。values.schema.json 可以驗證使用者輸入，防止 typo 造成無效設定。</p>
+</article>
+
+<div class="cheatsheet" id="cheatsheet">
+<h3>🛠️ 本日指令速查表</h3>
+<pre><code># kubectl exec 進入 Pod 排查
+kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh
+env | grep -i KEY
+nc -zv &lt;service&gt; &lt;port&gt;
+cat /etc/resolv.conf
+
+# OOM 診斷
+sudo dmesg -T | grep -i oom
+kubectl describe pod &lt;pod&gt; | grep -A 2 Limits
+kubectl get events --sort-by='.lastTimestamp'
+
+# Git 復原操作
+git reset --soft HEAD~1
+git restore &lt;file&gt;
+git reflog
+
+# Cloudflare DNS API
+curl -X POST https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"type":"A","name":"example.com","content":"1.2.3.4","proxied":true}'
+
+# Helm values 除錯
+helm template my-app ./chart -f values/prod.yaml --debug
+helm get values my-app -n default --all
+helm diff upgrade my-app ./chart -f values/prod.yaml</code></pre>
+</div>
+
+<div class="nav">
+  <a href="2026-06-12.html">← 2026-06-12</a>
+  <a href="../index.html">📋 目錄</a>
+  <a href="#" style="color: var(--text-secondary); text-decoration: none;">2026-06-13 →</a>
+</div>
+
+</div>
+</body>
+</html>

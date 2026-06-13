@@ -1,0 +1,84 @@
+[
+  {
+    "id": "2026-06-13-kp1",
+    "date": "2026-06-13",
+    "title": "kubectl exec 進 Pod 內排查",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進入容器內。常用診斷指令：env | grep 確認環境變數、nc -zv <svc> <port> 測試服務連通性、cat /etc/resolv.conf 確認 DNS 設定、df -h 看磁碟、top 看 process。注意：容器內通常沒有 curl/vim，用 wget -qO- 替代 curl。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "troubleshooting",
+      "container"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-13-kp2",
+    "date": "2026-06-13",
+    "title": "查 OOM 紀錄：dmesg + exit code 137",
+    "summary": "sudo dmesg -T | grep -i oom 查系統 OOM Killer 紀錄。K8s 中 Pod 因記憶體不足被殺會顯示 OOMKilled（exit code 137 = 128 + SIGKILL 9）。Pod memory limits 總和超過實體 RAM 時會連鎖殺 Pod。查看 Pod 資源：kubectl describe pod <pod> | grep -A 2 Limits。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "memory",
+      "linux",
+      "k8s",
+      "troubleshooting",
+      "exit code"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-13-kp3",
+    "date": "2026-06-13",
+    "title": "Git 復原操作三步驟",
+    "summary": "git reset --soft HEAD~1 退回 commit 但保留 staged 變更（可重新 commit）、git restore <file> 丟棄工作區未暫存改動、git reflog 查看所有 HEAD 移動記錄可救回誤刪的 commit。--soft 不改工作區和 index，--mixed 退回 staged 但不動工作區，--hard 全部丟棄（謹慎使用）。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "recovery",
+      "version control"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-13-kp4",
+    "date": "2026-06-13",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only",
+    "summary": "Cloudflare Proxy mode（橙色雲朵）隱藏 origin IP 並提供免費 TLS 終止、DDoS 防護、CDN 快取。DNS only（灰色雲朵）直接解析到 origin IP，無保護但延遲更低。透過 Cloudflare API 管理 DNS record 可自動化：curl -X POST https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records -H 'Authorization: Bearer $TOKEN'。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "proxy",
+      "CDN",
+      "TLS",
+      "API",
+      "network"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-13-kp5",
+    "date": "2026-06-13",
+    "title": "Helm values 分層覆蓋與 --set 陷阱",
+    "summary": "Helm values 三層覆蓋順序：values.yaml（chart 預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 最終覆蓋）。後層 merge 蓋前層同名 key。--set 方便但 typo 不會報錯（無效 key 直接忽略），建議 production 環境用 -f 檔案而非 --set。helm template --debug 可預覽渲染結果。",
+    "tags": [
+      "Helm",
+      "values",
+      "override",
+      "config",
+      "kubernetes",
+      "deploy"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
