@@ -3878,5 +3878,91 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-14-kp1",
+    "date": "2026-06-14",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "kubectl get pods 看狀態 → kubectl describe pod 看 Events/Conditions → kubectl logs 看容器輸出 → kubectl get events 看集群事件。從 Status 判斷 ImagePullBackOff（鏡像問題）、CrashLoopBackOff（程式崩潰）、OOMKilled（記憶體不足）、Pending（資源不足）。logs --previous 可看 crash 前的最後輸出。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "troubleshooting",
+      "diagnosis",
+      "debug",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-14-kp2",
+    "date": "2026-06-14",
+    "title": "Docker 多階段建置縮小 Image",
+    "summary": "Dockerfile 用多個 FROM 分離 build/runtime stage，只複製最終 artifacts 到 slim runtime image。Go 可 FROM scratch（~15MB static binary），Node.js 用 standalone output。build stage 的 layers 在複製後捨棄，不計入最終 image 大小。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "image",
+      "optimize",
+      "Go",
+      "container"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-14-kp3",
+    "date": "2026-06-14",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "uptime 看 load average > CPU 核心數表示排隊。free -h 的 available 才是真實可用記憶體（free 低不代表 RAM 不足，Linux 拿閒置 RAM 做 cache）。df -h / 看磁碟使用率，通常設 80% 告警、90% 緊急。df -i 查 inode 用量。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "CPU",
+      "memory",
+      "disk"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-14-kp4",
+    "date": "2026-06-14",
+    "title": "GitHub PR 流程：gh CLI",
+    "summary": "完整 PR 流程：git checkout -b feature/xxx → commit → git push -u → gh pr create → 等 review → gh pr merge --squash → git checkout main && git pull。gh pr view 看 PR 詳情，gh pr checkout <number> 切到他人 PR。--squash 壓縮 feature branch 的 commits 保持主線整潔。",
+    "tags": [
+      "GitHub",
+      "gh",
+      "PR",
+      "pull-request",
+      "git",
+      "CLI",
+      "workflow",
+      "CI/CD"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-14-kp5",
+    "date": "2026-06-14",
+    "title": "Helm 常用操作：生命週期管理",
+    "summary": "helm list -A 列出所有 release、helm history <release> 看版本歷史、helm rollback <release> <rev> 退回舊版、helm get values --all 查看生效設定。rollback 基於 revision 機制可快速恢復任何歷史版本。--wait 確保 rollout 就緒後才回傳成功。",
+    "tags": [
+      "Helm",
+      "rollback",
+      "kubernetes",
+      "release",
+      "lifecycle",
+      "deploy",
+      "k8s"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
