@@ -3964,5 +3964,87 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-15-kp1",
+    "date": "2026-06-15",
+    "title": "kubectl 看資源使用：top + describe node Allocated",
+    "summary": "kubectl top nodes 看即時 CPU%，kubectl top pods -A 看各 Pod 消耗，kubectl describe node 的 Allocated resources 顯示 requests/limits 佔比（scheduler 視角）。top 反映即時壓力，describe Allocated 反映理論容量限制，兩者互補。",
+    "tags": [
+      "kubectl",
+      "top",
+      "resources",
+      "monitoring",
+      "k8s",
+      "requests",
+      "limits"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-15-kp2",
+    "date": "2026-06-15",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 使用 containerd 而非 Docker daemon。部署流程：docker build → docker save | sudo k3s ctr images import - → kubectl apply。搭配 imagePullPolicy: Never 從本地 containerd store 拉取，不需 registry。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "docker",
+      "image",
+      "deploy",
+      "ctr"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-15-kp3",
+    "date": "2026-06-15",
+    "title": "systemd 服務管理：systemctl + journalctl",
+    "summary": "systemctl list-units --state=failed 列出失敗服務，journalctl -u <service> -n 50 看最近日誌，systemctl daemon-reload 在修改 unit file 後重載。systemctl reload 不中斷服務重載設定，systemctl restart 完全重啟。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "linux",
+      "service",
+      "management"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-15-kp4",
+    "date": "2026-06-15",
+    "title": "Git stash 暫存管理",
+    "summary": "git stash 用 stack（LIFO）結構儲存未 commit 改動，適合切 branch 或緊急修 bug 前使用。git stash list 看所有暫存，git stash pop 還原最新暫存，git stash -u 包含 untracked 檔案。pop = apply + drop。",
+    "tags": [
+      "Git",
+      "stash",
+      "暫存",
+      "版本控制",
+      "工作流程"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-15-kp5",
+    "date": "2026-06-15",
+    "title": "網路排查四指令：curl / dig / ss / nc",
+    "summary": "四指令涵蓋 OSI 應用層到傳輸層：curl -v 看完整 HTTP 流程與 SSL 握手，dig +short 簡潔 DNS 查詢，ss -tlnp 看 listening port 與所屬 process，nc -zv host port 測試 TCP 連線通不通。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting",
+      "DNS",
+      "TCP"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
