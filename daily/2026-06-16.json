@@ -1,0 +1,47 @@
+[
+  {
+    "id": "2026-06-16-kp1",
+    "date": "2026-06-16",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "kubectl get pods 看狀態 → kubectl describe pod 看 Events/Conditions → kubectl logs 看容器輸出 → kubectl get events 看集群事件。從 Status 判讀：ImagePullBackOff（鏡像問題）、CrashLoopBackOff（程式崩潰）、OOMKilled（記憶體不足）、Pending（資源不夠）。logs --previous 看 crash 前最後輸出。",
+    "tags": ["kubectl", "pod", "troubleshooting", "diagnosis", "debug", "k8s", "logs"],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-16-kp2",
+    "date": "2026-06-16",
+    "title": "Docker 多階段建置縮小 Image",
+    "summary": "Dockerfile 用多個 FROM 分離 build/runtime stage，只複製最終 artifacts 到 slim runtime image。Go 可 FROM scratch（~15MB static binary），Node.js 用 standalone output。build stage 的 layers 在複製後捨棄，不計入最終 image 大小。docker image history 查看各層。",
+    "tags": ["Docker", "multi-stage", "build", "image", "optimize", "Go", "container", "scratch"],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-16-kp3",
+    "date": "2026-06-16",
+    "title": "查 OOM 紀錄：dmesg + exit code 137",
+    "summary": "sudo dmesg -T | grep -i oom 查系統 OOM Killer 紀錄。K8s 中 Pod 因記憶體不足被殺顯示 OOMKilled（exit code 137 = 128 + SIGKILL 9）。Pod memory limits 總和超過節點 RAM 時會連鎖殺 Pod。kubectl describe pod 看 Limits 欄位。",
+    "tags": ["OOM", "dmesg", "memory", "linux", "k8s", "troubleshooting", "exit code"],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-16-kp4",
+    "date": "2026-06-16",
+    "title": "GitHub PR 流程：gh CLI",
+    "summary": "完整 PR 流程：git checkout -b feature/xxx → commit → git push -u → gh pr create → 等 review → gh pr merge --squash → git checkout main && git pull。gh pr view 看 PR 詳情，gh pr checkout <number> 切到他人 PR。--squash 壓縮 feature branch commits 保持主線整潔。",
+    "tags": ["GitHub", "gh", "PR", "pull-request", "git", "CLI", "workflow", "CI/CD"],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-16-kp5",
+    "date": "2026-06-16",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only",
+    "summary": "Cloudflare Proxy mode（橙色雲朵）隱藏 origin IP 並提供免費 TLS 終止、DDoS 防護、CDN 快取。DNS only（灰色雲朵）直接解析到 origin IP，無保護但延遲更低。透過 Cloudflare API 可自動化：curl POST /zones/$ZONE_ID/dns_records 搭配 Bearer token，proxied: true/false 控制模式。",
+    "tags": ["Cloudflare", "DNS", "proxy", "CDN", "TLS", "API", "network", "security"],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
