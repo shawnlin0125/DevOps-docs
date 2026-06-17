@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-17（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --accent-purple: #a371f7;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .practice-note { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--accent-orange); }
+  
+  /* TOC */
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { margin: 0.25rem 0; }
+  .toc a { color: var(--accent-green); text-decoration: none; font-size: 0.88rem; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* KP card */
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.9rem; margin: 0.3rem 0; }
+  .kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; margin: 0.5rem 0; overflow-x: auto; font-size: 0.82rem; }
+  .kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: #e6edf3; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+  .kp-card .tag { font-size: 0.72rem; padding: 0.1rem 0.5rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+
+  /* Command reference */
+  .cmd-ref { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .cmd-ref h3 { color: var(--accent-orange); font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .cmd-ref pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; overflow-x: auto; font-size: 0.82rem; margin: 0.3rem 0; }
+  .cmd-ref code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; color: #e6edf3; }
+
+  /* Nav */
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+
+  /* Section header */
+  .section-header { color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin: 1.5rem 0 1rem; font-size: 1.1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🏋️ DevOps 學習筆記 — <span>2026-06-17</span></h1>
+  <p class="subtitle">0 對話 · 5 知識點（自主練習）</p>
+  <div class="practice-note">
+    📝 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ul>
+      <li><a href="#kp1">kubectl exec 進 Pod 內排查</a></li>
+      <li><a href="#kp2">Git 復原操作：reset / restore / reflog</a></li>
+      <li><a href="#kp3">Helm values 分層覆蓋與 --set 陷阱</a></li>
+      <li><a href="#kp4">Linux 資源監控三指令：uptime / free / df</a></li>
+      <li><a href="#kp5">網路排查四指令：curl / dig / ss / nc</a></li>
+    </ul>
+  </div>
+
+  <h3 class="section-header">📚 知識點</h3>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl exec 進 Pod 內排查</h4>
+    <p>kubectl exec -it <pod> -n <ns> -- sh 進容器互動。常用診斷指令：env | grep -i 確認環境變數、nc -zv <svc> <port> 測試連線、cat /etc/resolv.conf 確認 DNS 設定。Pod CrashLoopBackOff 時用 ephemeral container 或 kubectl debug 方式排查。</p>
+    <pre><code>kubectl exec -it <pod> -n <ns> -- sh</code></pre>
+    <p class="why">💭 原理：exec 在 Pod 網路 namespace 內建立 process，等同在容器內部操作，可直接驗證 env/DNS/連線等執行期設定</p>
+    <div class="tags">
+      <span class="tag">#A</span>
+      <span class="tag">kubectl</span>
+      <span class="tag">exec</span>
+      <span class="tag">debug</span>
+      <span class="tag">pod</span>
+      <span class="tag">troubleshooting</span>
+      <span class="tag">k8s</span>
+      <span class="tag">network</span>
+      <span class="tag">dns</span>
+    </div>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 Git 復原操作：reset / restore / reflog</h4>
+    <p>git reset --soft HEAD~1 退回 commit 保留 staged、git restore <file> 丟棄工作區改動、git reflog 看所有 HEAD 移動記錄救回誤刪 commit。區別：reset 動 branch pointer、restore 動 working tree、reflog 是救命的操作日誌。</p>
+    <pre><code>git reflog && git reset --soft HEAD@{1}</code></pre>
+    <p class="why">💭 原理：Git 不會立即刪除物件，reflog 記錄所有 HEAD 變動，只要 commit 在 reflog 保留期內（預設 90 天）就還能 git reset 救回</p>
+    <div class="tags">
+      <span class="tag">#D</span>
+      <span class="tag">Git</span>
+      <span class="tag">reset</span>
+      <span class="tag">restore</span>
+      <span class="tag">reflog</span>
+      <span class="tag">版本控制</span>
+      <span class="tag">復原</span>
+    </div>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 Helm values 分層覆蓋與 --set 陷阱</h4>
+    <p>Helm 三層值覆蓋：values.yaml（預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）。後層 merge 覆蓋前層同名 key。helm template --debug 檢查渲染結果，helm get values -n <ns> <release> 看生效值。--set 常見陷阱：typo 無人檢查、複雜結構需 JSON 語法。</p>
+    <pre><code>helm template --debug <release> -f values/production.yaml --set image.tag=latest .</code></pre>
+    <p class="why">💭 原理：Helm 用 Go template 合併 values，三次 yaml merge 的優先級：--set > --values > 內建 values.yaml，同層 array 無法部分覆蓋只能整個取代</p>
+    <div class="tags">
+      <span class="tag">#E</span>
+      <span class="tag">Helm</span>
+      <span class="tag">values</span>
+      <span class="tag">override</span>
+      <span class="tag">deploy</span>
+      <span class="tag">k8s</span>
+      <span class="tag">helm template</span>
+    </div>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Linux 資源監控三指令：uptime / free / df</h4>
+    <p>uptime 的 load average > CPU 核心數表示 CPU 排隊。free -h 要看 available 欄位（真實可用記憶體），free 欄位低不代表 RAM 不足因為 Linux 拿閒置 RAM 做 cache。df -h / 看磁碟使用率，通常 80% 告警 90% 緊急；df -i 查 inode 用量。</p>
+    <pre><code>uptime && free -h && df -h / && df -i /</code></pre>
+    <p class="why">💭 原理：load average 是 running+uninterruptible 行程數，free 的 available 包含可回收 cache，比 free 欄位更準確反映記憶體壓力</p>
+    <div class="tags">
+      <span class="tag">#C</span>
+      <span class="tag">Linux</span>
+      <span class="tag">monitoring</span>
+      <span class="tag">uptime</span>
+      <span class="tag">free</span>
+      <span class="tag">df</span>
+      <span class="tag">CPU</span>
+      <span class="tag">memory</span>
+      <span class="tag">disk</span>
+    </div>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 網路排查四指令：curl / dig / ss / nc</h4>
+    <p>四指令對應 OSI 四層：curl -v 看完整 HTTP/HTTPS 流程與 SSL 握手、dig +short 快速 DNS 解析、ss -tlnp 看 listening port 與所屬 process（取代 netstat）、nc -zv host port 測試 TCP 連線。先 dig 確認 DNS 正常，再 curl 看應用層，中間用 nc 測傳輸層。</p>
+    <pre><code>dig +short example.com && curl -vI https://example.com && ss -tlnp | grep :443 && nc -zv example.com 443</code></pre>
+    <p class="why">💭 原理：curl -v 顯示完整 HTTP request/response header 含 SSL 憑鏈，dig +short 跳過 local DNS cache 直接查上游，ss 用 kernel socket API 比 /proc 更快</p>
+    <div class="tags">
+      <span class="tag">#F</span>
+      <span class="tag">network</span>
+      <span class="tag">curl</span>
+      <span class="tag">dig</span>
+      <span class="tag">ss</span>
+      <span class="tag">nc</span>
+      <span class="tag">troubleshooting</span>
+      <span class="tag">DNS</span>
+      <span class="tag">TCP</span>
+    </div>
+  </article>
+
+  <div class="cmd-ref">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># kubectl exec 進 Pod 診斷
+kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh
+
+# Git reflog — 救回誤刪 commit
+git reflog && git reset --soft HEAD@{1}
+
+# Helm template 預覽渲染結果
+helm template --debug &lt;release&gt; -f values/production.yaml .
+
+# Linux 資源一覽
+uptime && free -h && df -h / && df -i /
+
+# 網路排查：DNS → HTTP → Port
+dig +short example.com && curl -vI https://example.com && nc -zv example.com 443</code></pre>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav">
+    <a href="2026-06-16.html">← 前一天</a>
+    <a href="../index.html">📋 回到總覽</a>
+    <a href="2026-06-18.html">後一天 →</a>
+  </div>
+
+</div>
+</body>
+</html>

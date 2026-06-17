@@ -79,8 +79,8 @@
     <h1>⚡ Shawn's <span>DevOps Lab</span></h1>
     <p class="subtitle">每日學習筆記 — 從真實專案中學 DevOps：k3s · Kubernetes · CI/CD · 監控 · GitOps</p>
     <div class="stats">
-      <div class="stat"><span class="stat-num" id="stat-days">38</span><div class="stat-label">學習天數</div></div>
-      <div class="stat"><span class="stat-num" id="stat-kps">273</span><div class="stat-label">知識點</div></div>
+      <div class="stat"><span class="stat-num" id="stat-days">39</span><div class="stat-label">學習天數</div></div>
+      <div class="stat"><span class="stat-num" id="stat-kps">278</span><div class="stat-label">知識點</div></div>
     </div>
   </header>
 
@@ -121,6 +121,14 @@
         <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判讀）、Docker multi-stage build 從 builder 到 scratch 瘦身與 docker image history、sudo dmesg -T OOM Killer 紀錄 + exit code 137 判斷、gh pr create/merge --squash 完整 CLI 流程與 gh pr checkout、Cloudflare API DNS record 管理與 Proxy/DNS only 模式差異</div>
         <div class="day-topics">
           <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+        </div>
+      </div>
+      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+        <span class="date-badge">🏋️ 06/17</span>
+        <a href="daily/2026-06-17.html">kubectl exec 進 Pod 內排查、Git 復原操作：reset / restore / reflog、Helm values 分層覆蓋與 --set 陷阱、Linux 資源監控三指令：uptime / free / df、網路排查四指令：curl / dig / ss / nc</a>
+        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 進容器互動、git reset --soft HEAD~1 退回 commit 保留 staged、git restore <file> 丟棄工作區改動、git reflog 看所有 HEAD 移動記錄救回誤刪 commit、Helm 三層值覆蓋：values.yaml（預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）、uptime 的 load average > CPU 核心數表示 CPU 排隊、四指令對應 OSI 四層：curl -v 看完整 HTTP/HTTPS 流程與 SSL 握手、dig +short 快速 DNS 解析、ss -tlnp 看 listening port 與所屬 process（取代 netstat）、nc -zv host port 測試 TCP 連線</div>
+        <div class="day-topics">
+          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span>
         </div>
       </div>
       <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">

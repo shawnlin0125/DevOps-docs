@@ -4134,5 +4134,91 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-17-kp1",
+    "date": "2026-06-17",
+    "title": "kubectl exec 進 Pod 內排查",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進容器互動。常用診斷指令：env | grep -i 確認環境變數、nc -zv <svc> <port> 測試連線、cat /etc/resolv.conf 確認 DNS 設定。Pod CrashLoopBackOff 時用 ephemeral container 或 kubectl debug 方式排查。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "troubleshooting",
+      "k8s",
+      "network",
+      "dns"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-17-kp2",
+    "date": "2026-06-17",
+    "title": "Git 復原操作：reset / restore / reflog",
+    "summary": "git reset --soft HEAD~1 退回 commit 保留 staged、git restore <file> 丟棄工作區改動、git reflog 看所有 HEAD 移動記錄救回誤刪 commit。區別：reset 動 branch pointer、restore 動 working tree、reflog 是救命的操作日誌。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "版本控制",
+      "復原"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-17-kp3",
+    "date": "2026-06-17",
+    "title": "Helm values 分層覆蓋與 --set 陷阱",
+    "summary": "Helm 三層值覆蓋：values.yaml（預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）。後層 merge 覆蓋前層同名 key。helm template --debug 檢查渲染結果，helm get values -n <ns> <release> 看生效值。--set 常見陷阱：typo 無人檢查、複雜結構需 JSON 語法。",
+    "tags": [
+      "Helm",
+      "values",
+      "override",
+      "deploy",
+      "k8s",
+      "helm template"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-17-kp4",
+    "date": "2026-06-17",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "uptime 的 load average > CPU 核心數表示 CPU 排隊。free -h 要看 available 欄位（真實可用記憶體），free 欄位低不代表 RAM 不足因為 Linux 拿閒置 RAM 做 cache。df -h / 看磁碟使用率，通常 80% 告警 90% 緊急；df -i 查 inode 用量。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "CPU",
+      "memory",
+      "disk"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-17-kp5",
+    "date": "2026-06-17",
+    "title": "網路排查四指令：curl / dig / ss / nc",
+    "summary": "四指令對應 OSI 四層：curl -v 看完整 HTTP/HTTPS 流程與 SSL 握手、dig +short 快速 DNS 解析、ss -tlnp 看 listening port 與所屬 process（取代 netstat）、nc -zv host port 測試 TCP 連線。先 dig 確認 DNS 正常，再 curl 看應用層，中間用 nc 測傳輸層。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting",
+      "DNS",
+      "TCP"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
