@@ -116,6 +116,14 @@
     <div class="year-section">
       <div class="year-title">📅 2026 年 6 月</div>
       <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+        <span class="date-badge">🏋️ 06/18</span>
+        <a href="daily/2026-06-18.html">kubectl 資源診斷（top + Allocated）、k3s containerd 鏡像管理、systemd 服務管理、Git stash 暫存管理、Helm 生命週期管理</a>
+        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷（即時用量 vs scheduler 視角）、docker build/save/k3s ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、systemctl list-units --state=failed + journalctl -u 服務日誌管理、git stash push -u/list/pop/apply/drop LIFO 暫存管理（stash 本質是 commit-like 物件存在 .git/refs/stash）、helm list -A/history/rollback/get values 版本生命週期管理與 --reuse-values</div>
+        <div class="day-topics">
+          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">values</span>
+        </div>
+      </div>
+      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
         <span class="date-badge">🏋️ 06/16</span>
         <a href="daily/2026-06-16.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
         <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判讀）、Docker multi-stage build 從 builder 到 scratch 瘦身與 docker image history、sudo dmesg -T OOM Killer 紀錄 + exit code 137 判斷、gh pr create/merge --squash 完整 CLI 流程與 gh pr checkout、Cloudflare API DNS record 管理與 Proxy/DNS only 模式差異</div>

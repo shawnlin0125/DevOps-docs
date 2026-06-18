@@ -1,0 +1,77 @@
+[
+  {
+    "id": "2026-06-18-kp1",
+    "date": "2026-06-18",
+    "title": "kubectl 看資源使用：top + Allocated",
+    "summary": "kubectl top nodes/pods 看即時 CPU/RAM 用量（/proc/stat），kubectl describe node Allocated 看 scheduler 視角的 request/limit 佔比。top 低不代表可以塞 Pod——request 佔滿仍會 Pending。",
+    "tags": [
+      "kubectl",
+      "top",
+      "resources",
+      "monitoring",
+      "scheduler"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-18-kp2",
+    "date": "2026-06-18",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 用 containerd 非 Docker daemon。部署流程：docker build → docker save img | sudo k3s ctr images import - → kubectl apply → rollout restart。需設 imagePullPolicy: Never。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "deploy"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-18-kp3",
+    "date": "2026-06-18",
+    "title": "systemd 服務管理：systemctl + journalctl",
+    "summary": "systemctl list-units --state=failed 列出失敗服務；journalctl -u <service> -n 50 看最近日誌；改 unit file 後先 daemon-reload。systemctl status 顯示 process state + 最近 log。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "Linux",
+      "service"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-18-kp4",
+    "date": "2026-06-18",
+    "title": "Git stash 暫存管理",
+    "summary": "git stash push -u 暫存含 untracked files（LIFO stack）。git stash list 看所有暫存，pop 還原並移除，apply 只還原不移除。stash 本質是 commit-like 物件存在 .git/refs/stash。",
+    "tags": [
+      "Git",
+      "stash",
+      "WIP",
+      "temporary",
+      "LIFO"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-18-kp5",
+    "date": "2026-06-18",
+    "title": "Helm 常用操作：生命週期管理",
+    "summary": "helm list -A 看所有 release；helm history 看版本歷史；helm rollback 退回指定版本（實為建立新 revision）；helm get values 看目前 values。--reuse-values 保留現有值做 upgrade。",
+    "tags": [
+      "Helm",
+      "release",
+      "rollback",
+      "values",
+      "upgrade"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]

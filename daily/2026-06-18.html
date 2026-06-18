@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-18（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --accent-purple: #a371f7;
+    --accent-red: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.8rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.4rem; font-size: 0.95rem; }
+  .alert-box { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem; margin: 1rem 0; font-size: 0.9rem; }
+  .alert-box strong { color: var(--accent-orange); }
+  h2 { color: var(--accent); font-size: 1.3rem; margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  h3 { color: var(--accent); font-size: 1.1rem; margin: 1rem 0 0.6rem; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc h3 { color: var(--accent); margin-bottom: 0.6rem; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { margin: 0.3rem 0; }
+  .toc a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { color: var(--accent); }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; line-height: 1.55; margin: 0.3rem 0; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem; font-size: 0.82rem; overflow-x: auto; margin: 0.5rem 0; }
+  .kp-card code { font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace; }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+  .cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; margin-top: 1.5rem; }
+  .cheatsheet h3 { color: var(--accent); margin-bottom: 0.6rem; }
+  .cheatsheet code { display: block; background: #1c2128; padding: 0.4rem 0.6rem; margin: 0.2rem 0; border-radius: 4px; font-size: 0.82rem; }
+  .tag { display: inline-block; background: rgba(88,166,255,0.15); color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.75rem; margin: 0.15rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🏋️ DevOps 學習筆記<br><span>June 18, 2026</span></h1>
+  <p class="subtitle">今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  <p class="subtitle" style="margin-top:0.2rem;">0 對話 · 5 知識點（自主練習）</p>
+</header>
+
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ul>
+    <li><a href="#kp1">💡 kubectl 看資源使用：top + Allocated</a></li>
+    <li><a href="#kp2">💡 k3s containerd 鏡像管理完整流程</a></li>
+    <li><a href="#kp3">💡 systemd 服務管理：systemctl + journalctl</a></li>
+    <li><a href="#kp4">💡 Git stash 暫存管理</a></li>
+    <li><a href="#kp5">💡 Helm 常用操作：生命週期管理</a></li>
+  </ul>
+</div>
+
+<section>
+  <h2>🛠️ 基礎知識練習</h2>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl 看資源使用：top + Allocated</h4>
+    <p>用 <code>kubectl top nodes</code> 看即時 CPU/RAM 用量，<code>kubectl top pods -A</code> 看每個 Pod 的即時用量。<code>kubectl describe node</code> 搭配 grep 看 Allocated resources（request/limit 佔比）——這是 scheduler 視角，顯示節點上「已承諾分配」的資源比例，比 top 更能預測是否能排程新 Pod。</p>
+    <pre><code># 即時用量（實際正在使用的資源）
+kubectl top nodes
+kubectl top pods -A
+
+# Scheduler 視角：已分配資源佔比（request/limit）
+kubectl describe node &lt;node-name&gt; | grep -A 8 Allocated</code></pre>
+    <p class="why">💭 原理：top 是即時的 /proc/stat 用量；describe node Allocated 是 scheduler 計算 Pod requests 的累加值。top 低不代表可以塞 Pod——如果 request 已經佔滿，新的 Pod 還是會 Pending。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 k3s containerd 鏡像管理完整流程</h4>
+    <p>k3s 預設用 containerd 而非 Docker daemon。部署本地鏡像的流程：<code>docker build</code> → <code>docker save img:tag | sudo k3s ctr images import -</code> → <code>kubectl apply</code> → <code>kubectl rollout restart</code>。鏡像存在 containerd 的 local image store，不需要 registry。記得設定 <code>imagePullPolicy: Never</code> 避免 kubelet 去拉 remote。</p>
+    <pre><code># 1. Build image
+docker build -t myapp:latest .
+
+# 2. 匯入到 k3s containerd
+docker save myapp:latest | sudo k3s ctr images import -
+
+# 3. 驗證匯入成功
+sudo k3s ctr images list | grep myapp
+
+# 4. 部署（imagePullPolicy: Never）
+kubectl apply -f deploy.yaml
+kubectl rollout restart deployment/myapp</code></pre>
+    <p class="why">💭 原理：k3s 的 containerd 有獨立的 image store，Docker 的 image 不會自動同步過去。docker save 把 image 匯出成 tar，k3s ctr images import 解壓匯入到 containerd namespace。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 systemd 服務管理：systemctl + journalctl</h4>
+    <p>三個最常用的 systemd 診斷指令：<code>systemctl list-units --state=failed</code> 列出失敗服務；<code>journalctl -u &lt;service&gt; -n 50 --no-pager</code> 看特定服務的最近日誌；改完 unit file 後要先 <code>systemctl daemon-reload</code> 再 restart。</p>
+    <pre><code># 看所有失敗的服務
+systemctl list-units --state=failed
+
+# 看特定服務的最近日誌
+journalctl -u nginx -n 50 --no-pager
+
+# 改完 /etc/systemd/system/xxx.service 後重載
+sudo systemctl daemon-reload
+sudo systemctl restart xxx
+
+# 看服務狀態（含最近日誌）
+systemctl status xxx --no-pager -l</code></pre>
+    <p class="why">💭 原理：systemd 用 cgroup 管理 process，startup type 有 simple/forking/oneshot 等。daemon-reload 重新解析 unit file，restart 後新的 unit 設定才生效。<code>status</code> 同時顯示 process state 和最近 log。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Git stash 暫存管理</h4>
+    <p>切換 branch 前忘了 commit 時，用 <code>git stash</code> 暫存目前改動（LIFO stack）。<code>git stash push -u</code> 連 untracked files 一起存。<code>git stash list</code> 看所有暫存，<code>git stash pop</code> 還原最近的一次並從 stack 移除，<code>git stash apply</code> 只還原不移除。</p>
+    <pre><code># 暫存目前改動（含 untracked files）
+git stash push -u -m "WIP: 實驗中功能"
+
+# 看所有暫存
+git stash list
+
+# 還原最近暫存（並從 stack 移除）
+git stash pop
+
+# 只還原不移除（保留 stash 副本）
+git stash apply stash@{0}
+
+# 丟棄特定暫存
+git stash drop stash@{0}</code></pre>
+    <p class="why">💭 原理：stash 本質是一個 commit-like 的物件存在 .git/refs/stash，用 LIFO stack 管理。push 時自動做一個 soft reset 回到 HEAD，pop 時 apply 後 reset 回原本的 working tree 狀態。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 Helm 常用操作：生命週期管理</h4>
+    <p><code>helm list -A</code> 看所有 namespace 的 release；<code>helm history &lt;release&gt; -n &lt;ns&gt;</code> 看版本歷史（含 revision 號碼和 deployed/failed 狀態）；<code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code> 退回指定版本；<code>helm get values &lt;release&gt; -n &lt;ns&gt;</code> 看目前生效的 values 設定。</p>
+    <pre><code># 所有 release
+helm list -A
+
+# 版本歷史
+helm history myapp -n production
+
+# 退回 revision 2
+helm rollback myapp 2 -n production
+
+# 看目前生效的 values
+helm get values myapp -n production
+
+# 加上 --reuse-values 保持現有 values 做 upgrade
+helm upgrade myapp ./chart --reuse-values -n production</code></pre>
+    <p class="why">💭 原理：Helm 每個 upgrade/install 都產生一個新的 revision，舊的 revision 保留（預設 10 個）。rollback 本質是建立一個「退回版本」的新 revision，不是真的刪除。--reuse-values 用上次 deploy 的 values 避免覆蓋。</p>
+  </article>
+
+</section>
+
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <code>kubectl top nodes && kubectl top pods -A</code>
+  <code>kubectl describe node &lt;name&gt; | grep -A 8 Allocated</code>
+  <code>docker build -t myapp . && docker save myapp | sudo k3s ctr images import -</code>
+  <code>journalctl -u nginx -n 50 --no-pager</code>
+  <code>helm list -A && helm history myapp -n prod && helm rollback myapp 2 -n prod</code>
+  <code>git stash push -u -m "WIP" && git stash list && git stash pop</code>
+</div>
+
+<div class="nav">
+  <a href="2026-06-17.html">← 前一天</a>
+  <a href="../index.html">📋 回到總覽</a>
+  <a href="2026-06-19.html">後一天 →</a>
+</div>
+
+</div>
+</body>
+</html>
