@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-19（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.4rem; font-size: 0.95rem; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc h3 { color: var(--accent); font-size: 1rem; margin-bottom: 0.6rem; }
+  .toc a { display: block; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; padding: 0.2rem 0; }
+  .toc a:hover { color: var(--accent); }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.4rem 0; }
+  code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+  h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+  .section-intro { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; padding: 0.8rem 1rem; background: var(--bg-card); border-left: 3px solid var(--accent-orange); border-radius: 4px; }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-secondary); font-size: 0.85rem; }
+  .notice { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; color: var(--accent-orange); }
+  .cmd-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+  .cmd-table th { text-align: left; color: var(--text-secondary); font-size: 0.8rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border); }
+  .cmd-table td { padding: 0.4rem 0.6rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🏋️ DevOps 學習筆記 — <span>2026-06-19</span></h1>
+  <p class="subtitle">自主練習 · 0 對話 · 5 知識點</p>
+</header>
+
+<div class="notice">
+📌 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <a href="#kp1">kp1 · kubectl 診斷 Pod 啟動失敗的完整流程</a>
+  <a href="#kp2">kp2 · Docker 多階段建置縮小 Image</a>
+  <a href="#kp3">kp3 · 查 OOM 紀錄：dmesg + exit code 137</a>
+  <a href="#kp4">kp4 · GitHub PR 流程：gh CLI</a>
+  <a href="#kp5">kp5 · Cloudflare DNS 管理：Proxy vs DNS only</a>
+  <a href="#cheatsheet">🛠️ 本日指令速查表</a>
+</div>
+
+<h2>🔧 知識點</h2>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 kubectl 診斷 Pod 啟動失敗的完整流程</h4>
+  <p>Pod 啟動失敗時，按順序執行四步驟排查：<code>kubectl get pods</code> → <code>kubectl describe pod</code> → <code>kubectl logs</code> → <code>kubectl get events</code>。從 Status/Events 欄位判斷是 ImagePull（鏡像拉取失敗）、CrashLoopBackOff（容器不斷重啟）、OOMKilled（記憶體不足）還是 Pending（資源不夠排程）。</p>
+  <pre><code># 1. 看 Pod 狀態
+kubectl get pods -n <namespace>
+
+# 2. 看詳細事件（含 Error Reason、最後狀態）
+kubectl describe pod <pod-name> -n <namespace>
+
+# 3. 看容器 stdout/stderr
+kubectl logs <pod-name> -n <namespace>
+kubectl logs --previous <pod-name> -n <namespace>  # 看前一個實例的 log
+
+# 4. 看叢集層級事件（過濾特定 namespace）
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'</code></pre>
+  <p class="why">💭 原理：kubectl describe 的 Events 段落記錄了 kubelet 對 Pod 的每一個操作與錯誤原因，是最快定位問題的入口。CrashLoopBackOff 表示容器啟動後立即退出，需看 logs 或 describe 的 Last State 欄位確認 exit code。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 Docker 多階段建置縮小 Image</h4>
+  <p>多階段建置（Multi-stage build）讓一個 Dockerfile 包含多個 FROM 區段。build stage 安裝所有建置依賴（編譯器、npm、go mod），runtime stage 只複製編譯後的 artifacts，大幅縮小最終映像。Go 可 FROM scratch（靜態二進位完全不需要基礎映像），Node.js 則用 standalone output 搭配 alpine。</p>
+  <pre><code># === Go 多階段建置範例 ===
+# Build stage
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o server .
+
+# Runtime stage — 從 scratch 開始
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+
+# 查看 image 大小
+docker images | grep <name></code></pre>
+  <p class="why">💭 原理：Docker image 是分層（layer）的，每個 RUN/COPY 產生一層。多階段建置只在 builder 階段產生編譯層，runtime 階段只複製最終檔案，builder 層全部丟棄，所以最終 image 只包含 runtime 必要的檔案。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 查 OOM 紀錄：dmesg + exit code 137</h4>
+  <p>OOM Killer 會在系統記憶體不足時終止吃最多 RAM 的行程。用 <code>sudo dmesg -T | grep -i oom</code> 查看核心 OOM Killer 紀錄（含被殺的 process name、pid、oom_score）。Pod 被 OOM 殺掉時 exit code 為 137（SIGKILL），描述 Pod 中 Events 會顯示 OOMKilled。</p>
+  <pre><code># 查看 OOM Killer 核心紀錄
+sudo dmesg -T | grep -i oom
+
+# 檢查最近被殺的行程
+sudo dmesg -T | grep -i "killed process"
+
+# 看 Pod 是否因 OOM 被殺（kubectl describe 的 Last State 欄位）
+kubectl describe pod <pod-name> -n <namespace> | grep -A 5 "Last State"
+
+# K8s 中 memory limits 總和 > 實體 RAM 時 OOM 會連鎖殺 Pod</code></pre>
+  <p class="why">💭 原理：OOM Killer 在核心記憶體耗盡時觸發，選擇 oom_score 最高的行程終止（通常是 RSS 佔用最多的）。在 K8s 中，Pod 超過 memory limit 會被 cgroup OOM Killer 殺掉（OOMKilled），不是節點層級 OOM Killer。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 GitHub PR 流程：gh CLI</h4>
+  <p>GitHub CLI（gh）可在終端機完成完整的 PR 生命週期管理：建立 branch → commit → push → 開 PR → review → merge。使用 <code>gh pr create</code> 開 PR，<code>gh pr review --approve</code> 審核，<code>gh pr merge --squash</code> 合併。流程結束後切回 main 並 pull 最新。</p>
+  <pre><code># 完整 PR 流程
+git checkout -b feature/xxx
+git add . && git commit -m "feat: ..."
+git push -u origin feature/xxx
+
+# 開 PR（推薦用 Web 填 body 或 --fill）
+gh pr create --title "..." --body "..." --fill
+
+# 審核與合併
+gh pr review --approve
+gh pr merge --squash --delete-branch
+
+# 回到 main
+git checkout main && git pull
+
+# 實用工具命令
+gh pr list -A "@me"          # 看我開的所有 PR
+gh pr checkout <number>      # 切到 PR 分支看 code
+gh pr diff                    # 看 PR 的程式碼差異</code></pre>
+  <p class="why">💭 原理：gh 透過 GitHub REST/GraphQL API 操作 PR，--squash 將所有 commit 壓成一個之後合併到 base branch，保持歷史整潔。--delete-branch 在合併後自動刪除遠端分支。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 Cloudflare DNS 管理：Proxy vs DNS only</h4>
+  <p>Cloudflare DNS 記錄有兩種模式：Proxy mode（橙色雲朵）讓流量經過 Cloudflare CDN/WAF，隱藏 origin IP 並提供免費 TLS；DNS only（灰色雲朵）直接解析記錄指向原始 IP。用 Cloudflare API 可程式化管理 DNS 記錄。查詢方式：<code>dig +short example.com</code> 若回傳 Cloudflare IP 則為 Proxy mode。</p>
+  <pre><code># 查詢 DNS 記錄（用 dig 判斷是否經過 Cloudflare）
+dig +short example.com
+# 若回傳 Cloudflare IP 區段 → Proxy mode
+# 若回傳真實伺服器 IP → DNS only
+
+# 用 Cloudflare API 管理 DNS 記錄（需 API Token）
+curl -s -X GET "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" \
+  -H "Content-Type: application/json" | jq .
+
+# 新增 A 記錄（DNS only）
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"A","name":"www","content":"1.2.3.4","ttl":120,"proxied":false}' | jq .
+
+# Proxy mode（proxied: true）
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"A","name":"www","content":"1.2.3.4","ttl":1,"proxied":true}' | jq .</code></pre>
+  <p class="why">💭 原理：Proxy mode（橘雲）讓 Cloudflare Anycast IP 作為反向代理，origin server 只需要允許 Cloudflare IP 範圍的連線。DNS only（灰雲）直接暴露 origin IP，適合不希望流量經過 Cloudflare 的場景（如 API 服務、WebSocket）。</p>
+</article>
+
+<h2 id="cheatsheet">🛠️ 本日指令速查表</h2>
+<table class="cmd-table">
+  <thead><tr><th>分類</th><th>指令</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td>kubectl 診斷</td><td>kubectl get pods -n &lt;ns&gt;</td><td>看 Pod 狀態</td></tr>
+    <tr><td></td><td>kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;</td><td>看 Pod 事件與錯誤原因</td></tr>
+    <tr><td></td><td>kubectl logs --previous &lt;pod&gt; -n &lt;ns&gt;</td><td>看前一個實例的 crashed log</td></tr>
+    <tr><td>Docker</td><td>docker images | grep &lt;name&gt;</td><td>查看 image 大小</td></tr>
+    <tr><td>OOM 診斷</td><td>sudo dmesg -T \| grep -i oom</td><td>查 OOM Killer 核心紀錄</td></tr>
+    <tr><td>GitHub</td><td>gh pr create --title "..." --fill</td><td>開 PR</td></tr>
+    <tr><td></td><td>gh pr merge --squash --delete-branch</td><td>合併並刪除遠端分支</td></tr>
+    <tr><td>DNS</td><td>dig +short example.com</td><td>快速 DNS 查詢</td></tr>
+    <tr><td>Cloudflare API</td><td>curl ... api.cloudflare.com/.../dns_records</td><td>程式化管理 DNS</td></tr>
+  </tbody>
+</table>
+
+<div class="nav">
+  <a href="2026-06-18.html">← 前一天（06/18）</a>
+  <a href="../index.html">📋 回到總覽</a>
+  <a href="2026-06-20.html">後一天（06/20）→</a>
+</div>
+
+<footer>
+  <p>🚀 每天凌晨 3:00 自動更新 · Powered by Hermes Agent & Cron · 自主練習</p>
+  <p style="margin-top:0.3rem;"><a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent);">GitHub Repo</a></p>
+</footer>
+
+</div>
+</body>
+</html>

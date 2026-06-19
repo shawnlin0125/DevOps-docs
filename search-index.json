@@ -4295,5 +4295,92 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-19-kp1",
+    "date": "2026-06-19",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "Pod 啟動失敗四步驟排查：kubectl get pods → describe pod → logs → get events。從 Status/Events 欄位判斷 ImagePull（鏡像拉取失敗）、CrashLoopBackOff（容器不斷重啟）、OOMKilled（記憶體不足）、Pending（資源不夠排程）。describe 的 Events 段落記錄了 kubelet 對 Pod 的每一個操作與錯誤原因，是最快定位問題的入口。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "debug",
+      "troubleshooting",
+      "logs",
+      "events",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-19-kp2",
+    "date": "2026-06-19",
+    "title": "Docker 多階段建置縮小 Image",
+    "summary": "Docker multi-stage build 讓一個 Dockerfile 包含多個 FROM 區段。build stage 裝所有 deps 做編譯，runtime stage 只複製 artifacts。Go 可 FROM scratch（static binary 完全不需要基礎映像），Node.js 則用 standalone output 搭配 alpine。RUN/COPY 每條指令產生一層，builder 階段產生的層在建置結束後丟棄。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "image",
+      "scratch",
+      "container"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-19-kp3",
+    "date": "2026-06-19",
+    "title": "查 OOM 紀錄：dmesg + exit code 137",
+    "summary": "OOM Killer 在核心記憶體耗盡時觸發，選擇 oom_score 最高的行程終止（RSS 最多的）。sudo dmesg -T | grep -i oom 查看核心紀錄。Pod 被 OOM 殺掉 exit code 為 137（SIGKILL），kubectl describe 的 Last State 欄位會顯示 OOMKilled。K8s Pod 超過 memory limit 時被 cgroup OOM Killer 殺掉，非節點層級。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "SIGKILL",
+      "memory",
+      "k8s",
+      "monitoring",
+      "Linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-19-kp4",
+    "date": "2026-06-19",
+    "title": "GitHub PR 流程：gh CLI",
+    "summary": "GitHub CLI 完整 PR 生命週期：git checkout -b feature/xxx → commit → git push -u origin feature/xxx → gh pr create --title --fill → gh pr review --approve → gh pr merge --squash --delete-branch → git checkout main && git pull。gh 透過 GitHub REST/GraphQL API 操作 PR，--squash 壓縮所有 commit 後合併保持歷史整潔。",
+    "tags": [
+      "GitHub",
+      "gh",
+      "PR",
+      "CLI",
+      "merge",
+      "squash",
+      "Git",
+      "CI/CD"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-19-kp5",
+    "date": "2026-06-19",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only",
+    "summary": "Cloudflare DNS 兩種模式：Proxy mode（橙色雲朵）流量經 CDN/WAF 隱藏 origin IP 提供免費 TLS；DNS only（灰色雲朵）直接解析。dig +short 回傳 Cloudflare IP 則為 Proxy mode，回傳真實 IP 則為 DNS only。Cloudflare API（curl api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records）可程式化管理記錄。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS",
+      "API",
+      "dig",
+      "network"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
