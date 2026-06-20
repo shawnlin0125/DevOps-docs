@@ -1,0 +1,90 @@
+[
+  {
+    "id": "2026-06-20-kp1",
+    "date": "2026-06-20",
+    "title": "kubectl exec 進 Pod 內排查",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進入容器互動 shell，用 env | grep -i 確認環境變數注入、nc -zv <svc> <port> 測試 Service 連線、cat /etc/resolv.conf 確認 Pod DNS 設定指向 CoreDNS Cluster IP。exec 透過 kube-apiserver subresource API 向 kubelet 發起 container attach/exec 請求，shell 在 container namespace 中執行。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "container",
+      "troubleshooting",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-20-kp2",
+    "date": "2026-06-20",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "uptime 的 load average 超過 CPU 核心數表示 CPU 排隊，0.7x核心數以下正常。free -h 看 available 欄位（含可回收 cache/buffer），不是 free。df -h / 看磁碟使用率，超過 80% 注意、90% 危險；df -i / 檢查 inode 使用率。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "resources",
+      "CPU",
+      "memory",
+      "disk"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-20-kp3",
+    "date": "2026-06-20",
+    "title": "Git 復原操作：reset / restore / reflog",
+    "summary": "git reset --soft HEAD~1 退回 commit 保留 staged+工作區（適合 commit 太快忘了加檔案）。git restore <file> 丟棄工作區改動（相當舊版 git checkout -- <file>）。git reflog 看所有 HEAD 移動史（含被 reset 掉的），用 git reset --hard <sha> 救回。--soft 只移 HEAD，--mixed 移 HEAD+清空 index，--hard 全部清空。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "recovery",
+      "HEAD"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-20-kp4",
+    "date": "2026-06-20",
+    "title": "Helm values 分層覆蓋與 --set 陷阱",
+    "summary": "Helm values 三層覆蓋順序（愈後面優先）：values.yaml（預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）。--set 容易 typo 沒人檢查、型態轉換可能非預期。用 helm template --debug 先渲染確認。Helm merge 是深層合併（deep merge），巢狀 map 遞迴合併。",
+    "tags": [
+      "Helm",
+      "values",
+      "override",
+      "merge",
+      "template",
+      "--set",
+      "debug"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-20-kp5",
+    "date": "2026-06-20",
+    "title": "網路排查四指令：curl / dig / ss / nc",
+    "summary": "四指令對應 OSI 四層：curl -v 看完整 HTTP/HTTPS 流程與 SSL 握手（L7），dig +short 快速 DNS 解析（L7），ss -tlnp 看 TCP listening port 與 process（L4），nc -zv host port 測試 TCP 連線（L4）。由下往上排查：先確認 L4（ss/nc）→ DNS（dig）→ 應用層（curl）。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting",
+      "OSI",
+      "DNS",
+      "TCP"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-20（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.9rem; }
+  .nav-links { display: flex; justify-content: space-between; margin: 1.5rem 0; padding: 0.8rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .nav-links a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav-links a:hover { text-decoration: underline; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc h3 { color: var(--accent); margin-bottom: 0.6rem; font-size: 1rem; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a { color: var(--accent-green); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .notice { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+  .notice p { color: var(--accent-orange); font-size: 0.9rem; }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.4rem; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.82rem; overflow-x: auto; margin: 0.3rem 0; }
+  .kp-card code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+  .cmd-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+  .cmd-table th { background: var(--bg-card); color: var(--accent); font-size: 0.85rem; text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border); }
+  .cmd-table td { padding: 0.4rem 0.6rem; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .cmd-table td:first-child { color: var(--accent-green); font-family: 'SF Mono', 'Fira Code', monospace; white-space: nowrap; }
+  .cmd-table td:nth-child(2) { color: var(--text-secondary); }
+  .section-title { font-size: 1.1rem; color: var(--accent); margin: 1.5rem 0 0.8rem; }
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏋️ DevOps 學習筆記 <span>— 2026-06-20</span></h1>
+    <p class="subtitle">自主練習 · June 20, 2026 · 0 對話 · 5 知識點（含 5 自主練習）</p>
+  </header>
+
+  <div class="notice">
+    <p>📌 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  </div>
+
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ul>
+      <li><a href="#kp1">💡 kp1 · kubectl exec 進 Pod 內排查</a></li>
+      <li><a href="#kp2">💡 kp2 · Linux 資源監控三指令</a></li>
+      <li><a href="#kp3">💡 kp3 · Git 復原操作</a></li>
+      <li><a href="#kp4">💡 kp4 · Helm values 分層覆蓋</a></li>
+      <li><a href="#kp5">💡 kp5 · 網路排查四指令</a></li>
+      <li><a href="#cheatsheet">🛠️ 本日指令速查表</a></li>
+    </ul>
+  </div>
+
+  <section>
+    <h2 class="section-title">📚 自主練習知識點</h2>
+
+    <article class="kp-card" id="kp1">
+      <h4>💡 kubectl exec 進 Pod 內排查</h4>
+      <p>用 <code>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</code> 進入容器內部，取得 shell 後用 <code>env | grep -i</code> 確認環境變數是否有正確注入（如 Secret/ConfigMap 對應的 ENV）、用 <code>nc -zv &lt;svc&gt; &lt;port&gt;</code> 測試到其他 Service 的連線是否通暢、用 <code>cat /etc/resolv.conf</code> 確認 Pod 內的 DNS 設定是否指向正確的 CoreDNS Cluster IP。</p>
+      <pre><code># 進入容器互動 shell
+kubectl exec -it my-pod-5f4d8f9c-k8v7n -n default -- sh
+
+# 常用診斷指令
+env | grep -i
+nc -zv my-service 8080
+cat /etc/resolv.conf
+wget -qO- http://my-service:8080/health</code></pre>
+      <p class="why">💭 原理：exec 是透過 kube-apiserver 的 subresource API 向 kubelet 發起容器 attach/exec 請求。-- sh 啟動 shell process 在 container 的 namespace 中，所以看到的網路/DNS/環境變數和應用程式完全一致。</p>
+    </article>
+
+    <article class="kp-card" id="kp2">
+      <h4>💡 Linux 資源監控三指令：uptime / free / df</h4>
+      <p><code>uptime</code> 的 load average（1/5/15 分鐘）超過 CPU 核心數時，表示有行程在排隊等待 CPU。一般負載在 0.7 × 核心數以下算正常。用 <code>nproc</code> 或 <code>lscpu</code> 查看核心數。</p>
+      <p><code>free -h</code> 的 available 欄位才是真正可用的記憶體（包含可回收的 cache/buffer）。不要只看 free 欄位，Linux 會把閒置 RAM 拿去做 page cache，free 很低不代表記憶體不夠。</p>
+      <p><code>df -h /</code> 看根分割區使用率，超過 80% 就要注意，超過 90% 屬於危險。也用 <code>df -i /</code> 檢查 inode 使用率，inode 用滿了即使還有空間也無法建立新檔案。</p>
+      <pre><code>uptime
+# 輸出範例：load average: 0.32, 0.45, 0.51
+
+free -h
+# 看 available 不是 free
+
+df -h /
+df -i /</code></pre>
+      <p class="why">💭 原理：load average 是 CPU 排程佇列中 running + uninterruptible sleep 行程的平均數；available = free + page cache + slab reclaimable；df -i 顯示的是 inode table 使用率，inode 在格式化時固定分配，小檔案過多會先耗盡 inode。</p>
+    </article>
+
+    <article class="kp-card" id="kp3">
+      <h4>💡 Git 復原操作：reset / restore / reflog</h4>
+      <p><code>git reset --soft HEAD~1</code> 退回一個 commit 但保留 staging area 和工作區的改動。適合「commit 太快忘記加檔案」的情況──退回後補 add 再重新 commit。</p>
+      <p><code>git restore &lt;file&gt;</code> 丟棄特定檔案的工作區改動，還原到 HEAD 版本。相當於舊版的 <code>git checkout -- &lt;file&gt;</code>。</p>
+      <p><code>git reflog</code> 記錄所有 HEAD 移動歷史（含被 reset 掉的 commit），可以用 <code>git reset --hard &lt;sha&gt;</code> 救回誤刪的 commit。Reflog 是本地操作紀錄，只保留 90 天。</p>
+      <pre><code># 復原 commit 但保留改動內容
+git reset --soft HEAD~1
+
+# 丟棄工作區改動
+git restore myfile.py
+
+# 救回誤刪的 commit
+git reflog
+git reset --hard abc1234</code></pre>
+      <p class="why">💭 原理：--soft 只移動 HEAD 指標，不碰 index 和 working tree；--mixed（預設）移動 HEAD 並清空 index 但保留 working tree；--hard 移動 HEAD、清空 index 和 working tree（不可還原的改動）。reflog 是 .git/logs/HEAD 的文字記錄，每次 HEAD 變動就 append 一行。</p>
+    </article>
+
+    <article class="kp-card" id="kp4">
+      <h4>💡 Helm values 分層覆蓋與 --set 陷阱</h4>
+      <p>Helm values 有三層覆蓋順序（愈後面的層級優先）：<code>values.yaml</code>（chart 內建預設值）← <code>values/production.yaml</code>（環境特定覆蓋）← <code>--set key=value</code>（CLI 手動覆蓋）。後者會 merge 覆蓋前者的同名 key。</p>
+      <p><code>--set</code> 覆蓋很方便但容易出錯：typo 沒人檢查、boolean/number 型態轉換可能非預期、list 覆蓋行為容易混淆。建議用 <code>helm template --debug ...</code> 先渲染 YAML 確認結果。</p>
+      <pre><code># 三層覆蓋範例
+helm upgrade my-release ./chart \
+  --values values/production.yaml \
+  --set image.tag=v2.1.0 \
+  --set resources.limits.memory=512Mi
+
+# 除錯：先渲染看看
+helm template my-release ./chart \
+  --values values/production.yaml \
+  --debug</code></pre>
+      <p class="why">💭 原理：Helm 的 merge 是深層合併（deep merge），巢狀 map 會遞迴合併而非覆蓋整個 map。--set 的值會先 parse 成 YAML 再 merge，因此 key 路徑中的點（.）可以穿透多層次結構。</p>
+    </article>
+
+    <article class="kp-card" id="kp5">
+      <h4>💡 網路排查四指令：curl / dig / ss / nc</h4>
+      <p>這四支指令涵蓋 OSI 四個層級的網路診斷：</p>
+      <p><strong>1. <code>curl -v http://host:port</code></strong> — 看完整 HTTP/HTTPS 流程。不僅測試連線，還能看到 SSL 握手細節、response header、錯誤訊息。加上 <code>--connect-timeout 5</code> 避免卡住。</p>
+      <p><strong>2. <code>dig +short domain</code></strong> — 快速 DNS 查詢。不加 +short 可以看到 DNS 回應的權威/遞迴路徑與 TTL。對比 Cloudflare Proxy（回傳 CDN IP）vs DNS only（回傳真實 IP）。</p>
+      <p><strong>3. <code>ss -tlnp</code></strong> — 列出所有 TCP listening port 與對應的 process。取代 netstat。四個參數：t( TCP)、l( listening)、n( 數字格式不反查 )、p( 顯示 process )。</p>
+      <p><strong>4. <code>nc -zv host port</code></strong> — 測試 TCP 連線是否通。z(zero I/O 不送資料)、v(verbose)。比 telnet 輕量，適合 script 中做 health check。</p>
+      <pre><code># HTTP/HTTPS 流程診斷
+curl -v --connect-timeout 5 https://example.com
+
+# DNS 查詢
+dig +short example.com
+
+# 看 listening port
+ss -tlnp
+
+# TCP 連線測試
+nc -zv google.com 443</code></pre>
+      <p class="why">💭 原理：四支指令各自對應不同 OSI 層級──ss 看 L4（TCP）、nc 測 L4（TCP 連線）、dig 測 L7（DNS 是應用層）、curl 測 L7（HTTP/HTTPS 應用層）。由下往上排查：先確認 L4 通不通（ss/nc），再確認 DNS 解析（dig），最後測應用層（curl）。</p>
+    </article>
+  </section>
+
+  <section id="cheatsheet">
+    <h2 class="section-title">🛠️ 本日指令速查表</h2>
+    <table class="cmd-table">
+      <thead><tr><th>指令</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</td><td>進入 Pod 容器互動 shell</td></tr>
+        <tr><td>kubectl exec &lt;pod&gt; -- env | grep -i</td><td>檢查容器內環境變數</td></tr>
+        <tr><td>uptime</td><td>看 load average（CPU 排隊狀況）</td></tr>
+        <tr><td>free -h</td><td>看記憶體（看 available 欄位）</td></tr>
+        <tr><td>df -h /; df -i /</td><td>看磁碟/inode 使用率</td></tr>
+        <tr><td>git reset --soft HEAD~1</td><td>退回 commit 保留工作區改動</td></tr>
+        <tr><td>git restore &lt;file&gt;</td><td>丟棄工作區修改</td></tr>
+        <tr><td>git reflog</td><td>查看 HEAD 移動史（救回誤刪）</td></tr>
+        <tr><td>helm template --debug</td><td>乾渲染 chart 確認 YAML 輸出</td></tr>
+        <tr><td>helm upgrade ... --set k=v --values prod.yaml</td><td>三層覆蓋 upgrade</td></tr>
+        <tr><td>curl -v --connect-timeout 5 https://...</td><td>HTTP/HTTPS 連線全診斷</td></tr>
+        <tr><td>dig +short &lt;domain&gt;</td><td>快速 DNS 解析</td></tr>
+        <tr><td>ss -tlnp</td><td>看 listening port + process</td></tr>
+        <tr><td>nc -zv &lt;host&gt; &lt;port&gt;</td><td>測試 TCP 連線通不通</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="nav-links">
+    <a href="2026-06-19.html">← 前一天 (06/19)</a>
+    <a href="../index.html">📋 回主頁</a>
+    <a href="2026-06-21.html">後一天 (06/21) →</a>
+  </div>
+
+  <footer>
+    <p>🚀 DevOps 每日學習筆記 · 由 Hermes Agent 自動產生</p>
+  </footer>
+</div>
+</body>
+</html>
