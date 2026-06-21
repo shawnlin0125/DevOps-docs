@@ -4470,5 +4470,89 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-21-kp1",
+    "date": "2026-06-21",
+    "title": "kubectl top 看資源使用：即時用量 vs Scheduler 視角",
+    "summary": "kubectl top nodes 看節點即時 CPU/RAM 用量；kubectl top pods -A 看每個 Pod 即時用量；kubectl describe node | grep -A 8 Allocated 看 scheduler 視角的 request/limit 佔比。三者差異：top 是即時的實際用量，describe Allocated 是 request/limit 的百分比（scheduler 根據這個決定 Pod 調度）。",
+    "tags": [
+      "kubectl",
+      "top",
+      "resources",
+      "monitoring",
+      "scheduler",
+      "Allocated"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-21-kp2",
+    "date": "2026-06-21",
+    "title": "Docker 多階段建置縮小 Image：builder → scratch 瘦身法",
+    "summary": "多階段建置（multi-stage build）讓 Dockerfile 可以有多個 FROM 指令。第一個 stage（builder）裝所有編譯工具和依賴做建置，第二個 stage（runtime）只複製最終 artifacts。Go 靜態 binary 可用 FROM scratch（最小 image），Node.js 可用 standalone output。查看 image 大小用 docker images | grep <name>。每個 RUN/COPY 指令都會增加一層，所以盡量合併指令。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "scratch",
+      "alpine",
+      "image",
+      "optimization"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-21-kp3",
+    "date": "2026-06-21",
+    "title": "systemd 服務管理：systemctl + journalctl 健康檢查",
+    "summary": "systemctl list-units --state=failed 快速查看所有失敗的服務；journalctl -u <service> -n 50 --no-pager 看某個服務最近的 log；改完 unit file 後要 systemctl daemon-reload 重載。systemctl restart vs stop+start 的差別：restart 是原子操作（stop 後立刻 start），stop+start 之間有空窗期。RestartForceExitStatus= 可以指定某些 exit code 觸發自動重啟。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "daemon-reload",
+      "service",
+      "linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-21-kp4",
+    "date": "2026-06-21",
+    "title": "Helm values 分層覆蓋與 --set 陷阱",
+    "summary": "Helm values 有三層覆蓋：values.yaml（chart 預設值）← values/production.yaml（環境特定覆蓋）← --set key=value（CLI 即時覆蓋）。後面的層級 merge 覆蓋前面的同名 key。--set 很方便但容易出錯（typo 不會報錯，只會新增一個不存在的 key）。用 helm template --debug 可以看最終渲染的 YAML 來除錯。helm get values <release> -n <ns> 可以看目前生效的 values。",
+    "tags": [
+      "Helm",
+      "values",
+      "override",
+      "template",
+      "--set",
+      "debug",
+      "merge"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-21-kp5",
+    "date": "2026-06-21",
+    "title": "網路排查四指令：curl / dig / ss / nc 對應 OSI 四層",
+    "summary": "curl -v http://host 看完整 request/response header（應用層，含 SSL 握手過程）；dig +short domain 快速 DNS 解析（域名層，不查 /etc/hosts）；ss -tlnp 看 listening port 與所屬 process（傳輸層，取代老旧的 netstat）；nc -zv host port 測試 TCP 連線通不通（傳輸層連線測試，z 表示不送資料只測連線）。依序用可快速定位網路問題在哪一層。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting",
+      "DNS",
+      "TCP"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
