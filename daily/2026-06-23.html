@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏋️ DevOps 學習筆記 — 2026-06-23（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  .subtitle { color: var(--text-secondary); margin-top: 0.4rem; font-size: 0.9rem; }
+  
+  /* TOC */
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+  .toc h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { margin: 0.3rem 0; }
+  .toc a { color: var(--accent-green); text-decoration: none; font-size: 0.88rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc a::before { content: "📌 "; }
+  
+  /* KP Card */
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; line-height: 1.6; margin: 0.3rem 0; }
+  .kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; margin: 0.5rem 0; overflow-x: auto; font-size: 0.82rem; line-height: 1.4; }
+  .kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card .tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+  .kp-card .tag { font-size: 0.72rem; padding: 0.1rem 0.5rem; border-radius: 10px; background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.25); }
+  
+  /* Quick Reference */
+  .ref-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; }
+  .ref-table th, .ref-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; font-size: 0.82rem; }
+  .ref-table th { background: var(--bg-card); color: var(--accent); font-weight: 600; }
+  .ref-table td { background: #0d1117; }
+  .ref-table code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.8rem; }
+  
+  /* Section */
+  section { margin-bottom: 1.5rem; }
+  section h2 { color: var(--accent); font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 1rem; }
+  section h2 .count { color: var(--text-secondary); font-weight: normal; font-size: 0.85rem; }
+
+  /* Navigation */
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 0.88rem; }
+  .nav a { color: var(--accent); text-decoration: none; }
+  .nav a:hover { text-decoration: underline; }
+  .nav .prev::before { content: "← "; }
+  .nav .next::after { content: " →"; }
+  
+  footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.82rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🏋️ DevOps 學習筆記 — 2026-06-23（自主練習）</h1>
+    <p class="subtitle">0 對話 · 5 知識點（自主練習）</p>
+    <p class="subtitle" style="margin-top:0.6rem; color: var(--accent-orange);">今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h3>📋 目錄</h3>
+    <ul>
+      <li><a href="#kp1">kubectl exec 進 Pod 內排查</a></li>
+      <li><a href="#kp2">Linux 資源監控三指令：uptime / free / df</a></li>
+      <li><a href="#kp3">Git 復原操作：reset / restore / reflog</a></li>
+      <li><a href="#kp4">Git 暫存管理：stash 技巧</a></li>
+      <li><a href="#kp5">Helm 常用操作：生命週期管理</a></li>
+      <li><a href="#quickref">🛠️ 本日指令速查表</a></li>
+    </ul>
+  </nav>
+
+  <section>
+    <h2>🔧 知識點 <span class="count">(5)</span></h2>
+
+    <article class="kp-card" id="kp1">
+      <h4>💡 kubectl exec 進 Pod 內排查</h4>
+      <p>用 <code>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</code> 進入容器互動排查。進到 Pod 內部後常用三招診斷：<strong>env | grep -i</strong> 確認環境變數是否正確注入（ConfigMap/Secret 生效與否）、<strong>nc -zv &lt;svc&gt; &lt;port&gt;</strong> 測試 Pod 能否連到其他 Service（網路策略和 DNS 解析問題）、<strong>cat /etc/resolv.conf</strong> 確認容器內 DNS 設定（search domain 和 nameserver 是否正確）。<code>--</code> 之後的參數是要在容器內執行的指令。若要複製檔案進出，用 <code>kubectl cp</code>。</p>
+      <pre><code># 進入容器互動 shell（用 sh，很多最小鏡像無 bash）
+kubectl exec -it &lt;pod-name&gt; -n &lt;ns&gt; -- sh
+
+# 容器內常用診斷
+env | grep -i DB_HOST          # 確認環境變數
+nc -zv myservice.default 5432  # 測試 TCP 連線
+cat /etc/resolv.conf            # 檢查 DNS 設定
+wget -qO- http://service:8080/health  # HTTP 健康檢查
+
+# 複製檔案
+kubectl cp &lt;pod&gt;:&lt;path&gt; ./local &lt;ns&gt;  # 從 Pod 複製出來
+kubectl cp ./local &lt;pod&gt;:&lt;path&gt; &lt;ns&gt;  # 複製進 Pod
+
+# 直接執行單一指令不回互動
+kubectl exec &lt;pod&gt; -n &lt;ns&gt; -- ls /app</code></pre>
+      <p class="why">💭 原理：kubectl exec 透過 kube-apiserver 代理到 kubelet 的 runtime exec API，本質是給容器內 PID 1 行程所屬 Namespace 中的一個新行程。容器內能看到的進程和網路 namespace 與主容器相同。-- 是 kubectl 參數終止標記，後面的都是容器內指令。</p>
+      <div class="tags"><span class="tag">kubectl</span><span class="tag">exec</span><span class="tag">debug</span><span class="tag">pod</span><span class="tag">troubleshooting</span><span class="tag">k8s</span></div>
+    </article>
+
+    <article class="kp-card" id="kp2">
+      <h4>💡 Linux 資源監控三指令：uptime / free / df</h4>
+      <p>系統資源快速診斷三指令：<strong><code>uptime</code></strong> 顯示 load average（1/5/15 分鐘的平均行程排隊數），對比 CPU 核心數來判斷是否超載；<strong><code>free -h</code></strong> 看記憶體使用，重點看 <strong>available</strong> 欄位（不是 free），available 包含可回收的 cache/buffer；<strong><code>df -h /</code></strong> 看磁碟使用率。三者的共同原則是：Linux 拿閒置 RAM 做 page cache 很正常，free 低不代表記憶體不夠，available 低才是真的壓力大。</p>
+      <pre><code># 1. CPU 負載：load average 對比核心數
+uptime
+# 08:30:00 up 30 days, 2:15,  load average: 2.50, 1.80, 1.20
+# → 如果 4 核心，load 2.5 OK；如果 2 核心，load 2.5 = 排隊中
+
+nproc  # 看有幾顆 CPU
+
+# 2. 記憶體：看 available 不是 free
+free -h
+#               total  used  free  shared  buff/cache  available
+# Mem:          31Gi   12Gi  2Gi   1Gi     17Gi        18Gi
+# → free=2Gi 但 available=18Gi，很多 RAM 被 cache 佔用但可回收
+
+# 3. 磁碟：使用率 + inode
+df -h /       # 看磁碟使用率
+df -i /       # 看 inode 使用率（inode 滿了也無法寫入）
+du -sh /var/log  # 看目錄大小</code></pre>
+      <p class="why">💭 原理：Linux kernel 盡量用閒置記憶體做 disk cache 提升 I/O 效能（page cache + dentry cache + buffer cache）。available 是 kernel 估算的「在不觸發 swap 的前提下可分配給新程式的記憶體量」，比 free 更準確。load average > CPU 核心數表示有行程在等待 CPU 時間片。</p>
+      <div class="tags"><span class="tag">Linux</span><span class="tag">monitoring</span><span class="tag">uptime</span><span class="tag">free</span><span class="tag">df</span><span class="tag">load average</span><span class="tag">memory</span><span class="tag">disk</span><span class="tag">CPU</span></div>
+    </article>
+
+    <article class="kp-card" id="kp3">
+      <h4>💡 Git 復原操作：reset / restore / reflog</h4>
+      <p>三種常見的 Git 後悔藥：<strong><code>git reset --soft HEAD~1</code></strong> 退回最近一次 commit 但保留所有變更在 staging area，適合「commit 內容不對要重做」的情境；<strong><code>git restore &lt;file&gt;</code></strong> 丟棄工作區的未暫存改動，回到上一次 commit 的狀態（相當於 checkout -- 的現代替代）；<strong><code>git reflog</code></strong> 紀錄所有 HEAD 移動的歷史（含 reset、rebase、amendment 等操作），是救回誤刪 commit 的最後防線。reflog 預設保留 90 天。</p>
+      <pre><code># 1. 退回最近一次 commit（保留變更在 staging）
+git reset --soft HEAD~1
+# → HEAD 退到前一個 commit，工作區和 staging 保持不變
+# 可用來「commit 錯東西要重新整理」
+
+# 2. 退回並保留在工作區（未 staged）
+git reset --mixed HEAD~1  # 預設模式
+
+# 3. 丟棄工作區的變更
+git restore &lt;file&gt;          # 丟棄某個檔案
+git restore .                # 丟棄所有檔案
+
+# 4. 反轉某個 commit（建立新的反向 commit）
+git revert &lt;commit-hash&gt;   # 安全地復原已推送的 commit
+
+# 5. 救回誤刪的 commit
+git reflog
+# 找 commit-hash 後：git checkout &lt;hash&gt;
+# 或 git cherry-pick &lt;hash&gt; 撿回來</code></pre>
+      <p class="why">💭 原理：reset 移動 HEAD 和 branch 指標，--soft 只移指標不碰 index/working tree，--mixed 移指標 + 重置 index，--hard 移指標 + 重置 index + 重置 working tree。reflog 是 Git 本地的 HEAD 移動日誌（存在 .git/logs/HEAD），不被 push/pull 傳輸，是你的專屬救援工具。</p>
+      <div class="tags"><span class="tag">Git</span><span class="tag">reset</span><span class="tag">restore</span><span class="tag">reflog</span><span class="tag">revert</span><span class="tag">undo</span><span class="tag">recovery</span></div>
+    </article>
+
+    <article class="kp-card" id="kp4">
+      <h4>💡 Git 暫存管理：stash 技巧</h4>
+      <p>切 branch 前工作區有未 commit 的變更時，用 <code>git stash</code> 暫存所有追蹤檔案的改動，還原乾淨的工作區。常用指令：<strong><code>git stash</code></strong> 暫存（只暫存 tracked files，加 <code>-u</code> 才包含 untracked files）、<strong><code>git stash pop</code></strong> 還原最近一次暫存並從 stash list 中移除、<strong><code>git stash list</code></strong> 看所有暫存項目、<strong><code>git stash apply stash@{2}</code></strong> 套用特定暫存但不移除項目。stash list 是 LIFO（後進先出），最新 stash 在最上面。</p>
+      <pre><code># 暫存目前所有改動（不含 untracked）
+git stash
+git stash push -m "WIP: feature X in progress"
+
+# 暫存包含 untracked files
+git stash -u
+
+# 查看暫存列表
+git stash list
+# stash@{0}: On feature/x: WIP: feature X
+# stash@{1}: On main: WIP: fix bug Y
+
+# 還原最近暫存並從 list 移除
+git stash pop
+
+# 套用特定暫存但不移除
+git stash apply stash@{2}
+
+# 刪除特定暫存（不用套用）
+git stash drop stash@{1}
+
+# 清空所有暫存
+git stash clear</code></pre>
+      <p class="why">💭 原理：git stash 本質上建立兩個特殊的 commit-like 物件（一個記錄 staged 變更的 index commit，一個記錄 working tree 變更的 WIP commit），儲存在 .git/refs/stash 中，形成一個 stash stack。因為是 commit-like 物件，所以跨 branch 套用 stash 時可能發生衝突（需手動解決）。</p>
+      <div class="tags"><span class="tag">Git</span><span class="tag">stash</span><span class="tag">stash pop</span><span class="tag">stash list</span><span class="tag">LIFO</span><span class="tag">temporary</span></div>
+    </article>
+
+    <article class="kp-card" id="kp5">
+      <h4>💡 Helm 常用操作：生命週期管理</h4>
+      <p>Helm 是 Kubernetes 的套件管理器，核心操作圍繞 release 生命週期。用 <strong><code>helm list -A</code></strong> 列出所有已部署的 release（含 deploy/revision/status）；<strong><code>helm history &lt;release&gt; -n &lt;ns&gt;</code></strong> 看某個 release 的版本歷史（每次 helm upgrade 都會產生一個新 revision）；<strong><code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code></strong> 退回到指定版本，適合升級失敗時快速回退；<strong><code>helm get values &lt;release&gt; -n &lt;ns&gt;</code></strong> 看目前 release 實際生效的 values。<code>--reuse-values</code> 參數會重用上次部署的 values（但不跟最新的 chart 預設值 merge，可能有意料外的行為）。</p>
+      <pre><code># 列出所有 release（含 namespace、版本、狀態）
+helm list -A
+
+# 查看特定 release 的版本歷史
+helm history my-release -n my-namespace
+# REVISION  STATUS      CHART          APP VERSION  DESCRIPTION
+# 1         deployed    my-app-1.0.0   1.0.0        Install complete
+# 2         superseded  my-app-1.1.0   1.1.0        Upgrade complete
+# 3         failed      my-app-1.1.0   1.1.0        Upgrade failed ← 當前版本
+
+# 退回指定版本（最常見的復原操作）
+helm rollback my-release 1 -n my-namespace
+
+# 查看 release 目前實際使用的 values
+helm get values my-release -n my-namespace
+
+# 升級（注意 values 管理）
+helm upgrade my-release ./chart -n my-namespace -f values/prod.yaml
+
+# 除錯：看最終渲染的 YAML（不實際部署）
+helm template my-release ./chart -f values/prod.yaml --debug</code></pre>
+      <p class="why">💭 原理：每個 helm upgrade/install 都會在目標 namespace 中建立一個 Secret（類型為 helm.sh/release.v1），儲存 release metadata、manifest 和 values。helm rollback 本質上是將前一個版本的 values + manifest 重新 apply 到集群。helm list -A 實質上是在所有 namespace 中查詢這些 Secret。</p>
+      <div class="tags"><span class="tag">Helm</span><span class="tag">rollback</span><span class="tag">list</span><span class="tag">history</span><span class="tag">values</span><span class="tag">upgrade</span><span class="tag">template</span><span class="tag">k8s</span></div>
+    </article>
+
+  </section>
+
+  <!-- Quick Reference -->
+  <section id="quickref">
+    <h2>🛠️ 本日指令速查表</h2>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th style="width:250px;">指令</th>
+          <th>用途</th>
+          <th style="width:70px;">KP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</code></td>
+          <td>進入 Pod 互動排查（env/nc/resolv.conf 三招）</td>
+          <td>#1</td>
+        </tr>
+        <tr>
+          <td><code>free -h</code>（看 available）</td>
+          <td>記憶體診斷 — available 才是真可用</td>
+          <td>#2</td>
+        </tr>
+        <tr>
+          <td><code>git reset --soft HEAD~1</code></td>
+          <td>退回最近 commit 保留 staged 變更</td>
+          <td>#3</td>
+        </tr>
+        <tr>
+          <td><code>git stash -u && git stash pop</code></td>
+          <td>暫存未 commit 改動（含 untracked）然後還原</td>
+          <td>#4</td>
+        </tr>
+        <tr>
+          <td><code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code></td>
+          <td>Helm release 快速回退到指定版本</td>
+          <td>#5</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="2026-06-22.html" class="prev">06/22 自主練習：kubectl Pod 診斷、k3s containerd 等</a>
+    <a href="../index.html">📋 目錄</a>
+    <a href="2026-06-24.html" class="next">06/24（尚未產生）</a>
+  </nav>
+
+  <footer>
+    <p>⚡ Shawn's DevOps Lab — 每日學習筆記 · 2026-06-23 · 自主練習</p>
+  </footer>
+
+</div>
+</body>
+</html>
