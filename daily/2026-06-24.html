@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏋️ DevOps 學習筆記 — 2026-06-24（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  .subtitle { color: var(--text-secondary); margin-top: 0.4rem; font-size: 0.9rem; }
+  
+  /* TOC */
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+  .toc h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { margin: 0.3rem 0; }
+  .toc a { color: var(--accent-green); text-decoration: none; font-size: 0.88rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc a::before { content: "📌 "; }
+  
+  /* KP Card */
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; line-height: 1.6; margin: 0.3rem 0; }
+  .kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; margin: 0.5rem 0; overflow-x: auto; font-size: 0.82rem; line-height: 1.4; }
+  .kp-card code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card .tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+  .kp-card .tag { font-size: 0.72rem; padding: 0.1rem 0.5rem; border-radius: 10px; background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.25); }
+  
+  /* Quick Reference */
+  .ref-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; }
+  .ref-table th, .ref-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; font-size: 0.82rem; }
+  .ref-table th { background: var(--bg-card); color: var(--accent); font-weight: 600; }
+  .ref-table td { background: #0d1117; }
+  .ref-table code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.8rem; }
+  
+  /* Section */
+  section { margin-bottom: 1.5rem; }
+  section h2 { color: var(--accent); font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 1rem; }
+  section h2 .count { color: var(--text-secondary); font-weight: normal; font-size: 0.85rem; }
+
+  /* Navigation */
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 0.88rem; }
+  .nav a { color: var(--accent); text-decoration: none; }
+  .nav a:hover { text-decoration: underline; }
+  .nav .prev::before { content: "← "; }
+  .nav .next::after { content: " →"; }
+  
+  footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.82rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🏋️ DevOps 學習筆記 — 2026-06-24（自主練習）</h1>
+    <p class="subtitle">0 對話 · 5 知識點（自主練習）</p>
+    <p class="subtitle" style="margin-top:0.6rem; color: var(--accent-orange);">今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h3>📋 目錄</h3>
+    <ul>
+      <li><a href="#kp1">kubectl top 看資源使用：即時用量 vs Scheduler 視角</a></li>
+      <li><a href="#kp2">Docker 多階段建置縮小 Image</a></li>
+      <li><a href="#kp3">systemd 服務管理：systemctl + journalctl 健康檢查</a></li>
+      <li><a href="#kp4">Helm values 分層覆蓋與 --set 陷阱</a></li>
+      <li><a href="#kp5">網路排查四指令：curl / dig / ss / nc</a></li>
+      <li><a href="#quickref">🛠️ 本日指令速查表</a></li>
+    </ul>
+  </nav>
+
+  <section>
+    <h2>🔧 知識點 <span class="count">(5)</span></h2>
+
+    <article class="kp-card" id="kp1">
+      <h4>💡 kubectl top 看資源使用：即時用量 vs Scheduler 視角</h4>
+      <p><strong><code>kubectl top nodes</code></strong> 看每個節點的即時 CPU/RAM 用量百分比；<strong><code>kubectl top pods -A</code></strong> 看所有 Pod 即時用量（顯示實際使用值）；<strong><code>kubectl describe node | grep -A 8 Allocated</code></strong> 看 scheduler 視角的資源分配佔比（基於 Pod 宣告的 request/limit）。三者差異：top 顯示的是實際用量（即時的），describe Allocated 顯示的是 request/limit 的百分比（scheduler 根據這個決定能否排程新 Pod）。如果 Allocated resources 接近 100%，表示節點已滿無法排程新 Pod，即使 top 顯示實際用量很低。</p>
+      <pre><code># 1. 節點即時資源用量
+kubectl top nodes
+# NAME       CPU(cores)  CPU%   MEM(bytes)  MEM%
+# k3s-node   250m        12%    4Gi         25%
+
+# 2. 所有 Pod 即時用量（相當於 Linux top for Pods）
+kubectl top pods -A
+
+# 3. Scheduler 視角的資源分配（看 Allocated resources 區段）
+kubectl describe node k3s-node | grep -A 8 Allocated
+# Allocated resources:
+#   Resource        Requests     Limits
+#   cpu             950m         1800m
+#   memory          6Gi          12Gi
+# → 如果 node RAM=16Gi，requests=6Gi=37%，limits=12Gi=75%
+
+# 4. 用 jsonpath 精確取值
+kubectl describe node k3s-node | grep -A 8 Allocated | grep memory
+kubectl get node k3s-node -o json | jq '.status.allocatable'</code></pre>
+      <p class="why">💭 原理：kubectl top 透過 metrics-server 向 kubelet 的 Summary API 查詢即時 cgroup 用量（取自 cgroups cpuacct/memory），數據有約 15 秒延遲。describe node Allocated 讀的是 Pod spec 中宣告的 requests/limits 總和，是 scheduler 在調度時的決策依據。兩者視角不同：top 看「現在用多少」，Allocated 看「最多能吃多少」。</p>
+      <div class="tags"><span class="tag">kubectl</span><span class="tag">top</span><span class="tag">resources</span><span class="tag">monitoring</span><span class="tag">scheduler</span><span class="tag">Allocated</span><span class="tag">k8s</span></div>
+    </article>
+
+    <article class="kp-card" id="kp2">
+      <h4>💡 Docker 多階段建置縮小 Image：builder → runtime 瘦身法</h4>
+      <p>多階段建置（multi-stage build）讓 Dockerfile 可以有多個 <code>FROM</code> 指令，每個 FROM 是獨立建置階段。第一個 stage（builder）安裝所有編譯工具和依賴做建置，第二個 stage（runtime）只複製最終 artifacts。這樣 runtime image 不必包含編譯器/套件管理工具。Go static binary 可用 <strong><code>FROM scratch</code></strong>（最小的 image，只有 binary），Node.js 可用 <code>FROM node:alpine</code> 搭配 standalone output。用 <code>docker images | grep &lt;name&gt;</code> 查看 image 大小差異。</p>
+      <pre><code># === Go 多階段建置範例 ===
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app/server
+
+FROM scratch  # 最小 runtime：只有 binary
+COPY --from=builder /app/server /server
+# scratch 沒有 shell、沒有 ca-certificates、沒有時區資料
+# 如果需要 SSL 證書：COPY --from=builder /etc/ssl/certs /etc/ssl/certs
+CMD ["/server"]
+
+# === Node.js 多階段建置範例 ===
+FROM node:20 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build  # Next.js standalone output
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/public ./public
+CMD ["node", "server.js"]
+
+# 查看 image 大小
+docker images | grep my-app
+docker image history my-app  # 看每一層大小</code></pre>
+      <p class="why">💭 原理：Docker image 由 overlay filesystem 層疊而成，每個 RUN/COPY 指令生成一個唯讀層。多階段建置讓 builder 階段的所有層在建置完成後被丟棄，只有最終階段（FROM scratch/alpine）的層被保留。--from=builder 語法讓你可以從前一個 stage 複製檔案，不保留該 stage 的任何層。scratch 是空的 filesystem（無 shell、無 libc），只有 static binary 可執行。</p>
+      <div class="tags"><span class="tag">Docker</span><span class="tag">multi-stage</span><span class="tag">build</span><span class="tag">scratch</span><span class="tag">alpine</span><span class="tag">image</span><span class="tag">optimization</span></div>
+    </article>
+
+    <article class="kp-card" id="kp3">
+      <h4>💡 systemd 服務管理：systemctl + journalctl 健康檢查</h4>
+      <p>systemd 是主流 Linux 發行版的 init 系統，服務透過 unit file 管理。常用維運操作：<strong><code>systemctl list-units --state=failed</code></strong> 快速查看所有失敗的服務（一鍵找出問題服務）；<strong><code>journalctl -u &lt;service&gt; -n 50 --no-pager</code></strong> 看某個服務最近 50 行 log；修改 unit file 後一定要 <strong><code>systemctl daemon-reload</code></strong> 重新載入配置；<strong><code>systemctl restart &lt;service&gt;</code></strong> 是原子操作（stop 後立刻 start），而 <code>stop + start</code> 之間有空窗期。</p>
+      <pre><code># 1. 快速找問題服務
+systemctl list-units --state=failed
+# UNIT               LOAD   ACTIVE SUB
+# my-app.service     loaded failed failed
+
+# 2. 看服務最近 log
+journalctl -u my-app.service -n 50 --no-pager
+
+# 3. 看即時 log（等同 tail -f）
+journalctl -u my-app.service -f
+
+# 4. 重新載入 unit file（改完 .service 後必做）
+sudo systemctl daemon-reload
+sudo systemctl restart my-app.service
+
+# 5. 啟用 / 停用開機自啟
+sudo systemctl enable my-app.service
+sudo systemctl disable my-app.service
+
+# 6. 檢查服務狀態
+systemctl status my-app.service
+# → 看 Active: active (running) / exited / failed
+# → 看 Main PID 和記憶體使用量</code></pre>
+      <p class="why">💭 原理：systemctl restart 實作是先發 SIGTERM 給主進程，等待它退出後立即啟動新進程。stop+start 中間有空窗期（其他請求可能因此連線失敗）。RestartForceExitStatus= 可在 unit file 中設定某些 exit code 會自動觸發 restart（類似 keepalive）。journalctl 讀的是二進位 binary journal 日誌（存在 /var/log/journal/），比傳統 text log 更省空間且支援結構化查詢。</p>
+      <div class="tags"><span class="tag">systemd</span><span class="tag">systemctl</span><span class="tag">journalctl</span><span class="tag">daemon-reload</span><span class="tag">service</span><span class="tag">linux</span></div>
+    </article>
+
+    <article class="kp-card" id="kp4">
+      <h4>💡 Helm values 分層覆蓋與 --set 陷阱</h4>
+      <p>Helm values 有三層覆蓋機制，愈後面的層級優先：<strong><code>values.yaml</code></strong>（chart 預設值）← <strong><code>values/production.yaml</code></strong>（環境特定覆蓋）← <strong><code>--set key=value</code></strong>（CLI 即時覆蓋）。Helm 的 merge 是深層合併（deep merge），巢狀 map 會遞迴合併而不是直接取代。常見陷阱：<code>--set</code> 參數 typo 不會報錯，只會新增一個不存在的 key，導致 values 不如預期生效。用 <strong><code>helm template --debug</code></strong> 可以先看最終渲染的 YAML 來除錯。</p>
+      <pre><code># values.yaml（chart 預設值）
+# replicaCount: 1
+# image:
+#   tag: latest
+
+# values/production.yaml（環境覆蓋）
+# replicaCount: 3
+# image:
+#   tag: v1.2.3
+
+# 部署：三層覆蓋依序套用
+helm upgrade my-app ./chart -n production \
+  -f values/production.yaml \
+  --set image.tag=v1.2.4
+
+# 查看目前 release 實際生效的 values
+helm get values my-app -n production
+
+# 除錯：看最終渲染的 YAML（不實際部署）
+helm template my-app ./chart -f values/production.yaml --debug
+
+# 小心 --set 類型陷阱
+# --set metrics.enabled=true 設定為字串 "true"（非 boolean true）
+# 正確：--set metrics.enabled=true （Helm 會自動推斷 boolean）
+# 但 --set-string 可強制為字串
+
+# 注意：--set 不會報 typo 錯誤
+# --set replciaCount=3  // typo，不報錯但 key 無效</code></pre>
+      <p class="why">💭 原理：Helm 的三層 values 透過 go-template 的 template.FuncMap 來實現語法渲染，使用 Helm 內建的 merge/overwrite 邏輯。--set 的 key 用點路徑解析（如 service.type），如果 typo 不存在，Helm 不會報錯，只會新增一個無效的 key。Helm 的 deep merge 與 Kubernetes strategic merge patch 不同：Helm 會遞迴合併巢狀 map，而 strategic merge 可根據 type 決定取代或合併。</p>
+      <div class="tags"><span class="tag">Helm</span><span class="tag">values</span><span class="tag">override</span><span class="tag">template</span><span class="tag">--set</span><span class="tag">debug</span><span class="tag">merge</span></div>
+    </article>
+
+    <article class="kp-card" id="kp5">
+      <h4>💡 網路排查四指令：curl / dig / ss / nc 對應 OSI 四層</h4>
+      <p>網路問題診斷的四把瑞士刀，從底層到應用層依序排查：<strong><code>curl -v http://host</code></strong> 看完整 HTTP 流程（應用層，含 SSL 握手、request/response header、redirect 追蹤）；<strong><code>dig +short domain</code></strong> 快速 DNS 解析（跳過 /etc/hosts 直接查 DNS）；<strong><code>ss -tlnp</code></strong> 看 TCP listening port 與所屬 process（取代 netstat，速度更快、資訊更完整）；<strong><code>nc -zv host port</code></strong> 純測試 TCP port 通不通（z=zero I/O 只測試連線不送資料）。建議排查順序由下往上：ss（本地 listening）→ dig（DNS）→ curl（應用層）。</p>
+      <pre><code># 1. listening port + process（取代 netstat）
+ss -tlnp
+# State   Recv-Q Send-Q  Local Address:Port  Peer Address:Port  Process
+# LISTEN  0      128     0.0.0.0:80          0.0.0.0:*          users:(("nginx",pid=1234))
+# LISTEN  0      128     0.0.0.0:443         0.0.0.0:*          users:(("nginx",pid=1234))
+
+# 2. DNS 解析（跳過本地 /etc/hosts）
+dig +short example.com
+# 93.184.216.34            ← 回傳 A record
+#  dig 的 +short 只顯示 IP，忽略 CNAME/NSSEC 等細節
+
+# 3. TCP 連線測試（純測 port 通不通）
+nc -zv example.com 80
+# Connection to example.com port 80 [tcp/http] succeeded!
+# -z：不送資料只測試連線；-v：顯示詳細資訊
+
+# 4. HTTP/HTTPS 完整檢查
+curl -v https://example.com
+# * TCP_NODELAY set
+# * Connected to example.com (93.184.216.34) port 443 (#0)
+# * ALPN: offering h2
+# * SSL handshake completed
+# > GET / HTTP/1.1
+# > Host: example.com
+# < HTTP/1.1 200 OK
+# < Server: nginx
+
+# 5. 簡化版：只看 HTTP status code
+curl -s -o /dev/null -w "%{http_code}" https://example.com
+# 200</code></pre>
+      <p class="why">💭 原理：ss 從 /proc/net/tcp 和 /proc/net/tcp6 直接讀取 kernel socket 狀態，比 netstat 快（netstat 讀 /proc 多個檔案還要解析）。dig 直接查 DNS server（讀 /etc/resolv.conf 的 nameserver），跳過 /etc/hosts 和 nscd cache。nc -z 建立 TCP 連線後立即關閉（只做三次握手），如果連線成功表示 port 通了。curl -v 能看到 SSL/TLS 握手各階段的細節，是診斷 HTTPS 問題的最佳工具。</p>
+      <div class="tags"><span class="tag">network</span><span class="tag">curl</span><span class="tag">dig</span><span class="tag">ss</span><span class="tag">nc</span><span class="tag">troubleshooting</span><span class="tag">DNS</span><span class="tag">TCP</span></div>
+    </article>
+
+  </section>
+
+  <!-- Quick Reference -->
+  <section id="quickref">
+    <h2>🛠️ 本日指令速查表</h2>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th style="width:250px;">指令</th>
+          <th>用途</th>
+          <th style="width:70px;">KP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>kubectl top nodes && kubectl describe node | grep -A 8 Allocated</code></td>
+          <td>節點即時資源 vs scheduler 分配視角雙重驗證</td>
+          <td>#1</td>
+        </tr>
+        <tr>
+          <td><code>FROM scratch && COPY --from=builder ...</code></td>
+          <td>多階段建置 — builder 層建置完丟棄，runtime 最小化</td>
+          <td>#2</td>
+        </tr>
+        <tr>
+          <td><code>systemctl list-units --state=failed && journalctl -u &lt;svc&gt; -n 50 --no-pager</code></td>
+          <td>systemd 服務健康檢查 — 找失敗服務 + 看最近 log</td>
+          <td>#3</td>
+        </tr>
+        <tr>
+          <td><code>helm template ./chart -f values/prod.yaml --debug</code></td>
+          <td>Helm values 除錯 — --set typo 不報錯，先渲染確認</td>
+          <td>#4</td>
+        </tr>
+        <tr>
+          <td><code>curl -v + dig +short + ss -tlnp + nc -zv</code></td>
+          <td>網路排查四指令 — 由下往上：ss→dig→curl</td>
+          <td>#5</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="2026-06-23.html" class="prev">06/23 自主練習：kubectl exec、Linux 監控等</a>
+    <a href="../index.html">📋 目錄</a>
+    <a href="2026-06-25.html" class="next">06/25（尚未產生）</a>
+  </nav>
+
+  <footer>
+    <p>⚡ Shawn's DevOps Lab — 每日學習筆記 · 2026-06-24 · 自主練習</p>
+  </footer>
+
+</div>
+</body>
+</html>

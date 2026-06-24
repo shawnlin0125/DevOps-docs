@@ -116,6 +116,14 @@
     <div class="year-section">
       <div class="year-title">📅 2026 年 6 月</div>
       <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+        <span class="date-badge">🏋️ 06/24</span>
+        <a href="daily/2026-06-24.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
+        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量 vs scheduler 視角（top 看實際用量，Allocated 看 request/limit 佔比）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 FROM 是獨立階段，builder 層建置完丟棄）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯（--set typo 不報錯的陷阱）、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+        <div class="day-topics">
+          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+        </div>
+      </div>
+      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
         <span class="date-badge">🏋️ 06/23</span>
         <a href="daily/2026-06-23.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Git stash 暫存管理、Helm 生命週期管理</a>
         <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h/i 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、git stash -u 暫存含 untracked 檔案（LIFO stash stack 原理）、helm list -A/history/rollback/get values 版本生命週期管理與 helm template --debug 除錯</div>
