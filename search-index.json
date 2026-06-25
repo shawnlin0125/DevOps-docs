@@ -4810,5 +4810,91 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-25-kp1",
+    "date": "2026-06-25",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "Pod 啟動失敗四步驟排查：kubectl get pods → describe pod → logs → get events。從 Status/Events 欄位判斷 ImagePullBackOff（鏡像不存在）、CrashLoopBackOff（容器不斷重啟）、OOMKilled（超過記憶體限制）、Pending（資源不夠排程）。describe 的 Events 段落記錄 kubelet 對 Pod 的每一個操作與錯誤原因，是最快定位問題的入口。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "debug",
+      "troubleshooting",
+      "logs",
+      "events",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-25-kp2",
+    "date": "2026-06-25",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 用 containerd 而非 Docker daemon。離線部署流程：docker build → docker save tar → k3s ctr images import → kubectl apply。需設 imagePullPolicy: Never 避免 kubelet 遠端拉取。sudo k3s ctr images ls 確認鏡像已匯入。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "deploy",
+      "imagePullPolicy"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-25-kp3",
+    "date": "2026-06-25",
+    "title": "查 OOM 紀錄：dmesg + exit code 137",
+    "summary": "OOM Killer 挑 oom_score 最高的行程終止。sudo dmesg -T | grep -i oom 看核心 OOM 紀錄。exit code 137（SIGKILL）表示被 OOM 殺死。K8s 中 memory limits 總和超過節點 RAM 時 OOM 會連鎖殺 Pod。kubectl describe pod 的 Last State: OOMKilled 是 K8s cgroup 層級 OOM。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "SIGKILL",
+      "memory",
+      "k8s",
+      "Linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-25-kp4",
+    "date": "2026-06-25",
+    "title": "GitHub PR 流程：gh CLI",
+    "summary": "gh CLI 完整 PR 生命週期：git checkout -b feature/xxx → commit → git push -u origin feature/xxx → gh pr create --fill → gh pr merge --squash --delete-branch → git checkout main && git pull。--squash 壓縮所有 commit 為一個保持 main 歷史整潔。",
+    "tags": [
+      "GitHub",
+      "gh",
+      "PR",
+      "CLI",
+      "merge",
+      "squash",
+      "Git",
+      "CI/CD"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-25-kp5",
+    "date": "2026-06-25",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only",
+    "summary": "Proxy mode（橙色雲朵）流量經 CDN 隱藏 origin IP 提供免費 TLS；DNS only（灰色雲朵）直接解析 IP。dig +short 回傳 Cloudflare IP 為 Proxy mode，回傳真實 IP 為 DNS only。Cloudflare API 可程式化管理 DNS records 適合自動化。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS",
+      "API",
+      "dig",
+      "network"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
