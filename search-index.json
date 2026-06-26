@@ -4896,5 +4896,90 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-26-kp1",
+    "date": "2026-06-26",
+    "title": "kubectl exec 進 Pod 內排查",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進入容器互動排查。容器內常用三招：env | grep -i 確認環境變數、nc -zv <svc> <port> 測試 TCP 連線、cat /etc/resolv.conf 檢查 DNS 設定。kubectl cp 可在本地與 Pod 間複製檔案。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "troubleshooting",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-26-kp2",
+    "date": "2026-06-26",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "uptime 看 load average vs CPU 核心數判斷是否排隊；free -h 重點看 available 欄位（含可回收 cache，free 低不代表不夠）；df -h / + df -i / 看磁碟與 inode 使用率。load average > 核心數 = CPU 排隊中，available 低才是真記憶體壓力。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "load average",
+      "memory",
+      "disk"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-26-kp3",
+    "date": "2026-06-26",
+    "title": "Git 復原操作：reset / restore / reflog",
+    "summary": "git reset --soft HEAD~1 退回 commit 但保留 staged 變更；git restore <file> 丟棄工作區改動；git reflog 看所有 HEAD 移動記錄可救回誤刪的 commit。--soft 只動指標，--mixed 動指標+index，--hard 全丟。reflog 是本地救援工具，不被 push。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "revert",
+      "undo",
+      "recovery"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-26-kp4",
+    "date": "2026-06-26",
+    "title": "Git stash 暫存管理",
+    "summary": "git stash 暫存未 commit 改動還原乾淨工作區。git stash -u 含 untracked files；git stash pop 還原並移除；git stash list 看所有 stash（LIFO）。stash 本質是 commit-like 物件存在 .git/refs/stash，可跨 branch 套用但可能衝突。",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "LIFO",
+      "temporary"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-26-kp5",
+    "date": "2026-06-26",
+    "title": "Helm 常用操作：生命週期管理",
+    "summary": "helm list -A 列出所有 release；helm history <release> -n <ns> 看版本歷史；helm rollback <release> <rev> -n <ns> 退回指定版本（升級失敗時快速回退）；helm get values <release> -n <ns> 看目前生效的 values。helm template --debug 安全檢查最終 YAML 渲染結果。",
+    "tags": [
+      "Helm",
+      "rollback",
+      "list",
+      "history",
+      "values",
+      "upgrade",
+      "template",
+      "k8s"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
