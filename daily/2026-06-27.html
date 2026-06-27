@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-27（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --accent-purple: #a371f7;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; margin-bottom: 0.3rem; }
+  .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.2rem; }
+  h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { color: var(--accent-orange); font-size: 1rem; margin: 1rem 0 0.5rem; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 0.2rem 0; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc-title { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600; }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.5; margin: 0.5rem 0; }
+  .kp-card code { font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace; }
+  .section-intro { background: rgba(163,113,247,0.08); border: 1px solid rgba(163,113,247,0.3); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary); }
+  .command-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 1rem; }
+  .command-table table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .command-table th { text-align: left; color: var(--text-secondary); border-bottom: 1px solid var(--border); padding: 0.4rem 0.5rem; }
+  .command-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .command-table td:first-child { color: var(--accent); font-family: monospace; white-space: nowrap; }
+  .command-table td:last-child { color: var(--text); }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; }
+  .nav a { color: var(--accent); text-decoration: none; }
+  .nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🏋️ DevOps 學習筆記</h1>
+<p class="subtitle">June 27, 2026 · 自主練習（無使用者 DevOps 對話）</p>
+
+<div class="section-intro">
+今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<h2>📑 目錄</h2>
+<div class="toc">
+  <div class="toc-title">知識點</div>
+  <a href="#kp1">• kubectl 診斷 Pod 啟動失敗的完整流程</a>
+  <a href="#kp2">• Docker 多階段建置縮小 Image：builder → runtime 瘦身法</a>
+  <a href="#kp3">• 查 OOM 紀錄：dmesg + exit code 137</a>
+  <a href="#kp4">• Git stash 暫存管理：切換分支前的好幫手</a>
+  <a href="#kp5">• Cloudflare DNS 管理：Proxy vs DNS only 模式</a>
+  <a href="#cheatsheet">• 🛠️ 本日指令速查表</a>
+</div>
+<article class="kp-card" id="kp1">
+  <h4>💡 kubectl 診斷 Pod 啟動失敗的完整流程</h4>
+  <p>Pod 啟動失敗四步驟排查：<code>kubectl get pods</code> → <code>kubectl describe pod</code> → <code>kubectl logs</code> → <code>kubectl get events</code>。從 Status/Events 欄位判斷 <strong>ImagePullBackOff</strong>（鏡像不存在）、<strong>CrashLoopBackOff</strong>（容器不斷重啟）、<strong>OOMKilled</strong>（超過記憶體限制）、<strong>Pending</strong>（資源不夠排程）。describe 的 Events 段落記錄 kubelet 對 Pod 的每一個操作與錯誤原因，是最快定位問題的入口。</p>
+  <pre><code># 1. 看 Pod 狀態
+kubectl get pods -n <namespace>
+
+# 2. 詳細描述（Events 段落最關鍵）
+kubectl describe pod <pod-name> -n <namespace>
+
+# 3. 看容器 log
+kubectl logs <pod-name> -n <namespace>
+kubectl logs --previous <pod-name> -n <namespace>   # 前一次 crash 的 log
+
+# 4. 看叢集層級事件（超過 1h 的會消失）
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'</code></pre>
+  <p class="why">💭 這四步驟從狀態摘要→詳細事件→應用層日誌→叢集層事件，由外而內逐步縮小問題範圍。Events 記錄了 kubelet 對 Pod 的每一個操作（拉取鏡像、掛載 volume、健康檢查失敗），是 K8s 除錯的黃金入口。</p>
+</article>
+<article class="kp-card" id="kp2">
+  <h4>💡 Docker 多階段建置縮小 Image：builder → runtime 瘦身法</h4>
+  <p>多階段建置（multi-stage build）讓 Dockerfile 可以有多個 <code>FROM</code> 指令。第一個 stage（builder）裝所有編譯工具和依賴做建置，第二個 stage（runtime）只複製最終 artifacts。<strong>Go</strong> 靜態 binary 可用 <code>FROM scratch</code> 讓 image 最小化（～5MB），<strong>Node.js</strong> 可用 standalone output。查看 image 大小用 <code>docker images | grep &lt;name&gt;</code>。每個 RUN/COPY 指令都會增加一層，多階段讓 builder 層在建置完後被丟棄。</p>
+  <pre><code># Multi-stage Dockerfile 範例（Go）
+# --- Stage 1: builder ---
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o server .
+
+# --- Stage 2: runtime ---
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+
+# 查看 image 大小
+docker images | grep myapp</code></pre>
+  <p class="why">💭 每個 FROM 宣告一個獨立建置階段，只有最後一個 FROM 的內容會留在最終 image 中。builder 層的編譯工具和中間檔案在建置完就廢棄，大幅縮小 image，同時減少攻擊面。</p>
+</article>
+<article class="kp-card" id="kp3">
+  <h4>💡 查 OOM 紀錄：dmesg + exit code 137</h4>
+  <p>當系統記憶體不足時，Linux OOM Killer 會挑選 oom_score 最高的行程終止以釋放記憶體。<code>sudo dmesg -T | grep -i oom</code> 查看核心 OOM 記錄（含被殺的 process name、oom_score、記憶體佔用）。<strong>exit code 137</strong>（= 128 + 9 SIGKILL）表示行程被 OOM 殺死。在 K8s 中，Pod 的 <code>memory limits</code> 總和超過節點實體 RAM 時 OOM 會連鎖殺 Pod。<code>kubectl describe pod</code> 的 Last State: OOMKilled 是 K8s cgroup 層級的 OOM。</p>
+  <pre><code># 系統層級 OOM 記錄（核心緩衝區）
+sudo dmesg -T | grep -i oom
+
+# 查看行程 exit code 是否為 OOM
+# 在 K8s 中
+kubectl describe pod <pod-name> | grep -A 10 "Last State"
+
+# 看 Pod 重啟原因
+kubectl get pods -o wide | grep -E "CrashLoop|OOM"
+
+# 監控記憶體壓力
+free -h
+kubectl top nodes</code></pre>
+  <p class="why">💭 exit code 137（SIGKILL）是 OOM 的典型徵兆。系統層 OOM（dmesg）和 K8s cgroup OOM（describe pod OOMKilled）是不同層級的機制：前者發生的話任意行程都可能被殺，後者只影響該 Pod 容器。</p>
+</article>
+<article class="kp-card" id="kp4">
+  <h4>💡 Git stash 暫存管理：切換分支前的好幫手</h4>
+  <p>當你正在工作區改動檔案但還沒 commit，卻需要切換分支或拉取更新時，<code>git stash</code> 可以暫存所有改動（含 staged 和 unstaged），還原一個乾淨的工作區。<code>git stash -u</code> 也會暫存 untracked files。<code>git stash pop</code> 還原最近一次暫存並從 stack 移除；<code>git stash list</code> 看所有暫存（LIFO，最後存的先出來）。stash 本質是 commit-like 物件存在 <code>.git/refs/stash</code>，可跨 branch 套用但可能產生衝突。</p>
+  <pre><code># 暫存目前改動（含 staged）
+git stash
+
+# 暫存含 untracked files
+git stash -u
+
+# 查看所有暫存
+git stash list
+
+# 還原最近一次暫存並移除
+git stash pop
+
+# 還原指定暫存但不移除
+git stash apply stash@{1}
+
+# 清除所有暫存
+git stash clear</code></pre>
+  <p class="why">💭 stash 是一個 stack（LIFO），每次 stash 都在 .git/refs/stash 建立一個 commit。stash pop = apply + drop。跨 branch 套用 stash 可能衝突，需要手動解決。適合短時間暫存（幾小時到一天），長期暫存建議開 WIP branch。</p>
+</article>
+<article class="kp-card" id="kp5">
+  <h4>💡 Cloudflare DNS 管理：Proxy vs DNS only 模式</h4>
+  <p>Cloudflare DNS 有兩種模式：<strong>Proxy mode</strong>（橙色雲朵，也稱 proxied）流量經過 CDN 邊緣節點、隱藏 origin IP、提供免費 SSL/TLS 終止、DDoS 防護；<strong>DNS only</strong>（灰色雲朵）直接解析到 origin IP、無 CDN 加速或防護。用 <code>dig +short example.com</code> 查看：回傳 Cloudflare IP 表示 Proxy mode，回傳真實主機 IP 表示 DNS only。Cloudflare API 可程式化管理 DNS records，適合自動化。</p>
+  <pre><code># 確認 DNS 記錄模式（dig）
+dig +short example.com
+# Cloudflare IP 範圍 => Proxy mode
+# 真實主機 IP => DNS only
+
+# Cloudflare API 新增 DNS record（需 API Token）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type": "A",
+    "name": "app",
+    "content": "1.2.3.4",
+    "ttl": 120,
+    "proxied": true
+  }'</code></pre>
+  <p class="why">💭 Proxy mode 透過 Cloudflare IP 轉發 True-Client-IP header 給 origin server，同時提供免費 TLS 終止。但 WebSocket 和 gRPC 在 Proxy mode 下可能不穩定（Cloudflare 不支援 HTTP/2 到 origin 的 gRPC）。DNS only 適合低延遲、不經過 CDN 的內部服務。</p>
+</article>
+<h3 id="cheatsheet">🛠️ 本日指令速查表</h3>
+<div class="command-table">
+<table>
+<tr><th>指令</th><th>用途</th></tr>
+<tr><td>kubectl describe pod &lt;name&gt; -n &lt;ns&gt;</td><td>看 Events 段落找錯誤原因</td></tr>
+<tr><td>kubectl logs --previous &lt;pod&gt; -n &lt;ns&gt;</td><td>看前一次 crash 的 log</td></tr>
+<tr><td>sudo dmesg -T | grep -i oom</td><td>查系統 OOM 記錄（核心緩衝區）</td></tr>
+<tr><td>git stash -u</td><td>暫存含 untracked 檔案後還原乾淨工作區</td></tr>
+<tr><td>git stash pop</td><td>還原最近一次暫存並從 stack 移除</td></tr>
+<tr><td>curl -X POST https://api.cloudflare.com/client/v4/zones/&lt;ZONE_ID&gt;/dns_records ...</td><td>Cloudflare API 新增 DNS record</td></tr>
+<tr><td>docker images | grep &lt;name&gt;</td><td>查看 image 大小</td></tr>
+</table>
+</div>
+<div class="nav">
+  <a href="2026-06-26.html">← 前一天 (06/26)</a>
+  <a href="../index.html">📋 回到總覽</a>
+  <a href="2026-06-28.html">後一天 (06/28) →</a>
+</div>
+</div>
+</body>
+</html>

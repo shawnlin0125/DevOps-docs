@@ -1,0 +1,87 @@
+[
+  {
+    "id": "2026-06-27-kp1",
+    "date": "2026-06-27",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "Pod 啟動失敗四步驟排查：kubectl get pods → describe pod → logs → get events。從 Status/Events 欄位判斷 ImagePullBackOff、CrashLoopBackOff、OOMKilled、Pending。describe 的 Events 段落是最快定位問題的入口。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "debug",
+      "troubleshooting",
+      "logs",
+      "events",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-27-kp2",
+    "date": "2026-06-27",
+    "title": "Docker 多階段建置縮小 Image：builder → runtime 瘦身法",
+    "summary": "多階段建置用多個 FROM 指令分離編譯與執行環境。Go 用 FROM scratch 可達約 5MB。每個 RUN/COPY 一層，builder 層建置完廢棄。docker images | grep <name> 查看大小。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "scratch",
+      "alpine",
+      "image",
+      "optimization"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-27-kp3",
+    "date": "2026-06-27",
+    "title": "查 OOM 紀錄：dmesg + exit code 137",
+    "summary": "sudo dmesg -T | grep -i oom 看核心 OOM Killer 記錄。exit code 137 (128+9 SIGKILL) 表示被 OOM 殺死。K8s 中 describe pod 的 Last State: OOMKilled 是 cgroup 層級 OOM。memory limits 總和超過節點 RAM 時會連鎖殺 Pod。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "SIGKILL",
+      "memory",
+      "k8s",
+      "Linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-27-kp4",
+    "date": "2026-06-27",
+    "title": "Git stash 暫存管理：切換分支前的好幫手",
+    "summary": "git stash 暫存改動還原乾淨工作區。git stash -u 含 untracked files。git stash pop 還原並移除。git stash list 看所有暫存 (LIFO)。stash 本質是 commit-like 物件在 .git/refs/stash，可跨 branch 套用但可能衝突。",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "LIFO",
+      "temporary"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-27-kp5",
+    "date": "2026-06-27",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only 模式",
+    "summary": "Proxy mode（橙色雲朵）流量經 CDN 隱藏 origin IP 提供免費 TLS；DNS only（灰色雲朵）直接解析到 origin IP。dig +short 回傳 Cloudflare IP 為 Proxy mode，回傳真實 IP 為 DNS only。Cloudflare API 可程式化管理 DNS records。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS",
+      "API",
+      "dig",
+      "network"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
