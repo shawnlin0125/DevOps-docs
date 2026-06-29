@@ -5066,5 +5066,86 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-29-kp1",
+    "anchor": "kp1",
+    "title": "kubectl top 資源診斷：即時用量 vs Scheduler 視角",
+    "summary": "kubectl top nodes 看節點即時 CPU/Memory 用量；kubectl top pods -A 看每個 Pod 即時用量。kubectl describe node | grep -A 8 Allocated 看 request/limit 佔比（scheduler 視角，用於容量規劃）。top 是即時實際用量（以 cgroup 為基礎），describe node Allocated 是 scheduler 看到的已分配資源佔比。兩者對比可分辨是「真的撐不住」還是「申請太多卻沒用到」。",
+    "tags": [
+      "kubectl",
+      "top",
+      "monitoring",
+      "resources",
+      "capacity",
+      "k8s",
+      "scheduler"
+    ],
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-29-kp2",
+    "anchor": "kp2",
+    "title": "k3s containerd 鏡像管理完整流程：docker build → k3s ctr import",
+    "summary": "k3s 使用 containerd 而非 Docker daemon。離線部署流程：docker build -t img:tag . → docker save img:tag > img.tar → sudo k3s ctr images import img.tar → kubectl apply -f deploy.yaml。需設 imagePullPolicy: Never 避免 kubelet 嘗試從 registry 拉取。sudo k3s ctr images ls 確認鏡像已匯入。注意 containerd namespace 預設為 k8s.io，k3s ctr images import 會自動匯入正確 namespace。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "deploy",
+      "imagePullPolicy",
+      "k8s"
+    ],
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-29-kp3",
+    "anchor": "kp3",
+    "title": "systemd 服務管理三指令：systemctl、journalctl、daemon-reload",
+    "summary": "systemctl list-units --state=failed 快速查看所有失敗的服務。journalctl -u <service> -n 50 --no-pager 看最近 50 筆服務日誌（--no-pager 避免分頁卡住）。改完 unit file 後要 systemctl daemon-reload 讓 systemd 重新載入配置。systemctl status <service> 看整體健康狀態（active/exited/failed）搭配最近幾筆 log。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "daemon-reload",
+      "Linux",
+      "service",
+      "management"
+    ],
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-29-kp4",
+    "anchor": "kp4",
+    "title": "Helm values 三層分層覆蓋：預設值 → 環境值 → CLI 覆蓋",
+    "summary": "Helm values 有嚴格的三層覆蓋順序：values.yaml（Chart 內建預設值）← values/production.yaml（--values 指定的環境覆蓋）← --set key=value（CLI 直接覆蓋，優先級最高）。後面層級 merge 覆蓋前面的同名 key。實務陷阱：--set typo 不會報錯，只是新增一個沒作用的 key。用 helm template --debug 輸出渲染後的完整 YAML 來驗證。",
+    "tags": [
+      "Helm",
+      "values",
+      "override",
+      "template",
+      "debug",
+      "deploy",
+      "k8s"
+    ],
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-29-kp5",
+    "anchor": "kp5",
+    "title": "網路排查四指令：curl / dig / ss / nc 對應 OSI 四層",
+    "summary": "curl -v http://host:port 看完整 HTTP 請求和回應（應用層 L7）。dig +short domain 快速 DNS 解析（DNS 查詢，L7 但常先測）。ss -tlnp 看所有 listening TCP port 與所屬 process（取代 netstat，L4 傳輸層）。nc -zv host port 測試遠端 TCP port 是否通（L4 連線測試，支援域名與 IP）。四指令由高到低排查：curl → nc → dig → ss。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting",
+      "OSI",
+      "Linux"
+    ],
+    "conversation": "自主練習"
   }
 ]

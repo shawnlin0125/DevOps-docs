@@ -116,6 +116,14 @@
     <div class="year-section">
       <div class="year-title">📅 2026 年 6 月</div>
       <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+        <span class="date-badge">🏋️ 06-29</span>
+        <a href="daily/2026-06-29.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
+        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top 資源診斷：即時用量 vs Scheduler 視角（kubectl top nodes/pods 即時用量 vs describe node Allocated scheduler 視角對比）、k3s containerd 鏡像離線部署完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values 三層分層覆蓋（values.yaml ← values/prod.yaml ← --set）與 helm template --debug 驗證、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+        <div class="day-topics">
+          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+        </div>
+      </div>
+      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
         <span class="date-badge">🏋️ 06/27</span>
         <a href="daily/2026-06-27.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
         <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、Docker multi-stage build FROM builder→FROM scratch 瘦身法（編譯工具建置完丟棄）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>

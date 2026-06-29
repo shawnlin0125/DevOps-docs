@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-29</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.9rem; }
+  h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { color: var(--accent-orange); font-size: 1rem; margin: 1.2rem 0 0.6rem; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 0.2rem 0; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; margin: 0.4rem 0; }
+  .kp-card code { font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace; }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+  .cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-top: 1.5rem; }
+  .cheatsheet h3 { color: var(--accent-orange); border: none; margin-top: 0; }
+  .cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; }
+  .intro { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; padding: 0.8rem 1rem; background: var(--bg-card); border-left: 3px solid var(--accent-purple); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏋️ DevOps 學習筆記 — <span>2026-06-29</span></h1>
+    <p class="subtitle">June 29, 2026 · 0 對話 · 5 知識點（自主練習）</p>
+  </header>
+
+  <div class="intro">
+    📖 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+  </div>
+
+  <div class="toc">
+    <strong>📑 目錄</strong>
+    <a href="#kp1">KP1 · kubectl top 資源診斷：即時用量 vs Scheduler 視角</a>
+    <a href="#kp2">KP2 · k3s containerd 鏡像管理完整流程：docker build → k3s ctr import</a>
+    <a href="#kp3">KP3 · systemd 服務管理三指令：systemctl、journalctl、daemon-reload</a>
+    <a href="#kp4">KP4 · Helm values 三層分層覆蓋：預設值 → 環境值 → CLI 覆蓋</a>
+    <a href="#kp5">KP5 · 網路排查四指令：curl / dig / ss / nc 對應 OSI 四層</a>
+  </div>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl top 資源診斷：即時用量 vs Scheduler 視角</h4>
+    <p>kubectl top nodes 看節點即時 CPU/Memory 用量；kubectl top pods -A 看每個 Pod 即時用量。kubectl describe node | grep -A 8 Allocated 看 request/limit 佔比（scheduler 視角，用於容量規劃）。top 是即時實際用量（以 cgroup 為基礎），describe node Allocated 是 scheduler 看到的已分配資源佔比。兩者對比可分辨是「真的撐不住」還是「申請太多卻沒用到」。</p>
+    <pre><code># 即時用量
+kubectl top nodes
+kubectl top pods -A
+
+# Scheduler 視角（已分配 vs 可分配）
+kubectl describe node | grep -A 8 Allocated</code></pre>
+    <p class="why">💭 原理：kubectl describe node | grep -A 8 Allocated 看 request/limit 佔比（scheduler 視角，用於容量規劃）。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 k3s containerd 鏡像管理完整流程：docker build → k3s ctr import</h4>
+    <p>k3s 使用 containerd 而非 Docker daemon。離線部署流程：docker build -t img:tag . → docker save img:tag > img.tar → sudo k3s ctr images import img.tar → kubectl apply -f deploy.yaml。需設 imagePullPolicy: Never 避免 kubelet 嘗試從 registry 拉取。sudo k3s ctr images ls 確認鏡像已匯入。注意 containerd namespace 預設為 k8s.io，k3s ctr images import 會自動匯入正確 namespace。</p>
+    <pre><code># 完整鏡像部署流程
+docker build -t myapp:latest .
+docker save myapp:latest > myapp.tar
+sudo k3s ctr images import myapp.tar
+kubectl apply -f deploy.yaml
+sudo k3s ctr images ls | grep myapp</code></pre>
+    <p class="why">💭 原理：離線部署流程：docker build -t img:tag . → docker save img:tag > img.tar → sudo k3s ctr images import img.tar → kubectl apply -f deploy.yaml。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 systemd 服務管理三指令：systemctl、journalctl、daemon-reload</h4>
+    <p>systemctl list-units --state=failed 快速查看所有失敗的服務。journalctl -u <service> -n 50 --no-pager 看最近 50 筆服務日誌（--no-pager 避免分頁卡住）。改完 unit file 後要 systemctl daemon-reload 讓 systemd 重新載入配置。systemctl status <service> 看整體健康狀態（active/exited/failed）搭配最近幾筆 log。</p>
+    <pre><code># 查看失敗服務
+systemctl list-units --state=failed
+
+# 看服務最近日誌
+journalctl -u <service> -n 50 --no-pager
+
+# 重載 unit file 後
+systemctl daemon-reload</code></pre>
+    <p class="why">💭 原理：journalctl -u <service> -n 50 --no-pager 看最近 50 筆服務日誌（--no-pager 避免分頁卡住）。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Helm values 三層分層覆蓋：預設值 → 環境值 → CLI 覆蓋</h4>
+    <p>Helm values 有嚴格的三層覆蓋順序：values.yaml（Chart 內建預設值）← values/production.yaml（--values 指定的環境覆蓋）← --set key=value（CLI 直接覆蓋，優先級最高）。後面層級 merge 覆蓋前面的同名 key。實務陷阱：--set typo 不會報錯，只是新增一個沒作用的 key。用 helm template --debug 輸出渲染後的完整 YAML 來驗證。</p>
+    <pre><code># 三層覆蓋（由低到高優先級）
+helm upgrade myapp ./chart --values values/prod.yaml --set image.tag=v2
+
+# 驗證最終渲染結果
+helm template myapp ./chart --values values/prod.yaml --debug</code></pre>
+    <p class="why">💭 原理：後面層級 merge 覆蓋前面的同名 key。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 網路排查四指令：curl / dig / ss / nc 對應 OSI 四層</h4>
+    <p>curl -v http://host:port 看完整 HTTP 請求和回應（應用層 L7）。dig +short domain 快速 DNS 解析（DNS 查詢，L7 但常先測）。ss -tlnp 看所有 listening TCP port 與所屬 process（取代 netstat，L4 傳輸層）。nc -zv host port 測試遠端 TCP port 是否通（L4 連線測試，支援域名與 IP）。四指令由高到低排查：curl → nc → dig → ss。</p>
+    <pre><code># 應用層（L7）：看 HTTP 回應
+curl -v http://service:8080
+
+# DNS 查詢
+dig +short myapp.svc.cluster.local
+
+# 傳輸層（L4）：看 listening port
+ss -tlnp
+
+# TCP 連線測試
+nc -zv myservice 8080</code></pre>
+    <p class="why">💭 原理：dig +short domain 快速 DNS 解析（DNS 查詢，L7 但常先測）。</p>
+  </article>
+
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># 資源診斷
+kubectl top nodes; kubectl top pods -A
+kubectl describe node | grep -A 8 Allocated
+
+# k3s 離線部署
+docker build -t app:latest . && docker save app:latest > app.tar
+sudo k3s ctr images import app.tar
+
+# 服務管理
+systemctl list-units --state=failed
+journalctl -u &lt;service&gt; -n 50 --no-pager
+
+# Helm 驗證
+helm template ./chart --values values/prod.yaml --debug
+
+# 網路診斷
+curl -v http://host:port; dig +short domain; ss -tlnp; nc -zv host port</code></pre>
+  </div>
+
+  <div class="nav">
+    <a href="2026-06-28.html">← 前一天</a>
+    <a href="../index.html">📋 首頁</a>
+    <a href="2026-06-30.html">後一天 →</a>
+  </div>
+</div>
+</body>
+</html>
