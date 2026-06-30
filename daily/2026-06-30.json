@@ -1,0 +1,86 @@
+[
+  {
+    "id": "2026-06-30-kp1",
+    "date": "2026-06-30",
+    "title": "kubectl exec Pod 內排查：env、nc、resolv.conf 三招",
+    "summary": "kubectl exec -it <pod> -n <ns> -- sh 進容器互動排查。env | grep -i 確認環境變數、nc -zv <svc> <port> 測試服務連線、cat /etc/resolv.conf 確認 DNS 設定。三招覆蓋 80% 容器內診斷需求：配置、連線、DNS。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "DNS",
+      "nc",
+      "env"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-30-kp2",
+    "date": "2026-06-30",
+    "title": "Docker 多階段建置縮小 Image：builder → runtime 瘦身法",
+    "summary": "Dockerfile 用多個 FROM，builder 裝建置工具，runtime 只複製 artifacts。Go 可用 FROM scratch（static binary 零依賴），Node.js 用 standalone output。docker images 比較大小，可從 1GB+ 降到 100MB 以下。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "scratch",
+      "image",
+      "optimization"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-30-kp3",
+    "date": "2026-06-30",
+    "title": "Linux 資源監控三指令：uptime、free、df",
+    "summary": "uptime 看 load average（> 核心數 = CPU 排隊）、free -h 看 available（不是 free）、df -h / 看磁碟使用率。load average > 核心數表示 process 在等 CPU；Linux 拿閒置 RAM 做 cache 所以 free 低不等於不夠。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "load average",
+      "memory"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-30-kp4",
+    "date": "2026-06-30",
+    "title": "GitHub PR 流程：gh CLI 完整操作",
+    "summary": "完整 PR 流程：git checkout -b → commit → push → gh pr create → gh pr merge --squash --delete-branch。gh pr list 看進行中的 PR、gh pr diff 看改動、gh pr checkout 切到他人 PR。squash 合併讓 main 線性乾淨。",
+    "tags": [
+      "GitHub",
+      "gh",
+      "PR",
+      "pull request",
+      "merge",
+      "squash",
+      "CLI"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-06-30-kp5",
+    "date": "2026-06-30",
+    "title": "Helm 常用操作：list、history、rollback、get values",
+    "summary": "helm list -A 看所有 release、helm history <release> 看版本歷史、helm rollback <release> <rev> 退回指定版本、helm get values <release> 看目前生效的 values。--history-max 控制 revision 數量避免 etcd 膨脹。",
+    "tags": [
+      "Helm",
+      "rollback",
+      "list",
+      "history",
+      "get values",
+      "release",
+      "revision"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]

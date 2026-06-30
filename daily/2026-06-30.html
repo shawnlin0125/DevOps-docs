@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-06-30（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.9rem; }
+  h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { color: var(--accent-orange); font-size: 1rem; margin: 1.2rem 0 0.6rem; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 0.2rem 0; font-size: 0.9rem; }
+  .toc a:hover { text-decoration: underline; }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; margin: 0.4rem 0; }
+  .kp-card code { font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace; }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+  .cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-top: 1.5rem; }
+  .cheatsheet h3 { color: var(--accent-orange); border: none; margin-top: 0; }
+  .cheatsheet pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; }
+  .intro { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; padding: 0.8rem 1rem; background: var(--bg-card); border-left: 3px solid var(--accent-purple); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏋️ DevOps 學習筆記 — <span>2026-06-30</span></h1>
+    <p class="subtitle">June 30, 2026 · 0 對話 · 5 知識點（自主練習）</p>
+  </header>
+
+  <div class="intro">
+    📖 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+  </div>
+
+  <div class="toc">
+    <strong>📑 目錄</strong>
+    <a href="#kp1">KP1 · kubectl exec Pod 內排查：env、nc、resolv.conf 三招</a>
+    <a href="#kp2">KP2 · Docker 多階段建置縮小 Image：builder → runtime 瘦身法</a>
+    <a href="#kp3">KP3 · Linux 資源監控三指令：uptime、free、df</a>
+    <a href="#kp4">KP4 · GitHub PR 流程：gh CLI 完整操作</a>
+    <a href="#kp5">KP5 · Helm 常用操作：list、history、rollback、get values</a>
+  </div>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl exec Pod 內排查：env、nc、resolv.conf 三招</h4>
+    <p>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh 進容器後，env | grep -i 確認環境變數是否正確傳入；nc -zv &lt;svc&gt; &lt;port&gt; 測試容器能否連到其他服務（2 秒快速驗證）；cat /etc/resolv.conf 確認 DNS 設定（搭配 CoreDNS 的 cluster domain）。這三招覆蓋 80% 的容器內診斷需求：配置、連線、DNS。</p>
+    <pre><code># 進入容器
+kubectl exec -it <pod> -n <ns> -- sh
+
+# 檢查環境變數
+env | grep -i DB_HOST
+
+# 測試服務連線
+nc -zv myservice 8080
+
+# 確認 DNS 設定
+cat /etc/resolv.conf</code></pre>
+    <p class="why">💭 原理：kubectl exec 透過 K8s API server 建立到 container runtime 的連線，本質是 attach（非 ssh）。容器內用 nc -z（zero I/O）測試 TCP 連線只檢查 port 是否 listening，不回傳資料。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 Docker 多階段建置縮小 Image：builder → runtime 瘦身法</h4>
+    <p>Dockerfile 用多個 FROM 語句，builder 階段裝所有建置工具（gcc、npm、pip install），runtime 階段只複製編譯後的 artifacts。Go 可用 FROM scratch（static binary 零依賴），Node.js 用 standalone output 搭配 FROM node:alpine。docker images | grep &lt;name&gt; 比較建置前後大小（可從 1GB+ 降到 100MB 以下）。</p>
+    <pre><code># Go 多階段建置範例
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o app
+
+FROM scratch
+COPY --from=builder /app/app /app
+CMD ["/app"]</code></pre>
+    <p class="why">💭 原理：Docker image 由唯讀層堆疊，多階段只是不同 Dockerfile 的命名階段。--from=builder 只複製指定階段的檔案，不保留 builder 的 base image 層。每個 FROM 啟動一個新階段，前一階段的中間層全部捨棄。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 Linux 資源監控三指令：uptime、free、df</h4>
+    <p>uptime 看 load average（1/5/15 分鐘），數值超過 CPU 核心數表示正在排隊（例如 4 核心 load=8 表示平均有 4 個 process 在等 CPU）。free -h 看記憶體，重點看 available 不是 free（Linux 拿閒置 RAM 做 page cache，free 低不等於不夠）。df -h / 看磁碟使用率，監控閾值通常 80% 告警、90% 緊急。</p>
+    <pre><code># CPU 排隊狀況（load > 核心數 = 在等 CPU）
+uptime
+
+# 記憶體（看 available 才是真實可用）
+free -h
+
+# 磁碟使用率
+df -h /</code></pre>
+    <p class="why">💭 原理：load average = CPU 佇列長度 + 正在執行 + I/O blocked 的 process 數。available = free + page cache + slab reclaimable，是核心估算的「可立即回收給應用程式的記憶體」。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 GitHub PR 流程：gh CLI 完整操作</h4>
+    <p>完整 PR 流程：git checkout -b feature/xxx → 改程式 → git add/commit → git push -u origin feature/xxx → gh pr create --title "..." --body "..." → 等 review → gh pr merge --squash --delete-branch。實用工具：gh pr list 看進行中的 PR、gh pr diff 看改動、gh pr checkout &lt;num&gt; 切到他人 PR。合併策略：squash（單一 commit 進 main）、merge（保留 branch commits）、rebase（線性歷史）。</p>
+    <pre><code># 完整 PR 流程
+git checkout -b feature/my-feature
+# ... 改程式碼 ...
+git add . && git commit -m "feat: add my feature"
+git push -u origin feature/my-feature
+gh pr create --title "feat: 新增功能" --body "做了什麼、為什麼"
+
+# Review 後合併
+gh pr merge --squash --delete-branch
+
+# 查看進行中的 PR
+gh pr list</code></pre>
+    <p class="why">💭 原理：gh pr create 基於你 push 的分支（不是 HEAD），會自動偵測 remote。--squash 將 PR 所有 commits 壓成一個，main 線性乾淨；--delete-branch 合併後自動刪遠端分支，避免堆積。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 Helm 常用操作：list、history、rollback、get values</h4>
+    <p>helm list -A 看所有 namespace 的 release；helm history &lt;release&gt; -n &lt;ns&gt; 看版本歷史（每次 upgrade 生成一個 revision）；helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt; 退回指定版本（快速救回失誤升級）；helm get values &lt;release&gt; -n &lt;ns&gt; 看目前生效的 values（確認哪些 --set 已套用）。--history-max 設定保留多少 revision 避免 etcd 膨脹。</p>
+    <pre><code># 查看所有 release
+helm list -A
+
+# 查看版本歷史
+helm history myapp -n production
+
+# 退回版本 2
+helm rollback myapp 2 -n production
+
+# 看目前生效的 values
+helm get values myapp -n production</code></pre>
+    <p class="why">💭 原理：Helm upgrade 不是原地更新，而是建立新 revision（新版 K8s manifest），rollback 就是 apply 舊 revision 的 manifest。Revision 是累積的，revision 越多 etcd 中 storage 越肥。helm get values 讀的是 Helm 記憶體中的 values（不是 K8s resource 的欄位）。</p>
+  </article>
+
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># 容器內診斷
+kubectl exec -it <pod> -n <ns> -- sh
+nc -zv <svc> <port>; env | grep -i; cat /etc/resolv.conf
+
+# Docker 多階段建置
+docker build -t myapp:latest .
+docker images | grep myapp
+
+# 資源監控
+uptime; free -h; df -h /
+
+# GitHub PR
+git checkout -b feature/xxx && git add && git commit && git push -u origin feature/xxx
+gh pr create --title "..." --body "..."
+gh pr merge --squash --delete-branch
+
+# Helm 維運
+helm list -A
+helm history myapp -n production
+helm rollback myapp 2 -n production
+helm get values myapp -n production</code></pre>
+  </div>
+
+  <div class="nav">
+    <a href="2026-06-29.html">← 前一天</a>
+    <a href="../index.html">📋 首頁</a>
+    <a href="2026-07-01.html">後一天 →</a>
+  </div>
+</div>
+</body>
+</html>
