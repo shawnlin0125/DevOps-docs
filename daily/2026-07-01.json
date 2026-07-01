@@ -1,0 +1,87 @@
+[
+  {
+    "id": "2026-07-01-kp1",
+    "date": "2026-07-01",
+    "title": "kubectl 診斷 Pod 啟動失敗的四步驟流程",
+    "summary": "Pod 啟動失敗時依序使用：kubectl get pods → describe pod → logs → get events。從 Status/Events 欄位判斷是 ImagePullBackOff（鏡像問題）、CrashLoopBackOff（容器啟動後不斷重啟）、OOMKilled（超過記憶體限制）還是 Pending（資源不足無法排程）。describe 的 Events 段落記錄 kubelet 對 Pod 的每一個操作與錯誤，是最快定位問題的入口。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "debug",
+      "troubleshooting",
+      "logs",
+      "events",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-01-kp2",
+    "date": "2026-07-01",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "k3s 使用 containerd 而非 Docker daemon，離線或本地部署需要經由 docker save / k3s ctr import 流程：先在開發機 docker build，然後 docker save 成 tar，再傳到 k3s 節點用 sudo k3s ctr images import 匯入。部署時須設 imagePullPolicy: Never 避免 kubelet 嘗試從遠端 registry 拉取。用 sudo k3s ctr images ls 確認鏡像已匯入。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "deploy",
+      "imagePullPolicy",
+      "k8s"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-01-kp3",
+    "date": "2026-07-01",
+    "title": "查 OOM 紀錄：dmesg + exit code 137",
+    "summary": "當 Pod 或 process 被 OOM Killer 終止時，用 sudo dmesg -T | grep -i oom 查看核心 OOM 記錄（含被殺的 process、oom_score、記憶體使用量）。exit code 137（128 + 9 SIGKILL）表示 process 被 OOM Killer 殺死。K8s 中 kubectl describe pod 的 Last State: OOMKilled 是 cgroup 層級 OOM。注意：節點 memory limits 總和超過實體 RAM 時 OOM 會連鎖殺 Pod。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "SIGKILL",
+      "memory",
+      "k8s",
+      "Linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-01-kp4",
+    "date": "2026-07-01",
+    "title": "Git stash 暫存管理：切換分支前的好幫手",
+    "summary": "當你在分支 A 工作進行到一半，需要切到分支 B 處理事情時，git stash 暫存所有未 commit 的改動，還原乾淨工作區。git stash -u 含 untracked 檔案。回來後 git stash pop 還原最近暫存並從列表中移除。git stash list 看所有暫存（LIFO 堆疊）。stash 本質是 commit-like 物件存於 .git/refs/stash，可跨 branch 套用但可能衝突。",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "LIFO",
+      "temporary"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-01-kp5",
+    "date": "2026-07-01",
+    "title": "Cloudflare DNS 管理：Proxy vs DNS only 模式",
+    "summary": "Cloudflare DNS 有兩種模式：Proxy mode（橙色雲朵）流量經過 Cloudflare CDN，隱藏 origin IP 並提供免費 TLS；DNS only（灰色雲朵）直接解析到 origin IP，無 CDN 保護。用 dig +short domain.com 檢查：回傳 Cloudflare IP 表示 Proxy mode，回傳真實伺服器 IP 表示 DNS only。Cloudflare API 可程式化管理 DNS records 適合自動化部署。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS",
+      "API",
+      "dig",
+      "network"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]

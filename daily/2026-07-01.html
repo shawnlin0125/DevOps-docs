@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-07-01（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+    --accent-red: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.9rem; }
+  .stats { display: flex; gap: 1.5rem; margin-top: 0.8rem; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
+  h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 1rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc-title { font-weight: 600; color: var(--accent); margin-bottom: 0.5rem; font-size: 0.95rem; }
+  .toc-list { list-style: none; padding: 0; }
+  .toc-list li { margin: 0.2rem 0; }
+  .toc-list a { color: var(--accent-green); text-decoration: none; font-size: 0.88rem; }
+  .toc-list a:hover { text-decoration: underline; }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.75rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.4rem; }
+  .kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; margin: 0.3rem 0 0.5rem; }
+  .kp-card code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.4rem; }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+  .cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin: 2rem 0; }
+  .cheatsheet h3 { color: var(--accent-orange); font-size: 1rem; margin-bottom: 0.6rem; }
+  .cheatsheet pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; }
+  .alert { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--accent-orange); }
+  footer { text-align: center; color: var(--text-secondary); font-size: 0.82rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏋️ <span>DevOps</span> 學習筆記 — 2026-07-01</h1>
+    <p class="subtitle">自主練習 · 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-num">0</span><div class="stat-label">對話</div></div>
+      <div class="stat"><span class="stat-num">5</span><div class="stat-label">知識點（自主練習）</div></div>
+    </div>
+  </header>
+
+  <div class="toc">
+    <div class="toc-title">📑 目錄</div>
+    <ul class="toc-list">
+      <li><a href="#kp1">💡 kubectl 診斷 Pod 啟動失敗的四步驟流程</a></li>
+      <li><a href="#kp2">💡 k3s containerd 鏡像管理完整流程</a></li>
+      <li><a href="#kp3">💡 查 OOM 紀錄：dmesg + exit code 137</a></li>
+      <li><a href="#kp4">💡 Git stash 暫存管理：切換分支前的好幫手</a></li>
+      <li><a href="#kp5">💡 Cloudflare DNS 管理：Proxy vs DNS only 模式</a></li>
+    </ul>
+  </div>
+
+  <hr>
+  <h2>📚 知識點</h2>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl 診斷 Pod 啟動失敗的四步驟流程</h4>
+    <p>Pod 啟動失敗時依序使用：kubectl get pods → describe pod → logs → get events。從 Status/Events 欄位判斷是 ImagePullBackOff（鏡像問題）、CrashLoopBackOff（容器啟動後不斷重啟）、OOMKilled（超過記憶體限制）還是 Pending（資源不足無法排程）。describe 的 Events 段落記錄 kubelet 對 Pod 的每一個操作與錯誤，是最快定位問題的入口。</p>
+    <pre><code># 步驟 1: 查看 Pod 狀態
+kubectl get pods -n <namespace>
+# 步驟 2: 看詳細事件
+kubectl describe pod <pod-name> -n <namespace>
+# 步驟 3: 看容器日誌
+kubectl logs <pod-name> -n <namespace>
+# 步驟 4: 看所有事件
+kubectl get events -n <namespace> --sort-by='.lastTimestamp'</code></pre>
+    <p class="why">💭 原理：kubelet 對 Pod 的每個操作都會寫入 Events，describe pod 的 Events 欄位就是最快定位問題的入口。logs 只能看到容器 stdout/stderr，適合 CrashLoopBackOff 時看最後的錯誤訊息。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 k3s containerd 鏡像管理完整流程</h4>
+    <p>k3s 使用 containerd 而非 Docker daemon，離線或本地部署需要經由 docker save / k3s ctr import 流程：先在開發機 docker build，然後 docker save 成 tar，再傳到 k3s 節點用 sudo k3s ctr images import 匯入。部署時須設 imagePullPolicy: Never 避免 kubelet 嘗試從遠端 registry 拉取。用 sudo k3s ctr images ls 確認鏡像已匯入。</p>
+    <pre><code># 開發機：建置匯出
+docker build -t my-app:latest .
+docker save my-app:latest > my-app.tar
+# k3s 節點：匯入
+sudo k3s ctr images import my-app.tar
+# 確認匯入
+sudo k3s ctr images ls | grep my-app
+# Deployment 需設 imagePullPolicy: Never
+kubectl apply -f deploy.yaml
+kubectl rollout restart deployment/my-app</code></pre>
+    <p class="why">💭 原理：k3s 的 containerd 有自己的 image store（namespace k8s.io），與 Docker daemon 分離。k3s ctr import 自動處理 namespace，但本地沒有 registry 機制，所以必須用 imagePullPolicy: Never 跳過遠端拉取。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 查 OOM 紀錄：dmesg + exit code 137</h4>
+    <p>當 Pod 或 process 被 OOM Killer 終止時，用 sudo dmesg -T | grep -i oom 查看核心 OOM 記錄（含被殺的 process、oom_score、記憶體使用量）。exit code 137（128 + 9 SIGKILL）表示 process 被 OOM Killer 殺死。K8s 中 kubectl describe pod 的 Last State: OOMKilled 是 cgroup 層級 OOM。注意：節點 memory limits 總和超過實體 RAM 時 OOM 會連鎖殺 Pod。</p>
+    <pre><code># 查核心 OOM 紀錄
+sudo dmesg -T | grep -i oom | tail -20
+# 看 process exit code（137 = OOM）
+kubectl describe pod <pod-name> | grep -A 10 'Last State'
+# 檢查節點記憶體壓力
+free -h
+kubectl describe node | grep -A 5 'Allocated resources'</code></pre>
+    <p class="why">💭 原理：OOM Killer 由核心記憶體管理子系統觸發，挑選 oom_score 最高的 process（通常是吃最多 RAM 的）終止以釋放記憶體。K8s 的 cgroup 層級 OOM 發生在 Pod 超過 memory limits 時只殺該 Pod 的 container，而節點層級 OOM 會殺任意 process。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Git stash 暫存管理：切換分支前的好幫手</h4>
+    <p>當你在分支 A 工作進行到一半，需要切到分支 B 處理事情時，git stash 暫存所有未 commit 的改動，還原乾淨工作區。git stash -u 含 untracked 檔案。回來後 git stash pop 還原最近暫存並從列表中移除。git stash list 看所有暫存（LIFO 堆疊）。stash 本質是 commit-like 物件存於 .git/refs/stash，可跨 branch 套用但可能衝突。</p>
+    <pre><code># 暫存目前改動
+# 切到緊急分支 FIX_TAG 拉最新修正
+git stash -u        # 暫存含 untracked
+git checkout FIX_TAG
+git pull
+git checkout -
+git stash pop      # 還原並移除 # 回來後還原改動
+# 查看暫存列表
+git stash list
+git stash show -p stash@{0}</code></pre>
+    <p class="why">💭 原理：stash 本質上產生一個 commit-like 物件指向 working tree 的狀態，存在 .git/refs/stash 參考的 reflog 中。stash stack 是 LIFO，最近暫存放在 stash@{0}。因為是 commit-like 物件，可以跨分支套用，但如果套用到的分支有衝突仍需要手動解決。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 Cloudflare DNS 管理：Proxy vs DNS only 模式</h4>
+    <p>Cloudflare DNS 有兩種模式：Proxy mode（橙色雲朵）流量經過 Cloudflare CDN，隱藏 origin IP 並提供免費 TLS；DNS only（灰色雲朵）直接解析到 origin IP，無 CDN 保護。用 dig +short domain.com 檢查：回傳 Cloudflare IP 表示 Proxy mode，回傳真實伺服器 IP 表示 DNS only。Cloudflare API 可程式化管理 DNS records 適合自動化部署。</p>
+    <pre><code># 檢查 DNS 解析模式
+dig +short example.com
+# 若回傳 Cloudflare IP（如 104.x.x.x / 172.x.x.x）→ Proxy mode
+# 若回傳真實 IP → DNS only
+
+# Cloudflare API 管理 DNS（需 API Token）
+curl -X GET "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" \
+  -H "Content-Type: application/json"
+
+# 新增 A record（Proxy mode）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"A","name":"www","content":"1.2.3.4","proxied":true}'</code></pre>
+    <p class="why">💭 原理：Proxy mode 下 Cloudflare 的 Anycast 網路會終止 TLS 連線，建立 CDN 到 origin 的專線（保證加密）。DNS only 純粹是 DNS 解析，請求直接到達 origin 伺服器。選擇 Proxy mode 可獲得免費 TLS + DDoS 防護，但 SSL 終止在 Cloudflare 端，origin 需信任 Cloudflare 的來源 IP 範圍。</p>
+  </article>
+
+  <hr>
+
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># kubectl Pod 排除四步驟
+kubectl get pods -n &lt;ns&gt;                          # 看狀態
+kubectl describe pod &lt;name&gt; -n &lt;ns&gt;              # 看 Events
+kubectl logs &lt;name&gt; -n &lt;ns&gt;                       # 看日誌
+kubectl get events -n &lt;ns&gt; --sort-by='.lastTimestamp'
+
+# k3s 本地匯入鏡像
+docker build -t my-app:latest .
+docker save my-app:latest > my-app.tar
+sudo k3s ctr images import my-app.tar
+
+# OOM 排查
+sudo dmesg -T | grep -i oom | tail -20
+kubectl describe pod &lt;name&gt; | grep -A 10 'Last State'
+
+# Git 暫存切換分支
+git stash -u   # 含 untracked
+git stash pop  # 還原
+git stash list # 查看
+
+# Cloudflare DNS API
+dig +short example.com    # Proxy→CF IP / DNS only→真實 IP
+curl -X GET "https://api.cloudflare.com/client/v4/zones/&lt;ZONE_ID&gt;/dns_records" \
+  -H "Authorization: Bearer &lt;API_TOKEN&gt;"
+</code></pre>
+  </div>
+
+  <footer>
+    <p>自動化 DevOps 學習筆記 · {display_date}</p>
+  </footer>
+</div>
+</body>
+</html>
