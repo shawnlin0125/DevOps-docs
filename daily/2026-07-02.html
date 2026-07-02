@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-07-02（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+    --accent-red: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.9rem; }
+  .stats { display: flex; gap: 1.5rem; margin-top: 0.8rem; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
+  h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 1rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc-title { font-weight: 600; color: var(--accent); margin-bottom: 0.5rem; font-size: 0.95rem; }
+  .toc-list { list-style: none; padding: 0; }
+  .toc-list li { margin: 0.2rem 0; }
+  .toc-list a { color: var(--accent-green); text-decoration: none; font-size: 0.88rem; }
+  .toc-list a:hover { text-decoration: underline; }
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.75rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.4rem; }
+  .kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; margin: 0.3rem 0 0.5rem; }
+  .kp-card code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.4rem; }
+  .nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .nav a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { text-decoration: underline; }
+  .cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin: 2rem 0; }
+  .cheatsheet h3 { color: var(--accent-orange); font-size: 1rem; margin-bottom: 0.6rem; }
+  .cheatsheet pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.82rem; overflow-x: auto; }
+  .alert { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; color: var(--accent-orange); }
+  footer { text-align: center; color: var(--text-secondary); font-size: 0.82rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏋️ <span>DevOps</span> 學習筆記 — 2026-07-02</h1>
+    <p class="subtitle">自主練習 · 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-num">0</span><div class="stat-label">對話</div></div>
+      <div class="stat"><span class="stat-num">5</span><div class="stat-label">知識點（自主練習）</div></div>
+    </div>
+  </header>
+
+  <div class="toc">
+    <div class="toc-title">📑 目錄</div>
+    <ul class="toc-list">
+      <li><a href="#kp1">💡 kubectl top 資源診斷：即時用量 vs Scheduler 視角</a></li>
+      <li><a href="#kp2">💡 Docker 多階段建置縮小 Image：builder → runtime 瘦身法</a></li>
+      <li><a href="#kp3">💡 Linux 資源監控三指令：uptime、free、df</a></li>
+      <li><a href="#kp4">💡 Git 復原操作：reset、restore、reflog 三種情境</a></li>
+      <li><a href="#kp5">💡 Helm 常用操作：list、history、rollback、get values</a></li>
+    </ul>
+  </div>
+
+  <hr>
+  <h2>📚 知識點</h2>
+
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl top 資源診斷：即時用量 vs Scheduler 視角</h4>
+    <p>kubectl top nodes 看節點即時 CPU/Memory 用量；kubectl top pods -A 看每個 Pod 即時用量。kubectl describe node | grep -A 8 Allocated 看 request/limit 佔比（scheduler 視角，用於容量規劃）。top 是即時實際用量（以 cgroup 為基礎），describe node Allocated 是 scheduler 看到的已分配資源佔比。兩者對比可分辨是「真的撐不住」還是「申請太多卻沒用到」。</p>
+    <pre><code># 節點即時用量
+kubectl top nodes
+
+# 各 Pod 即時用量
+kubectl top pods -A
+
+# Scheduler 視角：已分配資源佔比
+kubectl describe node <node-name> | grep -A 8 'Allocated resources'
+
+# 常用排序：看最吃資源的 Pod
+kubectl top pods -A --sort-by=cpu | tail -10
+kubectl top pods -A --sort-by=memory | tail -10</code></pre>
+    <p class="why">💭 原理：kubectl top 讀取 cgroup 的即時統計資料（cpuacct.usage、memory.usage_in_bytes），顯示 Pod 真實消耗。describe node Allocated 顯示的是 request/limit 總和，是 scheduler 決定能不能排 Pod 的依據。如果 top 低但 Allocated 高，表示 request 申請過多但實際沒用到。</p>
+  </article>
+
+  <article class="kp-card" id="kp2">
+    <h4>💡 Docker 多階段建置縮小 Image：builder → runtime 瘦身法</h4>
+    <p>Dockerfile 用多個 FROM 實現多階段建置：第一個 FROM（builder）裝所有建置工具和依賴做編譯，第二個 FROM（runtime）只複製編譯好的 artifacts，不帶建置工具。Go 可用 FROM scratch（static binary 零依賴），Node.js 用 standalone output。docker images 比較大小，可從 1GB+ 降到 100MB 以下。</p>
+    <pre><code># Dockerfile 範例（Go）
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o server .
+
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+ENTRYPOINT ["/server"]
+
+# 查看各層大小
+docker history my-app:latest
+docker images | grep my-app</code></pre>
+    <p class="why">💭 原理：Dockerfile 每個 RUN/COPY 指令產生一個唯讀層（layer），多階段把 builder 階段的層全部丟棄，只保留最後一個 FROM 建立的層。FROM scratch 空的映像檔完全不含 OS layer，適合靜態編譯語言，但需要注意 ca-certificates 和時區資料可能需要手動加入（用 FROM alpine 替代）。</p>
+  </article>
+
+  <article class="kp-card" id="kp3">
+    <h4>💡 Linux 資源監控三指令：uptime、free、df</h4>
+    <p>uptime 看 load average：三個數字分別是 1/5/15 分鐘平均。load average > 核心數表示 process 在等 CPU 時間。free -h 看記憶體：重點是 available（真正可用的記憶體，包含可回收的 cache/buffer），不是 free 欄位。df -h / 看磁碟使用率，df -i / 看 inode 使用率（大量小檔案可能 inode 先滿）。</p>
+    <pre><code># CPU 負載：load average vs CPU 核心數
+uptime
+# load average: 4.5, 3.2, 2.1  →  若 4 核心 CPU 表示目前有排隊
+nproc   # 看 CPU 核心數
+
+# 記憶體：看 available 才是真可用
+free -h
+#               total  used  free  shared  buff/cache  available
+# Mem:          7.6G   2.1G  1.2G  120M    4.3G        5.0G
+#                                      ↑ available 才是真可用 (包含可回收的 cache)
+
+# 磁碟：使用率和 inode
+df -h /
+df -i /</code></pre>
+    <p class="why">💭 原理：Linux 充分利用閒置 RAM 做 disk cache（page cache + dentry cache），所以 free 欄位通常很低但系統並不缺記憶體。available 是 kernel 估算的「在不觸發 swap 的前提下可分配給新 process 的記憶體量」，是真正的可用值。load average > 核心數意味著 CPU 有排隊，但不一定是瓶頸——可能是 I/O wait 讓 process 卡在 D 狀態。</p>
+  </article>
+
+  <article class="kp-card" id="kp4">
+    <h4>💡 Git 復原操作：reset、restore、reflog 三種情境</h4>
+    <p>git reset --soft HEAD~1 退回上一次 commit 但保留 working directory 和 staging area 的改動（可重新 commit）。git restore <file> 丟棄工作區的未暫存改動（取代舊版 git checkout -- <file>）。git reflog 看所有 HEAD 移動記錄，可用來找回誤刪的 commit（git reset --hard ORIG_HEAD 或 git cherry-pick <sha> 救回特定 commit）。</p>
+    <pre><code># 情境 1：commit 錯了但想保留改動重新 commit
+git reset --soft HEAD~1
+
+# 情境 2：丟棄工作區的修改（沒 staged 過的）
+git restore <file>
+# 或恢復整個目錄
+git restore .
+
+# 情境 3：救回誤刪的 commit（還沒被 GC）
+git reflog
+# 找到要救的 commit SHA
+git cherry-pick <sha>
+# 或直接 reset 到那個位置
+git reset --hard HEAD@{2}
+
+# 取消 staging
+git restore --staged <file></code></pre>
+    <p class="why">💭 原理：Git 是 DAG（有向無環圖）結構，commit 永遠不會消失，只是從分支（可達路徑）脫落。reflog 是本機操作日誌記錄 HEAD 指向的歷史，記錄所有分支切換、commit、reset 等操作。只要沒有被 git gc 清除（預設 90 天），commit 物件仍存在 .git/objects 中，可透過 reflog 的 SHA 找回。</p>
+  </article>
+
+  <article class="kp-card" id="kp5">
+    <h4>💡 Helm 常用操作：list、history、rollback、get values</h4>
+    <p>helm list -A 看所有 namespace 的 release（已部署應用）。helm history <release> -n <ns> 看某個 release 所有 revision 的變更記錄。helm rollback <release> <rev> -n <ns> 退回指定版本（適合快速回退）。helm get values <release> -n <ns> 看目前 release 的實際 values（用於確認部署參數）。--history-max 控制保留的 revision 數量避免 etcd 膨脹。</p>
+    <pre><code># 查看所有 release
+helm list -A
+
+# 查看特定 release 的版本歷史
+helm history my-app -n production
+
+# 退回上一版（最常見的 rollback）
+helm rollback my-app -n production
+
+# 退回指定 revision
+helm rollback my-app 3 -n production
+
+# 查看目前已部署的 values
+helm get values my-app -n production
+
+# 控制 revision 數量（安裝時設定）
+helm install my-app ./chart --history-max 5
+
+# 除錯：渲染 YAML 看最終結果
+helm template my-app ./chart -f values/production.yaml --debug</code></pre>
+    <p class="why">💭 原理：Helm 的 release 是 K8s 資源集合的快照。每次 helm upgrade 建立一個新 revision（包含當時的 manifests）。rollback 不是真的回到過去，而是部署前一個 revision 的 manifests 作為新 revision。--history-max 控制 revision 數量是因為每個 revision 的 secrets 都存於 etcd，長期累積會佔用大量 etcd 儲存空間。</p>
+  </article>
+
+  <hr>
+
+  <div class="cheatsheet">
+    <h3>🛠️ 本日指令速查表</h3>
+    <pre><code># kubectl 資源診斷
+kubectl top nodes                               # 節點即時用量
+kubectl top pods -A --sort-by=cpu | tail -10    # 最吃 CPU 的 Pod
+kubectl describe node | grep -A 8 Allocated     # 已分配資源佔比
+
+# Docker 多階段建置
+docker build -t my-app:latest .
+docker images | grep my-app                     # 檢查 image 大小
+docker history my-app:latest                    # 看各層大小
+
+# Linux 資源監控
+uptime                                          # load average
+free -h                                         # 記憶體（看 available）
+df -h /                                         # 磁碟使用率
+df -i /                                         # inode 使用率
+
+# Git 復原
+git reset --soft HEAD~1                         # 保留改動重新 commit
+git restore &lt;file&gt;                              # 丟棄未暫存改動
+git reflog                                      # 救誤刪 commit
+git cherry-pick &lt;sha&gt;                           # 救回特定 commit
+
+# Helm 操作
+helm list -A                                    # 所有 release
+helm history my-app -n production               # 版本歷史
+helm rollback my-app 3 -n production            # 退回指定版本
+helm get values my-app -n production            # 看實際 values
+helm template ./chart -f values/prod.yaml --debug  # 預覽渲染結果</code></pre>
+  </div>
+
+  <footer>
+    <p>自動化 DevOps 學習筆記 · July 02, 2026</p>
+  </footer>
+</div>
+</body>
+</html>

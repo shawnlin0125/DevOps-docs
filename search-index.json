@@ -5321,5 +5321,90 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-02-kp1",
+    "date": "2026-07-02",
+    "title": "kubectl top 資源診斷：即時用量 vs Scheduler 視角",
+    "summary": "kubectl top nodes 看節點即時 CPU/Memory 用量；kubectl top pods -A 看每個 Pod 即時用量。kubectl describe node | grep -A 8 Allocated 看 request/limit 佔比（scheduler 視角，用於容量規劃）。top 是即時實際用量（以 cgroup 為基礎），describe node Allocated 是 scheduler 看到的已分配資源佔比。兩者對比可分辨是「真的撐不住」還是「申請太多卻沒用到」。",
+    "tags": [
+      "kubectl",
+      "top",
+      "monitoring",
+      "resources",
+      "capacity",
+      "k8s",
+      "scheduler"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-02-kp2",
+    "date": "2026-07-02",
+    "title": "Docker 多階段建置縮小 Image：builder → runtime 瘦身法",
+    "summary": "Dockerfile 用多個 FROM 實現多階段建置：第一個 FROM（builder）裝所有建置工具和依賴做編譯，第二個 FROM（runtime）只複製編譯好的 artifacts，不帶建置工具。Go 可用 FROM scratch（static binary 零依賴），Node.js 用 standalone output。docker images 比較大小，可從 1GB+ 降到 100MB 以下。",
+    "tags": [
+      "Docker",
+      "multi-stage",
+      "build",
+      "scratch",
+      "image",
+      "optimization"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-02-kp3",
+    "date": "2026-07-02",
+    "title": "Linux 資源監控三指令：uptime、free、df",
+    "summary": "uptime 看 load average：三個數字分別是 1/5/15 分鐘平均。load average > 核心數表示 process 在等 CPU 時間。free -h 看記憶體：重點是 available（真正可用的記憶體，包含可回收的 cache/buffer），不是 free 欄位。df -h / 看磁碟使用率，df -i / 看 inode 使用率（大量小檔案可能 inode 先滿）。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "load average",
+      "memory",
+      "disk"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-02-kp4",
+    "date": "2026-07-02",
+    "title": "Git 復原操作：reset、restore、reflog 三種情境",
+    "summary": "git reset --soft HEAD~1 退回上一次 commit 但保留 working directory 和 staging area 的改動（可重新 commit）。git restore <file> 丟棄工作區的未暫存改動（取代舊版 git checkout -- <file>）。git reflog 看所有 HEAD 移動記錄，可用來找回誤刪的 commit。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "recovery",
+      "cherry-pick"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-02-kp5",
+    "date": "2026-07-02",
+    "title": "Helm 常用操作：list、history、rollback、get values",
+    "summary": "helm list -A 看所有 namespace 的 release。helm history <release> -n <ns> 看 release 的所有 revision 記錄。helm rollback <release> <rev> -n <ns> 退回指定版本。helm get values <release> -n <ns> 看目前 release 的實際 values。--history-max 控制保留的 revision 數量避免 etcd 膨脹。",
+    "tags": [
+      "Helm",
+      "rollback",
+      "list",
+      "history",
+      "get values",
+      "release",
+      "revision",
+      "template"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
