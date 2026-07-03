@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-07-03（自主練習）</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.6rem; color: #f0f6fc; }
+  h1 span { color: var(--accent-orange); }
+  .subtitle { color: var(--text-secondary); margin-top: 0.4rem; font-size: 0.9rem; }
+  .alert-box { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; }
+  .alert-box strong { color: var(--accent-orange); }
+
+  /* TOC */
+  .toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; }
+  .toc h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .toc ul { list-style: none; padding: 0; }
+  .toc li { margin: 0.3rem 0; }
+  .toc a { color: var(--accent-green); text-decoration: none; font-size: 0.85rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .toc-section { color: var(--accent-orange); font-weight: 600; font-size: 0.85rem; margin-top: 0.5rem; }
+
+  /* KP Cards */
+  .kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+  .kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+  .kp-card p { font-size: 0.9rem; color: var(--text); margin: 0.3rem 0; }
+  pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0; }
+  code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; color: #f0f6fc; }
+
+  /* Commands table */
+  .cmd-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+  .cmd-table th, .cmd-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; font-size: 0.85rem; }
+  .cmd-table th { background: var(--bg-card); color: var(--accent); font-weight: 600; }
+  .cmd-table code { font-size: 0.8rem; }
+  .cmd-table tr:hover { background: rgba(88,166,255,0.05); }
+
+  /* Section */
+  .section-title { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin: 1.5rem 0 0.8rem; }
+
+  /* Nav */
+  .nav-links { display: flex; justify-content: space-between; padding: 1.5rem 0; margin-top: 1rem; border-top: 1px solid var(--border); }
+  .nav-links a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  .nav-links a:hover { text-decoration: underline; }
+
+  footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏋️ DevOps 學習筆記 — <span>2026-07-03</span></h1>
+    <p class="subtitle">0 對話 · 5 知識點（自主練習）— 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。</p>
+  </header>
+
+  <div class="alert-box">
+    <strong>🏋️ 自主練習模式</strong>
+    <p>今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。涵蓋：kubectl exec Pod 內排查、systemd 服務管理、GitHub PR 流程、Helm values 分層覆蓋、網路排查四指令。</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>📑 目錄</h3>
+    <ul>
+      <li><a href="#kp1">💡 kubectl exec Pod 內排查：env、nc、resolv.conf 三招</a></li>
+      <li><a href="#kp2">💡 systemd 服務管理：systemctl、journalctl、daemon-reload 三指令</a></li>
+      <li><a href="#kp3">💡 GitHub PR 流程：gh CLI 完整操作與實用技巧</a></li>
+      <li><a href="#kp4">💡 Helm values 三層分層覆蓋：預設值 → 環境值 → CLI 覆蓋</a></li>
+      <li><a href="#kp5">💡 網路排查四指令：curl / dig / ss / nc 對應 OSI 四層</a></li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">📝 知識點</h2>
+
+  <!-- KP1 -->
+  <article class="kp-card" id="kp1">
+    <h4>💡 kubectl exec Pod 內排查：env、nc、resolv.conf 三招</h4>
+    <p>當 Pod 已經 Running 但行為異常時（連不上資料庫、DNS 解析失敗、環境變數不對），進到容器內部排查是最直接的方法。用 <code>kubectl exec</code> 開一個互動 shell 進去，然後用三招快速診斷。</p>
+    <pre><code># 進入 Pod 內部
+kubectl exec -it &lt;pod-name&gt; -n &lt;namespace&gt; -- sh
+
+# 第一招：確認環境變數
+env | grep -i &lt;KEYWORD&gt;
+
+# 第二招：測試連線
+nc -zv &lt;service-host&gt; &lt;port&gt;
+
+# 第三招：確認 DNS
+cat /etc/resolv.conf
+nslookup &lt;service-name&gt;</code></pre>
+    <p class="why">💭 原理：Pod 內的網路命名空間與 host 隔離，從外部用 curl/dig 測不到 Pod 的 /etc/resolv.conf 和環境變數。exec 進 Pod 等同於在容器內操作，能驗證 Service Discovery、環境配置和 network policy 是否正確。nc -zv 的 -z 模式只測連線不發資料，適合快速健康檢查。</p>
+  </article>
+
+  <!-- KP2 -->
+  <article class="kp-card" id="kp2">
+    <h4>💡 systemd 服務管理：systemctl、journalctl、daemon-reload 三指令</h4>
+    <p>Linux 系統服務由 systemd 管理，三個指令涵蓋 90% 的日常維運需求：看失敗服務、查日誌、重載設定。</p>
+    <pre><code># 查看所有失敗的服務
+systemctl list-units --state=failed
+
+# 查看特定服務的最近日誌
+journalctl -u &lt;service-name&gt; -n 50 --no-pager
+
+# 即時追蹤服務日誌（類似 tail -f）
+journalctl -u &lt;service-name&gt; -f
+
+# 修改 unit file 後重載設定
+systemctl daemon-reload
+
+# 查看服務狀態與最近日誌
+systemctl status &lt;service-name&gt;</code></pre>
+    <p class="why">💭 原理：systemd 是所有服務的 init 系統（PID 1），服務用 unit file 描述。修改 unit file 後必須 daemon-reload 讓 systemd 重新讀取，否則 restart 仍用舊設定。journalctl 讀取 binary journal（/var/log/journal/），比文字 log 更省空間且支援 structured metadata（_PID、_COMM 等過濾器）。</p>
+  </article>
+
+  <!-- KP3 -->
+  <article class="kp-card" id="kp3">
+    <h4>💡 GitHub PR 流程：gh CLI 完整操作與實用技巧</h4>
+    <p>GitHub CLI（gh）讓 PR 流程全在 terminal 完成，不用開瀏覽器。從開分支、創建 PR、到 merge 清理，一條龍。</p>
+    <pre><code># 完整 PR 流程
+git checkout -b feature/my-feature
+git add . && git commit -m "feat: add new feature"
+git push -u origin feature/my-feature
+gh pr create --title "feat: add new feature" --body "What this PR does..." --reviewer @username
+
+# 查看 PR 列表
+gh pr list --state open
+
+# 查看 PR diff
+gh pr diff &lt;number&gt;
+
+# Merge（squash 保持歷史乾淨）
+gh pr merge &lt;number&gt; --squash --delete-branch
+
+# 切到 PR 的本機 branch 做 review
+gh pr checkout &lt;number&gt;</code></pre>
+    <p class="why">💭 原理：gh CLI 用 GitHub REST API / GraphQL 操作 PR，但 git push 仍用 git protocol。gh pr create 會自動從當前 branch 建立 PR，--fill 可從 commit message 填充 title/body。gh pr checkout 自動建立 local tracking branch，無需手動 git fetch + checkout。merge --squash 把 PR 的所有 commits 壓成一個，保持 main 歷史線性。</p>
+  </article>
+
+  <!-- KP4 -->
+  <article class="kp-card" id="kp4">
+    <h4>💡 Helm values 三層分層覆蓋：預設值 → 環境值 → CLI 覆蓋</h4>
+    <p>Helm values 有三層覆蓋機制，後面的層級 merge 覆蓋前面的同名 key。善用這個機制可以讓同一個 chart 部署到不同環境。</p>
+    <pre><code># 三層架構
+# Layer 1（最底層，chart 內建預設值）
+cat chart/values.yaml
+
+# Layer 2（環境特定覆蓋）
+helm install my-release ./chart -f values/production.yaml
+
+# Layer 3（CLI 即時覆蓋，最高優先）
+helm install my-release ./chart \
+  -f values/production.yaml \
+  --set image.tag=v1.2.3 \
+  --set replicaCount=5
+
+# 驗證渲染結果（不實際安裝）
+helm template my-release ./chart \
+  -f values/production.yaml \
+  --set image.tag=v1.2.3 \
+  --debug</code></pre>
+    <p class="why">💭 原理：Helm 用 Go template 引擎將 values 填入 template。--set 的 key 用 a.b.c 路徑語法（如 image.tag），Helm 會自動建立 nested map。--set 很方便但 typo 不報錯（因為 Go template 的 default 函式會補空值），建議先用 helm template --debug 驗證再安裝。後層 merge 是同層覆蓋，不是 deep merge。</p>
+  </article>
+
+  <!-- KP5 -->
+  <article class="kp-card" id="kp5">
+    <h4>💡 網路排查四指令：curl / dig / ss / nc 對應 OSI 四層</h4>
+    <p>網路問題從應用層到實體層都有，四個指令分別對應 OSI 不同層次，從上到下逐一排除。</p>
+    <pre><code># 應用層（L7）：看完整 HTTP 請求和回應
+curl -v http://example.com
+
+# DNS 層（L7 DNS）：查詢 DNS 解析
+dig +short example.com
+nslookup example.com
+
+# 傳輸層（L4）：看 listening port 與 process
+ss -tlnp
+
+# 傳輸層連線測試（L4）：測 TCP port 通不通
+nc -zv example.com 443
+
+# 完整路徑：從 URL 開始測
+curl -v https://my-service.example.com/api/health \
+  && dig +short my-service.example.com \
+  && nc -zv my-service.example.com 443</code></pre>
+    <p class="why">💭 原理：curl -v 顯示 SSL 握手、request header、response header，看 HTTP status code 和 TLS 憑證問題。dig +short 跳過冗餘訊息只回 IP。ss 取代老舊的 netstat，-tlnp = TCP、Listening、Numeric、Process（需 sudo）。nc -zv 的 zero-I/O 模式只做 TCP handshake 就斷開，純測連線不發 payload。</p>
+  </article>
+
+  <!-- Commands -->
+  <h2 class="section-title">🛠️ 本日指令速查表</h2>
+  <table class="cmd-table">
+    <thead>
+      <tr><th>類別</th><th>指令</th><th>用途</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>kubectl exec</td><td><code>kubectl exec -it &lt;pod&gt; -n &lt;ns&gt; -- sh</code></td><td>進 Pod 互動排查</td></tr>
+      <tr><td>systemd</td><td><code>systemctl list-units --state=failed</code></td><td>查看失敗服務</td></tr>
+      <tr><td>systemd</td><td><code>journalctl -u &lt;svc&gt; -n 50 --no-pager</code></td><td>服務最近日誌</td></tr>
+      <tr><td>GitHub</td><td><code>gh pr create --title "..." --body "..."</code></td><td>創建 PR</td></tr>
+      <tr><td>GitHub</td><td><code>gh pr merge &lt;num&gt; --squash --delete-branch</code></td><td>合併 PR</td></tr>
+      <tr><td>Helm</td><td><code>helm template --debug -f values.yaml</code></td><td>驗證 values 渲染</td></tr>
+      <tr><td>網路</td><td><code>curl -v https://host</code></td><td>L7 HTTP/HTTPS 診斷</td></tr>
+      <tr><td>網路</td><td><code>dig +short host</code></td><td>DNS 查詢</td></tr>
+      <tr><td>網路</td><td><code>ss -tlnp</code></td><td>Listenting port 檢查</td></tr>
+      <tr><td>網路</td><td><code>nc -zv host port</code></td><td>TCP 連線測試</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Nav -->
+  <div class="nav-links">
+    <a href="2026-07-02.html">← 07/02</a>
+    <a href="../index.html">📋 回到首頁</a>
+    <a href="2026-07-04.html">07/04 →</a>
+  </div>
+
+  <footer>
+    <p>Shawn's DevOps Lab · 每日學習筆記 · 2026-07-03</p>
+  </footer>
+</div>
+</body>
+</html>

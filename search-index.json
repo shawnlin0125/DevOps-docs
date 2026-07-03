@@ -5406,5 +5406,87 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-03-kp1",
+    "date": "2026-07-03",
+    "title": "kubectl exec Pod 內排查：env、nc、resolv.conf 三招",
+    "summary": "進到 Pod 內部用 kubectl exec -it 排查環境變數、網路連線和 DNS 設定，透過 env/nc/resolv.conf 三指令快速診斷容器行為異常。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "nc",
+      "env",
+      "dns"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-03-kp2",
+    "date": "2026-07-03",
+    "title": "systemd 服務管理三指令：systemctl、journalctl、daemon-reload",
+    "summary": "Linux systemd 三大日常管理指令：systemctl list-units --state=failed 看失敗服務、journalctl -u 查服務日誌、daemon-reload 重載 unit file 設定。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "daemon-reload",
+      "linux",
+      "service"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-03-kp3",
+    "date": "2026-07-03",
+    "title": "GitHub PR 流程：gh CLI 完整操作與實用技巧",
+    "summary": "gh CLI 實現 terminal 內 PR 全流程：git checkout -b → gh pr create → gh pr merge --squash --delete-branch，以及 gh pr list/diff/checkout 實用工具。",
+    "tags": [
+      "github",
+      "gh",
+      "PR",
+      "merge",
+      "squash",
+      "cli"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-03-kp4",
+    "date": "2026-07-03",
+    "title": "Helm values 三層分層覆蓋：預設值 → 環境值 → CLI 覆蓋",
+    "summary": "Helm values.yaml（chart 預設）← -f values/prod.yaml（環境覆蓋）← --set key=value（最高優先）。使用 helm template --debug 驗證渲染結果避免 typo 錯誤。",
+    "tags": [
+      "helm",
+      "values",
+      "override",
+      "template",
+      "config"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-03-kp5",
+    "date": "2026-07-03",
+    "title": "網路排查四指令：curl / dig / ss / nc 對應 OSI 四層",
+    "summary": "四個指令從應用層到傳輸層逐一排除網路問題：curl -v（L7 HTTP）、dig +short（DNS）、ss -tlnp（L4 listening port）、nc -zv（L4 連線測試）。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "troubleshooting",
+      "dns",
+      "tcp"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
