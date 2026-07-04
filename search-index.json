@@ -5488,5 +5488,90 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-04-kp1",
+    "date": "2026-07-04",
+    "title": "kubectl 診斷 Pod 啟動失敗的四步驟流程",
+    "summary": "Pod 啟動失敗時依序使用四指令：<code>kubectl get pods</code> 看整體狀態 → <code>kubectl describe pod &lt;name&gt;</code> 看 Events 和條件 → <code>kubectl logs &lt;name&gt;</code> 看容器輸出 → <code>kubectl get events</code> 看叢集層級事件。從 Status 欄位判斷類型：ImagePullBackOff（鏡像名稱錯誤或 registry 認證）、CrashLoopBackOff（容器啟動後 crash 不斷重啟）、OOMKilled（超過記憶體 limits）或 Pending（CPU/記憶體資源不足無法排程）。",
+    "tags": [
+      "kubectl",
+      "pod",
+      "debug",
+      "troubleshooting",
+      "logs",
+      "events",
+      "k8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-04-kp2",
+    "date": "2026-07-04",
+    "title": "k3s containerd 鏡像管理完整流程：離線部署",
+    "summary": "k3s 使用 containerd 而非 Docker daemon，離線部署流程：開發機上 <code>docker build -t img:tag .</code> → <code>docker save img:tag &gt; img.tar</code> → 傳到 k3s 節點 → <code>sudo k3s ctr images import img.tar</code> → <code>kubectl apply -f deploy.yaml</code>。部署 YAML 需設 <code>imagePullPolicy: Never</code>，否則 kubelet 會嘗試從遠端 registry 拉取（pull timeout 後失敗）。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "image",
+      "deploy",
+      "imagePullPolicy",
+      "k8s"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-04-kp3",
+    "date": "2026-07-04",
+    "title": "OOM Killer 診斷：dmesg + exit code 137 判別法",
+    "summary": "當 Pod 或 process 被 OOM Killer 終止時，用 <code>sudo dmesg -T | grep -i oom</code> 查看核心 OOM 記錄，包含被殺的 process 名稱、pid、oom_score 以及當時記憶體使用量。exit code 137（128 + 9 SIGKILL）表示 process 被 OOM Killer 殺死。K8s 中 <code>kubectl describe pod</code> 的 <code>Last State: OOMKilled</code> 是 cgroup 層級 OOM，由 K8s memory limits 觸發。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "SIGKILL",
+      "memory",
+      "k8s",
+      "Linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-04-kp4",
+    "date": "2026-07-04",
+    "title": "Git stash 暫存管理：切換分支前的安全網",
+    "summary": "當你在分支 A 工作到一半需要切到分支 B 時，<code>git stash</code> 暫存所有未 commit 的改動（含 staged 和 unstaged），還原乾淨工作區。<code>git stash -u</code> 額外含 untracked 檔案。完成 B 的工作後，<code>git stash pop</code> 還原最近的暫存。<code>git stash list</code> 查看所有暫存（LIFO 堆疊）。<code>git stash drop</code> 丟棄特定暫存，<code>git stash show -p</code> 看暫存內容。",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "LIFO",
+      "temporary"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-04-kp5",
+    "date": "2026-07-04",
+    "title": "Cloudflare DNS 管理：Proxy Mode vs DNS Only",
+    "summary": "Cloudflare DNS 有兩種模式：Proxy mode（橙色雲朵）流量經過 Cloudflare 全球 CDN，隱藏 origin IP 地址並提供免費 TLS 終止、DDoS 防護和快取加速；DNS only（灰色雲朵）直接解析到 origin IP，無 CDN 保護。用 <code>dig +short example.com</code> 檢查：回傳 Cloudflare IP 表示 Proxy mode，回傳真實伺服器 IP 表示 DNS only。可透過 Cloudflare API 程式化管理 DNS records，適合基礎設施即程式碼的自動化部署流程。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "CDN",
+      "TLS",
+      "API",
+      "dig",
+      "network"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]

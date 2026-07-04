@@ -79,8 +79,8 @@
     <h1>⚡ Shawn's <span>DevOps Lab</span></h1>
     <p class="subtitle">每日學習筆記 — 從真實專案中學 DevOps：k3s · Kubernetes · CI/CD · 監控 · GitOps</p>
     <div class="stats">
-      <div class="stat"><span class="stat-num" id="stat-days">54</span><div class="stat-label">學習天數</div></div>
-      <div class="stat"><span class="stat-num" id="stat-kps">353</span><div class="stat-label">知識點</div></div>
+      <div class="stat"><span class="stat-num" id="stat-days">55</span><div class="stat-label">學習天數</div></div>
+      <div class="stat"><span class="stat-num" id="stat-kps">358</span><div class="stat-label">知識點</div></div>
     </div>
   </header>
 
@@ -115,6 +115,14 @@
 
     <div class="year-section">
       <div class="year-title">📅 2026 年 7 月</div>
+      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+        <span class="date-badge">🏋️ 07/04</span>
+        <a href="daily/2026-07-04.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
+        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、k3s containerd 離線鏡像管理完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
+        <div class="day-topics">
+          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+        </div>
+      </div>
       <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
         <span class="date-badge">🏋️ 07/03</span>
         <a href="daily/2026-07-03.html">自主練習：kubectl exec Pod 內排查、systemd 服務管理、GitHub PR 流程、Helm values 分層覆蓋、網路排查四指令</a>
