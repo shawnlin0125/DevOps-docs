@@ -1,683 +1,501 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shawn's DevOps Lab — 每日學習筆記</title>
-<style>
-  :root {
-    --bg: #0d1117;
-    --bg-card: #161b22;
-    --border: #30363d;
-    --text: #c9d1d9;
-    --text-dim: #8b949e;
-    --accent: #58a6ff;
-    --accent-green: #3fb950;
-    --accent-orange: #d2991d;
-    --accent-red: #f85149;
-    --accent-purple: #a371f7;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
-  h1 { font-size: 1.8rem; color: #f0f6fc; }
-  h1 span { color: var(--accent); }
-  .subtitle { color: var(--text-dim); margin-top: 0.4rem; font-size: 0.95rem; }
-  .stats { display: flex; gap: 1.5rem; margin-top: 1rem; }
-  .stat { text-align: center; }
-  .stat-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-  .stat-label { font-size: 0.8rem; color: var(--text-dim); }
-
-  /* Search */
-  .search-wrap { margin-bottom: 1.5rem; }
-  .search-box {
-    width: 100%; padding: 0.75rem 1rem; font-size: 1rem;
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); outline: none; transition: border-color 0.2s;
-    font-family: inherit;
-  }
-  .search-box:focus { border-color: var(--accent); }
-  .search-box::placeholder { color: var(--text-dim); }
-  .search-hint { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.4rem; }
-
-  /* Year section */
-  .year-section { margin-bottom: 2rem; }
-  .year-title { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 1rem; }
-
-  /* Day cards */
-  .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 0.8rem; transition: border-color 0.2s; }
-  .day-card:hover { border-color: var(--accent); }
-  .day-card a { color: var(--accent); text-decoration: none; font-size: 1.1rem; font-weight: 600; }
-  .day-card a:hover { text-decoration: underline; }
-  .day-meta { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
-  .day-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
-  .tag { font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); white-space: nowrap; }
-  .date-badge { color: var(--accent-green); font-weight: 600; font-size: 0.9rem; }
-
-  /* KP search results */
-  .kp-result {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.9rem 1.2rem; margin-bottom: 0.5rem; transition: border-color 0.2s;
-    cursor: pointer;
-  }
-  .kp-result:hover { border-color: var(--accent); }
-  .kp-result a { color: var(--accent-green); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-  .kp-result a:hover { text-decoration: underline; }
-  .kp-summary { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.2rem; }
-  .kp-meta { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.4rem; font-size: 0.78rem; color: var(--text-dim); }
-  .kp-date { color: var(--accent-purple); }
-  .no-results { text-align: center; color: var(--text-dim); padding: 2rem 0; }
-  .result-count { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.8rem; }
-
-  footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; text-align: center; }
-</style>
-</head>
-<body>
-<div class="container">
-  <header>
-    <h1>⚡ Shawn's <span>DevOps Lab</span></h1>
-    <p class="subtitle">每日學習筆記 — 從真實專案中學 DevOps：k3s · Kubernetes · CI/CD · 監控 · GitOps</p>
-    <div class="stats">
-      <div class="stat"><span class="stat-num" id="stat-days">55</span><div class="stat-label">學習天數</div></div>
-      <div class="stat"><span class="stat-num" id="stat-kps">358</span><div class="stat-label">知識點</div></div>
-    </div>
-  </header>
-
-  <!-- Search -->
-  <div class="search-wrap">
-    <input type="text" class="search-box" id="searchInput"
-      placeholder="搜尋知識點…（例如：kubectl、OOM Killer、ConfigMap、資源評估、Helm）"
-      autocomplete="off">
-    <p class="search-hint">💡 支援模糊搜尋：多個關鍵字用空白分隔，會找出同時包含所有關鍵字的知識點</p>
-  </div>
-
-  <!-- Search results (hidden by default) -->
-  <div id="searchResults" style="display:none;">
-    <p class="result-count" id="resultCount"></p>
-    <div id="resultList"></div>
-    <p class="no-results" id="noResults" style="display:none;">沒有找到相關知識點，試試其他關鍵字？</p>
-  </div>
-
-  <!-- Day cards (hidden when searching) -->
-  <div id="dayCards">
-    <div class="year-section">
-      <div class="year-title">📖 完整回顧</div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.4); background: rgba(163,113,247,0.05);">
-        <span class="date-badge">📖 總覽</span>
-        <a href="retrospective.html">從 Zero 到 Hero — DevOps 全記錄 (05.10–05.13)</a>
-        <div class="day-meta">從裸機 PM2 部署、Docker 容器化、K3s 遷移、微服務架構、監控告警、到 GitOps 的完整旅程</div>
-        <div class="day-topics">
-          <span class="tag">K3s</span><span class="tag">Docker</span><span class="tag">Helm</span><span class="tag">ArgoCD</span><span class="tag">Prometheus</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="year-section">
-      <div class="year-title">📅 2026 年 7 月</div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 07/04</span>
-        <a href="daily/2026-07-04.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、k3s containerd 離線鏡像管理完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 07/03</span>
-        <a href="daily/2026-07-03.html">自主練習：kubectl exec Pod 內排查、systemd 服務管理、GitHub PR 流程、Helm values 分層覆蓋、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">nc</span> <span class="tag">env</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">squash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 07/02</span>
-        <a href="daily/2026-07-02.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、Linux 資源監控、Git 復原操作、Helm 常用操作</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量 vs scheduler 視角（top 看實際 cgroup 用量，Allocated 看 request/limit 佔比）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 FROM 獨立階段，builder 層建置完丟棄）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體（cache 可回收所以 free 低不代表不夠）、df -h 磁碟 + df -i inode 監控、git reset --soft HEAD~1 保留改動重新 commit、git restore 丟棄未暫存改動、git reflog 救回誤刪 commit、helm list -A/history/rollback/get values 版本生命週期管理與 --history-max 控制 revision 數量避免 etcd 膨脹</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">capacity</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span> <span class="tag">values</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 07/01</span>
-        <a href="daily/2026-07-01.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、k3s containerd 離線鏡像管理完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-    </div>
-    <div class="year-section">
-      <div class="year-title">📅 2026 年 6 月</div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/30</span>
-        <a href="daily/2026-06-30.html">自主練習：kubectl exec Pod 內排查、Docker 多階段建置、Linux 資源監控、GitHub PR 流程、Helm 常用操作</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 容器內互動排查（env/nc/resolv.conf 三招）、Docker multi-stage build builder→scratch/scratch 瘦身（每個 FROM 獨立階段，builder 層建置完丟棄）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h / 磁碟監控、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、helm list -A/history/rollback/get values 版本生命週期管理與 --history-max 控制 revision 數量</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">nc</span> <span class="tag">env</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">squash</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span> <span class="tag">values</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06-29</span>
-        <a href="daily/2026-06-29.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top 資源診斷：即時用量 vs Scheduler 視角（kubectl top nodes/pods 即時用量 vs describe node Allocated scheduler 視角對比）、k3s containerd 鏡像離線部署完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values 三層分層覆蓋（values.yaml ← values/prod.yaml ← --set）與 helm template --debug 驗證、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/27</span>
-        <a href="daily/2026-06-27.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、Docker multi-stage build FROM builder→FROM scratch 瘦身法（編譯工具建置完丟棄）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/26</span>
-        <a href="daily/2026-06-26.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Git stash 暫存管理、Helm 生命週期管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h/i 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、git stash -u 暫存含 untracked 檔案（LIFO stash stack 原理）、helm list -A/history/rollback/get values 版本生命週期管理與 helm template --debug 除錯</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/24</span>
-        <a href="daily/2026-06-24.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量 vs scheduler 視角（top 看實際用量，Allocated 看 request/limit 佔比）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 FROM 是獨立階段，builder 層建置完丟棄）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯（--set typo 不報錯的陷阱）、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/25</span>
-        <a href="daily/2026-06-25.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、docker build/save/ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 PR 流程、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/23</span>
-        <a href="daily/2026-06-23.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Git stash 暫存管理、Helm 生命週期管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h/i 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、git stash -u 暫存含 untracked 檔案（LIFO stash stack 原理）、helm list -A/history/rollback/get values 版本生命週期管理與 helm template --debug 除錯</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/22</span>
-        <a href="daily/2026-06-22.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、docker build/save/ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Cloudflare Proxy vs DNS only 模式差異與 API 管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/21</span>
-        <a href="daily/2026-06-21.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷（即時用量 vs scheduler 視角）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 RUN/COPY 一層）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/20</span>
-        <a href="daily/2026-06-20.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Helm values 分層覆蓋、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h / + df -i / 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯、curl -v/dig +short/ss -tlnp/nc -zv 四指令對應 OSI 四層網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">restore</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/19</span>
-        <a href="daily/2026-06-19.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判讀）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 RUN/COPY 一層，builder 層建置完丟棄）、sudo dmesg -T OOM Killer 核心紀錄 + exit code 137 SIGKILL 判斷（K8s cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Cloudflare Proxy vs DNS only 模式差異與 API 管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/18</span>
-        <a href="daily/2026-06-18.html">kubectl 資源診斷（top + Allocated）、k3s containerd 鏡像管理、systemd 服務管理、Git stash 暫存管理、Helm 生命週期管理</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷（即時用量 vs scheduler 視角）、docker build/save/k3s ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、systemctl list-units --state=failed + journalctl -u 服務日誌管理、git stash push -u/list/pop/apply/drop LIFO 暫存管理（stash 本質是 commit-like 物件存在 .git/refs/stash）、helm list -A/history/rollback/get values 版本生命週期管理與 --reuse-values</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">values</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/16</span>
-        <a href="daily/2026-06-16.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判讀）、Docker multi-stage build 從 builder 到 scratch 瘦身與 docker image history、sudo dmesg -T OOM Killer 紀錄 + exit code 137 判斷、gh pr create/merge --squash 完整 CLI 流程與 gh pr checkout、Cloudflare API DNS record 管理與 Proxy/DNS only 模式差異</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/17</span>
-        <a href="daily/2026-06-17.html">kubectl exec 進 Pod 內排查、Git 復原操作：reset / restore / reflog、Helm values 分層覆蓋與 --set 陷阱、Linux 資源監控三指令：uptime / free / df、網路排查四指令：curl / dig / ss / nc</a>
-        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 進容器互動、git reset --soft HEAD~1 退回 commit 保留 staged、git restore <file> 丟棄工作區改動、git reflog 看所有 HEAD 移動記錄救回誤刪 commit、Helm 三層值覆蓋：values.yaml（預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）、uptime 的 load average > CPU 核心數表示 CPU 排隊、四指令對應 OSI 四層：curl -v 看完整 HTTP/HTTPS 流程與 SSL 握手、dig +short 快速 DNS 解析、ss -tlnp 看 listening port 與所屬 process（取代 netstat）、nc -zv host port 測試 TCP 連線</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/15</span>
-        <a href="daily/2026-06-15.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、Git stash 暫存管理、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量與已分配資源視角、docker build/save/k3s ctr import 鏡像部署完整流程搭配 imagePullPolicy: Never、systemctl list-units --state=failed + journalctl -u 服務日誌管理、git stash -u/push/list/pop/apply LIFO 暫存管理、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/14</span>
-        <a href="daily/2026-06-14.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、Linux 資源監控、GitHub PR 流程、Helm 生命週期管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判斷）、Docker multi-stage build 從 builder 到 scratch 瘦身、uptime/free/df 三指令（load average vs 核心數 / available 才是真可用 / df -i inode 檢查）、gh pr create/merge --squash 完整 CLI 流程、helm list/history/rollback/get values 版本生命週期管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/13</span>
-        <a href="daily/2026-06-13.html">自主練習：kubectl exec Pod 內排查、OOM Killer 診斷、Git 復原操作、Cloudflare DNS 管理、Helm values 分層覆蓋</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl exec 容器內 nc/dns/env 診斷三招、dmesg OOM Killer + exit code 137 判別、git reset/restore/reflog 三種復原操作、Cloudflare Proxy vs DNS only API 管理差異、Helm values 三層覆蓋與 --set typo 陷阱</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">restore</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">trap</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/12</span>
-        <a href="daily/2026-06-12.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、網路排查四指令、Helm 生命週期管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷、docker build/save/k3s ctr import 鏡像部署完整流程、systemctl list-units --state=failed + journalctl -u 服務日誌管理、curl/dig/ss/nc 四指令對應 OSI 四層網路排查、helm list/history/rollback/get values 生命週期管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/11</span>
-        <a href="daily/2026-06-11.html">自主練習：Linux 資源監控、Cloudflare DNS 管理、Git stash 暫存、Docker 多階段建置、Helm values 分層覆蓋</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 uptime load average 解讀、free -h available 正確用法、df -h 磁碟監控門檻、Cloudflare Proxy vs DNS only 模式比較與 API 管理、git stash push/list/pop/apply/drop LIFO 暫存管理、Docker multi-stage build 從 builder 到 scratch 瘦身、Helm values 三層覆蓋與 helm template --debug 除錯</div>
-        <div class="day-topics">
-          <span class="tag">Linux</span> <span class="tag">監控</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/10</span>
-        <a href="daily/2026-06-10.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Helm values 分層覆蓋</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟排查 Pod 啟動失敗、Dockerfile multi-stage build 從 builder 到 scratch 瘦身過程、dmesg -T OOM Killer 診斷與 K8s OOMKilled exit code 137 判別、gh pr create/merge --squash PR 全流程 CLI 操作、Helm values.yaml ← values/prod.yaml ← --set 三層覆蓋原則</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/09</span>
-        <a href="daily/2026-06-09.html">自主練習：kubectl 資源使用診斷、kubectl exec Pod 內排查、systemd 服務管理、Git 復原操作、Helm 常用操作</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top + describe node Allocated 資源視角差異、kubectl exec 容器內 env/nc/resolv.conf 診斷三招、systemctl list-units --state=failed 與 journalctl 服務健康檢查、git reset --soft/restore/reflog 三種復原情境、helm list/history/rollback/get values 生命週期管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/08</span>
-        <a href="daily/2026-06-08.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、Git stash 暫存管理、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 失敗、Docker multi-stage build 瘦身（FROM scratch/alpine）、dmesg -T OOM Killer 查詢與 K8s 連鎖 OOM 原理、git stash push/list/pop/apply/drop LIFO 暫存管理、curl/dig/ss/nc 四指令網路排查對應 OSI 四層</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/07</span>
-        <a href="daily/2026-06-07.html">自主練習：kubectl Pod 診斷流程、GitHub PR 流程、Cloudflare DNS 管理、Docker 多階段建置、Helm values 分層覆蓋</a>
-        <div class="day-meta">0 對話 · 5 知識點（含 5 自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟 Pod 診斷、gh CLI 完整 PR 流程（create/merge --squash）、Cloudflare Proxy vs DNS only 模式與 API 管理、Docker multi-stage build 瘦身與 scratch/alpine runtime、Helm values 三層覆蓋原則與 helm template 除錯</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">gh</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.03);">
-        <span class="date-badge">📅 06/06</span>
-        <a href="daily/2026-06-06.html">伺服器資訊診斷：IP 地理定位、雲端廠商判斷、系統資訊查詢</a>
-        <div class="day-meta">1 對話 · 10 知識點（含 4 補充）— 涵蓋 curl ifconfig.me/ipinfo.io/ipapi.co IP 查詢三部曲、OS 版本/核心/主機名稱查詢、Tencent Cloud 命名慣例與 IP 區段判斷、Git stash 暫存管理、Helm values 分層覆蓋、kubectl top/describe node 資源診斷、systemctl + journalctl 服務管理</div>
-        <div class="day-topics">
-          <span class="tag">IP</span> <span class="tag">curl</span> <span class="tag">geolocation</span> <span class="tag">Tencent Cloud</span> <span class="tag">Linux</span> <span class="tag">OS</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">systemd</span> <span class="tag">journalctl</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/05</span>
-        <a href="daily/2026-06-05.html">自主練習：kubectl exec Pod 內排查、k3s containerd 鏡像管理、Linux 資源監控、Git 復原操作、Helm 生命週期管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl exec -it 容器內診斷、docker build/save/k3s ctr import 部署流程、uptime/free/df 資源監控三指令、git reset/restore/reflog 三種復原、helm list/history/rollback/get values 版本管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/04</span>
-        <a href="daily/2026-06-04.html">自主練習：Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Helm values 分層、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 multi-stage build 縮小 image、systemctl + journalctl 服務管理、gh pr create/merge 流程、Helm values.yaml ← 環境.yaml ← --set 覆蓋順序、Cloudflare Proxy vs DNS only 模式與 API 管理</div>
-        <div class="day-topics">
-          <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">systemd</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/03</span>
-        <a href="daily/2026-06-03.html">自主練習：kubectl Pod 診斷、k3s containerd 鏡像管理、OOM 紀錄、Git stash、網路排查指令</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl describe/logs/events 四步驟診斷、k3s ctr images import pipeline、dmesg OOM Killer 查詢、git stash push/pop/list LIFO 暫存、curl/dig/ss/nc 四指令網路排查</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">OOM</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.03);">
-        <span class="date-badge">📅 06/02</span>
-        <a href="daily/2026-06-02.html">k3s 部署 Pipeline 除錯 · Hermes Cron 排程 · TWSE 掃描器維運</a>
-        <div class="day-meta">1 對話 · 12 知識點 — 涵蓋 k3s clean rebuild + timestamp tag 繞過 digest 快取、containerd 鏡像匯入與 namespace 陷阱、deploy 前資料保留、imagePullPolicy: Never 行為、Hermes cron 120s timeout、實體複製腳本、/tmp/ status file 輪詢、MACD 五處同步、post-deploy chunk 驗證</div>
-        <div class="day-topics">
-          <span class="tag">k3s</span> <span class="tag">Docker</span> <span class="tag">containerd</span> <span class="tag">deploy</span> <span class="tag">cron</span> <span class="tag">Hermes</span> <span class="tag">timeout</span> <span class="tag">Next.js</span> <span class="tag">MACD</span> <span class="tag">verification</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 06/01</span>
-        <a href="daily/2026-06-01.html">自主練習：kubectl 資源診斷、Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top + describe node Allocated 資源診斷、Docker multi-stage build 瘦身、systemctl + journalctl 服務管理、gh pr create/merge 流程、Cloudflare Proxy vs DNS only 模式切換</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">systemd</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="year-section">
-      <div class="year-title">📅 2026 年 5 月</div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/31</span>
-        <a href="daily/2026-05-31.html">自主練習：kubectl Pod 診斷流程、Linux 資源監控、Git 復原操作、Helm 生命週期管理、k3s containerd 鏡像管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷、uptime/free/df 資源監控、git reset/restore/reflog 復原、helm list/history/rollback/get values 生命週期、docker build/save/k3s ctr import 鏡像管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">Git</span> <span class="tag">Helm</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/30</span>
-        <a href="daily/2026-05-30.html">自主練習：kubectl exec Pod 內排查、OOM Killer 診斷、Git stash 暫存管理、Helm values 分層覆蓋、網路排查四指令</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl exec 容器內排查、dmesg OOM 診斷、git stash push/pop/list、Helm values 分層 + --set 陷阱、curl/dig/ss/nc 網路診斷四指令</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">OOM</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/29</span>
-        <a href="daily/2026-05-29.html">自主練習：kubectl 資源診斷、Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top/describe Allocated 診斷、Docker multi-stage build 縮小 image、systemctl + journalctl 服務管理、gh pr create/merge 流程、Cloudflare Proxy vs DNS only</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">systemd</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/28</span>
-        <a href="daily/2026-05-28.html">Vendor Plugins MVP 基礎設施建置 · Cloudflare 連線診斷 · ArgoCD 存取 · CI/CD Pipeline</a>
-        <div class="day-meta">3 對話 · 10 知識點 — 涵蓋 Helm values 分層覆蓋、GitHub Actions CI Gate 三階段、Dockerfile --user 路徑陷阱、Python module mode 相對匯入、Helm Ingress template、scan-and-sync 自動部署、curl HTTPS 診斷、Cloudflare Proxy Connection reset 排查、kubectl describe ingress 診斷、K8s Secret base64 解碼</div>
-        <div class="day-topics">
-          <span class="tag">Helm</span> <span class="tag">ArgoCD</span> <span class="tag">GitHub Actions</span> <span class="tag">Docker</span> <span class="tag">Ingress</span> <span class="tag">Cloudflare</span> <span class="tag">kubectl</span> <span class="tag">Secret</span> <span class="tag">CI/CD</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/27</span>
-        <a href="daily/2026-05-27.html">k3s 部署流程 · TWSE 單位陷阱 · Cron timeout · 緊急熱修復 · Cloudflare CDN 快取</a>
-        <div class="day-meta">4 對話 · 12 知識點 — 涵蓋 k3s containerd 部署四步驟、timestamp tag 繞過 imagePullPolicy 緩存、TWSE TradeVolume 股 vs 張單位陷阱、kubectl exec tee 熱修復、Hermes cron 120s timeout 與 agent mode、broken symlink 排查、資料源更新時間排程設計、Cloudflare CDN 快取繞過驗證、Pod hotfix ephemeral 特性</div>
-        <div class="day-topics">
-          <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">kubectl</span> <span class="tag">cron</span> <span class="tag">Cloudflare</span> <span class="tag">CDN</span> <span class="tag">hotfix</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/26</span>
-        <a href="daily/2026-05-26.html">伺服器端全市場掃描系統部署：hostPath 動態檔案、API rate limit 遷移、長時間腳本監控、CronJob 解耦、崩潰恢復、資源管理</a>
-        <div class="day-meta">1 對話 · 10 知識點 — 涵蓋 hostPath volume 動態檔案服務、FinMind→TWSE API 遷移策略、STOCK_DAY_ALL 批次查詢、進度監控 /tmp/scan-status.json、CronJob symlink 解耦、DirectoryOrCreate 防呆、Python stdout 緩衝、中繼檔案崩潰恢復、資源 requests/limits 權衡、liveness/readiness 參數設計</div>
-        <div class="day-topics">
-          <span class="tag">k3s</span> <span class="tag">hostPath</span> <span class="tag">API rate limit</span> <span class="tag">TWSE</span> <span class="tag">cron</span> <span class="tag">進程監控</span> <span class="tag">crash recovery</span> <span class="tag">probes</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/25</span>
-        <a href="daily/2026-05-25.html">自主練習：kubectl Pod 故障排查、k3s 鏡像管理、Linux 資源監控、Git 復原、Helm 運維操作</a>
-        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl describe/logs/events 四步驟診斷、k3s containerd 鏡像匯入免 registry、uptime/free/df 正確讀法、git reset/restore/reflog 復原、Helm list/history/rollback/get values</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span> <span class="tag">k3s</span> <span class="tag">Linux</span> <span class="tag">Git</span> <span class="tag">Helm</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/24</span>
-        <a href="daily/2026-05-24.html">stock-analysis-v2 K3s 部署實戰：Docker socket 權限、containerd 鏡像匯入、rollout restart、ingress routing、smoke test</a>
-        <div class="day-meta">1 對話 · 10 知識點 — 涵蓋 sudo docker 權限、k3s ctr images import、imagePullPolicy Never、Next.js static export、rollout restart/status、resource limits、probes、ingress host routing、curl smoke test、namespace 隔離</div>
-        <div class="day-topics">
-          <span class="tag">k3s</span> <span class="tag">Docker</span> <span class="tag">containerd</span> <span class="tag">nginx</span> <span class="tag">ingress</span> <span class="tag">kubectl</span> <span class="tag">smoke test</span>
-        </div>
-      </div>
-
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/23</span>
-        <a href="daily/2026-05-23.html">自主練習：kubectl Pod 故障排查、Git reflog 復原、Helm 運維操作、網路診斷四指令、systemd 服務管理</a>
-        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl describe/logs/events 三步驟診斷、git reset/restore/reflog 復原、Helm list/history/rollback、curl/dig/ss/nc 網路排查、systemd failed units/journalctl 管理</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span><span class="tag">Git</span><span class="tag">Helm</span><span class="tag">網路</span><span class="tag">systemd</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/22</span>
-        <a href="daily/2026-05-22.html">自主練習：kubectl 資源診斷、Docker 多階段建置、Linux 監控、Git stash、Helm values 分層</a>
-        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl top/describe Allocated 三層診斷、Docker FROM scratch 極簡 image、uptime/free/df 正確讀法、git stash LIFO 暫存、Helm values 分層覆蓋</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span><span class="tag">Docker</span><span class="tag">Linux</span><span class="tag">Git</span><span class="tag">Helm</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
-        <span class="date-badge">🏋️ 05/21</span>
-        <a href="daily/2026-05-21.html">自主練習：kubectl Pod 內排查、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
-        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl exec 容器排查、k3s ctr images import、dmesg OOM 查詢、gh pr create/merge、Cloudflare Proxy vs DNS only</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span><span class="tag">k3s</span><span class="tag">containerd</span><span class="tag">OOM</span><span class="tag">GitHub</span><span class="tag">Cloudflare</span><span class="tag">DNS</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">🏋️ 05/18</span>
-        <a href="daily/2026-05-18.html">自主練習：kubectl 排查、k3s 鏡像管理、Linux 資源監控、Git 復原、Helm 操作</a>
-        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl Pod 診斷、k3s containerd 鏡像匯入、Linux 資源監控三指令、Git reset/restore/reflog、Helm list/history/rollback</div>
-        <div class="day-topics">
-          <span class="tag">kubectl</span><span class="tag">k3s</span><span class="tag">containerd</span><span class="tag">Linux</span><span class="tag">Git</span><span class="tag">Helm</span>
-        </div>
-      
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/19</span>
-        <a href="daily/2026-05-19.html">plugin-hub 子模組架構轉換：GitHub push protection、Submodule CI/CD、K8s 部署驗證、Git merge --no-ff</a>
-        <div class="day-meta">1 個對話 · 10 個知識點（含 3 補充）— 涵蓋 gitmodules PAT token 安全、submodule-aware CI、kubectl describe 驗證、manifest 自動生成、Linux 資源監控、Cloudflare DNS、網路排查</div>
-        <div class="day-topics">
-          <span class="tag">GitHub</span> <span class="tag">CI/CD</span> <span class="tag">submodule</span> <span class="tag">kubectl</span> <span class="tag">K8s</span> <span class="tag">Git</span> <span class="tag">Cloudflare</span> <span class="tag">網路</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/20</span>
-        <a href="daily/2026-05-20.html">plugin-hub --link 自動化與 Tomcat 升級練習：GitHub push protection、Submodule CI/CD、ConfigMap 部署、Docker sandbox、ln -sfn symlink、curl smoke test</a>
-        <div class="day-meta">2 個對話 · 10 個知識點 — 涵蓋 GitHub push protection 修復、submodule-aware CI、ConfigMap 驅動部署、manifest 服務發現、Docker 多階段建置、Docker sandbox 練習、9 步驟升級流程、ln -sfn 原子切換、curl smoke test、Multipass VM</div>
-        <div class="day-topics">
-          <span class="tag">GitHub</span> <span class="tag">CI/CD</span> <span class="tag">ConfigMap</span> <span class="tag">Docker</span> <span class="tag">K8s</span> <span class="tag">symlink</span> <span class="tag">Tomcat</span> <span class="tag">Multipass</span>
-        </div>
-      </div>
-</div>
-
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/17</span>
-        <a href="daily/2026-05-17.html">Gateway 基礎設施診斷：systemd 重啟安全、Cron 遷移 Discord、Bash 腳本陷阱、5-Phase 部署流程</a>
-        <div class="day-meta">4 個對話 · 11 個知識點 — 涵蓋 systemctl restart vs stop+start、RestartForceExitStatus、SIGUSR1 優雅重啟、Cron delivery 遷移、Config patch 陷阱、Bash function 順序</div>
-        <div class="day-topics">
-          <span class="tag">systemd</span><span class="tag">Gateway</span><span class="tag">Cron</span><span class="tag">Discord</span><span class="tag">bash</span><span class="tag">Systemctl</span><span class="tag">CI/CD</span><span class="tag">Config</span>
-        </div>
-      </div>
-      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
-        <span class="date-badge">📅 05/16</span>
-        <a href="daily/2026-05-16.html">Tomcat 升級腳本最佳化：九步安全流程、Symlink 原子切換、Docker 測試、GitHub Actions CI/CD</a>
-        <div class="day-meta">1 個對話 · 7 個知識點 — 涵蓋 bash 防禦性程式設計、catalina.sh 優雅關閉、curl retry smoke test、workflow_dispatch 自動部署</div>
-        <div class="day-topics">
-          <span class="tag">Tomcat</span><span class="tag">bash</span><span class="tag">Docker</span><span class="tag">GitHub Actions</span><span class="tag">CI/CD</span><span class="tag">symlink</span><span class="tag">SSH</span>
-        </div>
-      </div>
-      <div class="day-card">
-        <span class="date-badge">📅 05/15</span>
-        <a href="daily/2026-05-15.html">搜尋引擎改造：FTS5 排名陷阱、兩階段搜尋策略、Ops 診斷筆記格式設計</a>
-        <div class="day-meta">1 個對話 · 7 個知識點 — 涵蓋 session_search 排名機制、零依賴模糊搜尋、JSON Sidecar 索引、Cron delivery 路由</div>
-        <div class="day-topics">
-          <span class="tag">FTS5</span><span class="tag">搜尋策略</span><span class="tag">cron</span><span class="tag">JSON</span><span class="tag">索引設計</span><span class="tag">前端搜尋</span><span class="tag">知識管理</span>
-        </div>
-      </div>
-      <div class="day-card">
-        <span class="date-badge">📅 05/14</span>
-        <a href="daily/2026-05-14.html">Plugin-Hub 統一代理架構、Cron Job 除錯、排程設計、K8s 基礎概念 & 資源評估</a>
-        <div class="day-meta">4 個對話 · 18 個知識點 — 涵蓋 K8s ConfigMap 驅動架構、APScheduler 排程、kubelet pull 模型、OSI 網路分層、資源評估三線框架</div>
-        <div class="day-topics">
-          <span class="tag">Plugin-Hub</span><span class="tag">Go</span><span class="tag">K3s</span><span class="tag">Cron Job</span><span class="tag">kubelet</span><span class="tag">資源評估</span><span class="tag">OSI</span><span class="tag">APScheduler</span><span class="tag">ConfigMap</span><span class="tag">Docker</span><span class="tag">Telegram</span>
-        </div>
-      </div>
-      <div class="day-card">
-        <span class="date-badge">📅 05/13</span>
-        <a href="daily/2026-05-13.html">K3s 疑難排解、ArgoCD GitOps、Plugin-hub Go 重寫</a>
-        <div class="day-meta">修復 6 個叢集問題、部署 ArgoCD、Python→Go 重寫（255MB→134MB）、建立自動化學習筆記系統、Telegram 告警路由修正</div>
-        <div class="day-topics">
-          <span class="tag">K3s</span><span class="tag">ArgoCD</span><span class="tag">GitOps</span><span class="tag">Go</span><span class="tag">Telegram Bot</span><span class="tag">Cron Job</span><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">Docker</span>
-        </div>
-      </div>
-      <div class="day-card">
-        <span class="date-badge">📅 05/12</span>
-        <a href="daily/2026-05-12.html">Staging/Production 環境分離 & 資源評估</a>
-        <div class="day-meta">Helm 多環境部署、ResourceQuota 96% 危機、staging 降配策略、CPU overcommit vs RAM overcommit、PVC 容量規劃</div>
-        <div class="day-topics">
-          <span class="tag">Helm</span><span class="tag">ResourceQuota</span><span class="tag">kubectl</span><span class="tag">PVC</span><span class="tag">容量規劃</span><span class="tag">OOM</span>
-        </div>
-      </div>
-      <div class="day-card">
-        <span class="date-badge">📅 05/11</span>
-        <a href="daily/2026-05-11.html">K8s 部署：Docker 化 → k3s containerd → ingress-nginx</a>
-        <div class="day-meta">Next.js standalone Docker 多階段建置、k3s containerd 鏡像匯入、ingress-nginx Helm 安裝、Zeabur port conflict、Cloudflare Tunnel 遷移</div>
-        <div class="day-topics">
-          <span class="tag">Kubernetes</span><span class="tag">Docker</span><span class="tag">ingress-nginx</span><span class="tag">Helm</span><span class="tag">Zeabur</span><span class="tag">Cloudflare</span>
-        </div>
-      </div>
-      <div class="day-card">
-        <span class="date-badge">📅 05/10</span>
-        <a href="daily/2026-05-10.html">韓文學習平台首次部署：PM2 + Nginx + Cloudflare</a>
-        <div class="day-meta">Next.js 16 standalone、PM2 process manager、Nginx reverse proxy、Cloudflare DNS + Proxy、自簽 SSL vs Cloudflare TLS、Error 522 除錯</div>
-        <div class="day-topics">
-          <span class="tag">Next.js</span><span class="tag">PM2</span><span class="tag">Nginx</span><span class="tag">Cloudflare</span><span class="tag">GitHub</span><span class="tag">SSL</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <p>🚀 每天凌晨 3:00 自動更新 · Powered by Hermes Agent & Cron</p>
-    <p style="margin-top:0.3rem;"><a href="https://github.com/shawnlin0125/DevOps-docs" style="color:var(--accent);">GitHub Repo</a></p>
-  </footer>
-</div>
-
-<script>
-// ===== Token-based fuzzy search =====
-function searchKPs(query, kps) {
-  if (!query.trim()) return [];
-  const tokens = query.toLowerCase().trim().split(/\s+/).filter(t => t.length > 0);
-  if (tokens.length === 0) return [];
-
-  return kps.filter(kp => {
-    const haystack = [
-      kp.title || '',
-      kp.summary || '',
-      (kp.tags || []).join(' '),
-      kp.conversation || ''
-    ].join(' ').toLowerCase();
-    return tokens.every(token => haystack.includes(token));
-  });
-}
-
-// ===== Load search index =====
-let knowledgePoints = [];
-
-async function loadIndex() {
-  try {
-    const resp = await fetch('search-index.json');
-    if (resp.ok) {
-      knowledgePoints = await resp.json();
-      updateStats();
-    }
-  } catch (e) {
-    console.log('search-index.json not available yet');
-  }
-}
-
-function updateStats() {
-  const days = new Set(knowledgePoints.map(kp => kp.date));
-  document.getElementById('stat-days').textContent = days.size;
-  document.getElementById('stat-kps').textContent = knowledgePoints.length;
-}
-
-// ===== Render search results =====
-function renderResults(results, query) {
-  const container = document.getElementById('resultList');
-  const countEl = document.getElementById('resultCount');
-  const noResults = document.getElementById('noResults');
-
-  if (results.length === 0 && query.trim()) {
-    noResults.style.display = 'block';
-    countEl.textContent = '';
-    container.innerHTML = '';
-    return;
-  }
-
-  noResults.style.display = 'none';
-  countEl.textContent = `找到 ${results.length} 個知識點`;
-
-  container.innerHTML = results.map(kp => `
-    <div class="kp-result" onclick="location.href='daily/${kp.date}.html#${kp.anchor}'">
-      <a href="daily/${kp.date}.html#${kp.anchor}">💡 ${escapeHtml(kp.title)}</a>
-      <div class="kp-summary">${escapeHtml(kp.summary)}</div>
-      <div class="kp-meta">
-        <span class="kp-date">📅 ${kp.date}</span>
-        <span>📂 ${escapeHtml(kp.conversation || '')}</span>
-        ${(kp.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
-      </div>
-    </div>
-  `).join('');
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// ===== Main =====
-document.addEventListener('DOMContentLoaded', () => {
-  loadIndex();
-
-  const input = document.getElementById('searchInput');
-  const resultsDiv = document.getElementById('searchResults');
-  const dayCards = document.getElementById('dayCards');
-
-  input.addEventListener('input', () => {
-    const query = input.value.trim();
-
-    if (!query) {
-      resultsDiv.style.display = 'none';
-      dayCards.style.display = 'block';
-      return;
-    }
-
-    const results = searchKPs(query, knowledgePoints);
-    resultsDiv.style.display = 'block';
-    dayCards.style.display = 'none';
-    renderResults(results, query);
-  });
-});
-</script>
-</body>
-</html>
+     1|<!DOCTYPE html>
+     2|<html lang="zh-Hant">
+     3|<head>
+     4|<meta charset="UTF-8">
+     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|<title>Shawn's DevOps Lab — 每日學習筆記</title>
+     7|<style>
+     8|  :root {
+     9|    --bg: #0d1117;
+    10|    --bg-card: #161b22;
+    11|    --border: #30363d;
+    12|    --text: #c9d1d9;
+    13|    --text-dim: #8b949e;
+    14|    --accent: #58a6ff;
+    15|    --accent-green: #3fb950;
+    16|    --accent-orange: #d2991d;
+    17|    --accent-red: #f85149;
+    18|    --accent-purple: #a371f7;
+    19|  }
+    20|  * { margin: 0; padding: 0; box-sizing: border-box; }
+    21|  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    22|  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+    23|  header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+    24|  h1 { font-size: 1.8rem; color: #f0f6fc; }
+    25|  h1 span { color: var(--accent); }
+    26|  .subtitle { color: var(--text-dim); margin-top: 0.4rem; font-size: 0.95rem; }
+    27|  .stats { display: flex; gap: 1.5rem; margin-top: 1rem; }
+    28|  .stat { text-align: center; }
+    29|  .stat-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    30|  .stat-label { font-size: 0.8rem; color: var(--text-dim); }
+    31|
+    32|  /* Search */
+    33|  .search-wrap { margin-bottom: 1.5rem; }
+    34|  .search-box {
+    35|    width: 100%; padding: 0.75rem 1rem; font-size: 1rem;
+    36|    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+    37|    color: var(--text); outline: none; transition: border-color 0.2s;
+    38|    font-family: inherit;
+    39|  }
+    40|  .search-box:focus { border-color: var(--accent); }
+    41|  .search-box::placeholder { color: var(--text-dim); }
+    42|  .search-hint { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.4rem; }
+    43|
+    44|  /* Year section */
+    45|  .year-section { margin-bottom: 2rem; }
+    46|  .year-title { font-size: 1.2rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-bottom: 1rem; }
+    47|
+    48|  /* Day cards */
+    49|  .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 0.8rem; transition: border-color 0.2s; }
+    50|  .day-card:hover { border-color: var(--accent); }
+    51|  .day-card a { color: var(--accent); text-decoration: none; font-size: 1.1rem; font-weight: 600; }
+    52|  .day-card a:hover { text-decoration: underline; }
+    53|  .day-meta { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
+    54|  .day-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+    55|  .tag { font-size: 0.75rem; padding: 0.15rem 0.6rem; border-radius: 12px; background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); white-space: nowrap; }
+    56|  .date-badge { color: var(--accent-green); font-weight: 600; font-size: 0.9rem; }
+    57|
+    58|  /* KP search results */
+    59|  .kp-result {
+    60|    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+    61|    padding: 0.9rem 1.2rem; margin-bottom: 0.5rem; transition: border-color 0.2s;
+    62|    cursor: pointer;
+    63|  }
+    64|  .kp-result:hover { border-color: var(--accent); }
+    65|  .kp-result a { color: var(--accent-green); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    66|  .kp-result a:hover { text-decoration: underline; }
+    67|  .kp-summary { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.2rem; }
+    68|  .kp-meta { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.4rem; font-size: 0.78rem; color: var(--text-dim); }
+    69|  .kp-date { color: var(--accent-purple); }
+    70|  .no-results { text-align: center; color: var(--text-dim); padding: 2rem 0; }
+    71|  .result-count { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.8rem; }
+    72|
+    73|  footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; text-align: center; }
+    74|</style>
+    75|</head>
+    76|<body>
+    77|<div class="container">
+    78|  <header>
+    79|    <h1>⚡ Shawn's <span>DevOps Lab</span></h1>
+    80|    <p class="subtitle">每日學習筆記 — 從真實專案中學 DevOps：k3s · Kubernetes · CI/CD · 監控 · GitOps</p>
+    81|    <div class="stats">
+    82|      <div class="stat"><span class="stat-num" id="stat-days">55</span><div class="stat-label">學習天數</div></div>
+    83|      <div class="stat"><span class="stat-num" id="stat-kps">358</span><div class="stat-label">知識點</div></div>
+    84|    </div>
+    85|  </header>
+    86|
+    87|  <!-- Search -->
+    88|  <div class="search-wrap">
+    89|    <input type="text" class="search-box" id="searchInput"
+    90|      placeholder="搜尋知識點…（例如：kubectl、OOM Killer、ConfigMap、資源評估、Helm）"
+    91|      autocomplete="off">
+    92|    <p class="search-hint">💡 支援模糊搜尋：多個關鍵字用空白分隔，會找出同時包含所有關鍵字的知識點</p>
+    93|  </div>
+    94|
+    95|  <!-- Search results (hidden by default) -->
+    96|  <div id="searchResults" style="display:none;">
+    97|    <p class="result-count" id="resultCount"></p>
+    98|    <div id="resultList"></div>
+    99|    <p class="no-results" id="noResults" style="display:none;">沒有找到相關知識點，試試其他關鍵字？</p>
+   100|  </div>
+   101|
+   102|  <!-- Day cards (hidden when searching) -->
+   103|  <div id="dayCards">
+   104|    <div class="year-section">
+   105|      <div class="year-title">📖 完整回顧</div>
+   106|      <div class="day-card" style="border-color: rgba(163,113,247,0.4); background: rgba(163,113,247,0.05);">
+   107|        <span class="date-badge">📖 總覽</span>
+   108|        <a href="retrospective.html">從 Zero 到 Hero — DevOps 全記錄 (05.10–05.13)</a>
+   109|        <div class="day-meta">從裸機 PM2 部署、Docker 容器化、K3s 遷移、微服務架構、監控告警、到 GitOps 的完整旅程</div>
+   110|        <div class="day-topics">
+   111|          <span class="tag">K3s</span><span class="tag">Docker</span><span class="tag">Helm</span><span class="tag">ArgoCD</span><span class="tag">Prometheus</span>
+   112|        </div>
+   113|      </div>
+   114|    </div>
+   115|
+   116|    <div class="year-section">
+   117|      <div class="year-title">📅 2026 年 7 月</div>
+   118|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   119|        <span class="date-badge">🏋️ 07/04</span>
+   120|        <a href="daily/2026-07-04.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
+   121|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、k3s containerd 離線鏡像管理完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
+   122|        <div class="day-topics">
+   123|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   124|        </div>
+   125|      </div>
+   126|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   127|        <span class="date-badge">🏋️ 07/03</span>
+   128|        <a href="daily/2026-07-03.html">自主練習：kubectl exec Pod 內排查、systemd 服務管理、GitHub PR 流程、Helm values 分層覆蓋、網路排查四指令</a>
+   129|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+   130|        <div class="day-topics">
+   131|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">nc</span> <span class="tag">env</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">squash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   132|        </div>
+   133|      </div>
+   134|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   135|        <span class="date-badge">🏋️ 07/02</span>
+   136|        <a href="daily/2026-07-02.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、Linux 資源監控、Git 復原操作、Helm 常用操作</a>
+   137|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量 vs scheduler 視角（top 看實際 cgroup 用量，Allocated 看 request/limit 佔比）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 FROM 獨立階段，builder 層建置完丟棄）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體（cache 可回收所以 free 低不代表不夠）、df -h 磁碟 + df -i inode 監控、git reset --soft HEAD~1 保留改動重新 commit、git restore 丟棄未暫存改動、git reflog 救回誤刪 commit、helm list -A/history/rollback/get values 版本生命週期管理與 --history-max 控制 revision 數量避免 etcd 膨脹</div>
+   138|        <div class="day-topics">
+   139|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">capacity</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span> <span class="tag">values</span>
+   140|        </div>
+   141|      </div>
+   142|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   143|        <span class="date-badge">🏋️ 07/01</span>
+   144|        <a href="daily/2026-07-01.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
+   145|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、k3s containerd 離線鏡像管理完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
+   146|        <div class="day-topics">
+   147|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   148|        </div>
+   149|      </div>
+   150|    </div>
+   151|    <div class="year-section">
+   152|      <div class="year-title">📅 2026 年 6 月</div>
+   153|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   154|        <span class="date-badge">🏋️ 06/30</span>
+   155|        <a href="daily/2026-06-30.html">自主練習：kubectl exec Pod 內排查、Docker 多階段建置、Linux 資源監控、GitHub PR 流程、Helm 常用操作</a>
+   156|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 容器內互動排查（env/nc/resolv.conf 三招）、Docker multi-stage build builder→scratch/scratch 瘦身（每個 FROM 獨立階段，builder 層建置完丟棄）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h / 磁碟監控、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、helm list -A/history/rollback/get values 版本生命週期管理與 --history-max 控制 revision 數量</div>
+   157|        <div class="day-topics">
+   158|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">nc</span> <span class="tag">env</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">squash</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span> <span class="tag">values</span>
+   159|        </div>
+   160|      </div>
+   161|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   162|        <span class="date-badge">🏋️ 06-29</span>
+   163|        <a href="daily/2026-06-29.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
+   164|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top 資源診斷：即時用量 vs Scheduler 視角（kubectl top nodes/pods 即時用量 vs describe node Allocated scheduler 視角對比）、k3s containerd 鏡像離線部署完整流程（docker build/save/k3s ctr images import 搭配 imagePullPolicy: Never）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values 三層分層覆蓋（values.yaml ← values/prod.yaml ← --set）與 helm template --debug 驗證、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+   165|        <div class="day-topics">
+   166|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   167|        </div>
+   168|      </div>
+   169|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   170|        <span class="date-badge">🏋️ 06/27</span>
+   171|        <a href="daily/2026-06-27.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、Git stash 暫存管理、Cloudflare DNS 管理</a>
+   172|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、Docker multi-stage build FROM builder→FROM scratch 瘦身法（編譯工具建置完丟棄）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、git stash -u 暫存含 untracked 檔案（LIFO stash stack 本質是 commit-like 物件）、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
+   173|        <div class="day-topics">
+   174|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   175|        </div>
+   176|      </div>
+   177|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   178|        <span class="date-badge">🏋️ 06/26</span>
+   179|        <a href="daily/2026-06-26.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Git stash 暫存管理、Helm 生命週期管理</a>
+   180|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h/i 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、git stash -u 暫存含 untracked 檔案（LIFO stash stack 原理）、helm list -A/history/rollback/get values 版本生命週期管理與 helm template --debug 除錯</div>
+   181|        <div class="day-topics">
+   182|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span>
+   183|        </div>
+   184|      </div>
+   185|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   186|        <span class="date-badge">🏋️ 06/24</span>
+   187|        <a href="daily/2026-06-24.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
+   188|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量 vs scheduler 視角（top 看實際用量，Allocated 看 request/limit 佔比）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 FROM 是獨立階段，builder 層建置完丟棄）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯（--set typo 不報錯的陷阱）、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+   189|        <div class="day-topics">
+   190|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   191|        </div>
+   192|      </div>
+   193|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   194|        <span class="date-badge">🏋️ 06/25</span>
+   195|        <a href="daily/2026-06-25.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
+   196|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、docker build/save/ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 PR 流程、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
+   197|        <div class="day-topics">
+   198|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   199|        </div>
+   200|      </div>
+   201|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   202|        <span class="date-badge">🏋️ 06/23</span>
+   203|        <a href="daily/2026-06-23.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Git stash 暫存管理、Helm 生命週期管理</a>
+   204|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 對比核心數判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h/i 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、git stash -u 暫存含 untracked 檔案（LIFO stash stack 原理）、helm list -A/history/rollback/get values 版本生命週期管理與 helm template --debug 除錯</div>
+   205|        <div class="day-topics">
+   206|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">stash</span> <span class="tag">stash pop</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span>
+   207|        </div>
+   208|      </div>
+   209|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   210|        <span class="date-badge">🏋️ 06/22</span>
+   211|        <a href="daily/2026-06-22.html">自主練習：kubectl Pod 診斷流程、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
+   212|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）、docker build/save/ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Cloudflare Proxy vs DNS only 模式差異與 API 管理</div>
+   213|        <div class="day-topics">
+   214|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">imagePullPolicy</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   215|        </div>
+   216|      </div>
+   217|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   218|        <span class="date-badge">🏋️ 06/21</span>
+   219|        <a href="daily/2026-06-21.html">自主練習：kubectl top 資源診斷、Docker 多階段建置、systemd 服務管理、Helm values 分層覆蓋、網路排查四指令</a>
+   220|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷（即時用量 vs scheduler 視角）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 RUN/COPY 一層）、systemctl list-units --state=failed + journalctl -u 服務日誌管理 + systemctl daemon-reload、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+   221|        <div class="day-topics">
+   222|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   223|        </div>
+   224|      </div>
+   225|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   226|        <span class="date-badge">🏋️ 06/20</span>
+   227|        <a href="daily/2026-06-20.html">自主練習：kubectl exec Pod 內排查、Linux 資源監控三指令、Git 復原操作、Helm values 分層覆蓋、網路排查四指令</a>
+   228|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 進容器互動排查（env/nc/resolv.conf 三招）、uptime load average 判斷 CPU 排隊、free -h available 才是真可用記憶體、df -h / + df -i / 磁碟與 inode 監控、git reset --soft/restore/reflog 三種復原情境、Helm values.yaml ← prod.yaml ← --set 三層覆蓋與 helm template --debug 除錯、curl -v/dig +short/ss -tlnp/nc -zv 四指令對應 OSI 四層網路排查</div>
+   229|        <div class="day-topics">
+   230|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">restore</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">template</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   231|        </div>
+   232|      </div>
+   233|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   234|        <span class="date-badge">🏋️ 06/19</span>
+   235|        <a href="daily/2026-06-19.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
+   236|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判讀）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 RUN/COPY 一層，builder 層建置完丟棄）、sudo dmesg -T OOM Killer 核心紀錄 + exit code 137 SIGKILL 判斷（K8s cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Cloudflare Proxy vs DNS only 模式差異與 API 管理</div>
+   237|        <div class="day-topics">
+   238|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">events</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   239|        </div>
+   240|      </div>
+   241|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   242|        <span class="date-badge">🏋️ 06/18</span>
+   243|        <a href="daily/2026-06-18.html">kubectl 資源診斷（top + Allocated）、k3s containerd 鏡像管理、systemd 服務管理、Git stash 暫存管理、Helm 生命週期管理</a>
+   244|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷（即時用量 vs scheduler 視角）、docker build/save/k3s ctr images import 鏡像部署完整流程搭配 imagePullPolicy: Never、systemctl list-units --state=failed + journalctl -u 服務日誌管理、git stash push -u/list/pop/apply/drop LIFO 暫存管理（stash 本質是 commit-like 物件存在 .git/refs/stash）、helm list -A/history/rollback/get values 版本生命週期管理與 --reuse-values</div>
+   245|        <div class="day-topics">
+   246|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">values</span>
+   247|        </div>
+   248|      </div>
+   249|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   250|        <span class="date-badge">🏋️ 06/16</span>
+   251|        <a href="daily/2026-06-16.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
+   252|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判讀）、Docker multi-stage build 從 builder 到 scratch 瘦身與 docker image history、sudo dmesg -T OOM Killer 紀錄 + exit code 137 判斷、gh pr create/merge --squash 完整 CLI 流程與 gh pr checkout、Cloudflare API DNS record 管理與 Proxy/DNS only 模式差異</div>
+   253|        <div class="day-topics">
+   254|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">logs</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+   255|        </div>
+   256|      </div>
+   257|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   258|        <span class="date-badge">🏋️ 06/17</span>
+   259|        <a href="daily/2026-06-17.html">kubectl exec 進 Pod 內排查、Git 復原操作：reset / restore / reflog、Helm values 分層覆蓋與 --set 陷阱、Linux 資源監控三指令：uptime / free / df、網路排查四指令：curl / dig / ss / nc</a>
+   260|        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it <pod> -n <ns> -- sh 進容器互動、git reset --soft HEAD~1 退回 commit 保留 staged、git restore <file> 丟棄工作區改動、git reflog 看所有 HEAD 移動記錄救回誤刪 commit、Helm 三層值覆蓋：values.yaml（預設）← values/production.yaml（環境覆蓋）← --set key=value（CLI 覆蓋）、uptime 的 load average > CPU 核心數表示 CPU 排隊、四指令對應 OSI 四層：curl -v 看完整 HTTP/HTTPS 流程與 SSL 握手、dig +short 快速 DNS 解析、ss -tlnp 看 listening port 與所屬 process（取代 netstat）、nc -zv host port 測試 TCP 連線</div>
+   261|        <div class="day-topics">
+   262|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span>
+   263|        </div>
+   264|      </div>
+   265|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   266|        <span class="date-badge">🏋️ 06/15</span>
+   267|        <a href="daily/2026-06-15.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、Git stash 暫存管理、網路排查四指令</a>
+   268|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量與已分配資源視角、docker build/save/k3s ctr import 鏡像部署完整流程搭配 imagePullPolicy: Never、systemctl list-units --state=failed + journalctl -u 服務日誌管理、git stash -u/push/list/pop/apply LIFO 暫存管理、curl/dig/ss/nc 四指令對應 OSI 四層網路排查</div>
+   269|        <div class="day-topics">
+   270|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   271|        </div>
+   272|      </div>
+   273|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   274|        <span class="date-badge">🏋️ 06/14</span>
+   275|        <a href="daily/2026-06-14.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、Linux 資源監控、GitHub PR 流程、Helm 生命週期管理</a>
+   276|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 啟動失敗（ImagePull/CrashLoop/OOM/Pending 判斷）、Docker multi-stage build 從 builder 到 scratch 瘦身、uptime/free/df 三指令（load average vs 核心數 / available 才是真可用 / df -i inode 檢查）、gh pr create/merge --squash 完整 CLI 流程、helm list/history/rollback/get values 版本生命週期管理</div>
+   277|        <div class="day-topics">
+   278|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span>
+   279|        </div>
+   280|      </div>
+   281|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   282|        <span class="date-badge">🏋️ 06/13</span>
+   283|        <a href="daily/2026-06-13.html">自主練習：kubectl exec Pod 內排查、OOM Killer 診斷、Git 復原操作、Cloudflare DNS 管理、Helm values 分層覆蓋</a>
+   284|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl exec 容器內 nc/dns/env 診斷三招、dmesg OOM Killer + exit code 137 判別、git reset/restore/reflog 三種復原操作、Cloudflare Proxy vs DNS only API 管理差異、Helm values 三層覆蓋與 --set typo 陷阱</div>
+   285|        <div class="day-topics">
+   286|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">restore</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span> <span class="tag">trap</span>
+   287|        </div>
+   288|      </div>
+   289|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   290|        <span class="date-badge">🏋️ 06/12</span>
+   291|        <a href="daily/2026-06-12.html">自主練習：kubectl 資源診斷、k3s containerd 鏡像管理、systemd 服務管理、網路排查四指令、Helm 生命週期管理</a>
+   292|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top nodes/pods + describe node Allocated 三維資源診斷、docker build/save/k3s ctr import 鏡像部署完整流程、systemctl list-units --state=failed + journalctl -u 服務日誌管理、curl/dig/ss/nc 四指令對應 OSI 四層網路排查、helm list/history/rollback/get values 生命週期管理</div>
+   293|        <div class="day-topics">
+   294|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span>
+   295|        </div>
+   296|      </div>
+   297|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   298|        <span class="date-badge">🏋️ 06/11</span>
+   299|        <a href="daily/2026-06-11.html">自主練習：Linux 資源監控、Cloudflare DNS 管理、Git stash 暫存、Docker 多階段建置、Helm values 分層覆蓋</a>
+   300|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 uptime load average 解讀、free -h available 正確用法、df -h 磁碟監控門檻、Cloudflare Proxy vs DNS only 模式比較與 API 管理、git stash push/list/pop/apply/drop LIFO 暫存管理、Docker multi-stage build 從 builder 到 scratch 瘦身、Helm values 三層覆蓋與 helm template --debug 除錯</div>
+   301|        <div class="day-topics">
+   302|          <span class="tag">Linux</span> <span class="tag">監控</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span>
+   303|        </div>
+   304|      </div>
+   305|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   306|        <span class="date-badge">🏋️ 06/10</span>
+   307|        <a href="daily/2026-06-10.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Helm values 分層覆蓋</a>
+   308|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟排查 Pod 啟動失敗、Dockerfile multi-stage build 從 builder 到 scratch 瘦身過程、dmesg -T OOM Killer 診斷與 K8s OOMKilled exit code 137 判別、gh pr create/merge --squash PR 全流程 CLI 操作、Helm values.yaml ← values/prod.yaml ← --set 三層覆蓋原則</div>
+   309|        <div class="day-topics">
+   310|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span>
+   311|        </div>
+   312|      </div>
+   313|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   314|        <span class="date-badge">🏋️ 06/09</span>
+   315|        <a href="daily/2026-06-09.html">自主練習：kubectl 資源使用診斷、kubectl exec Pod 內排查、systemd 服務管理、Git 復原操作、Helm 常用操作</a>
+   316|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top + describe node Allocated 資源視角差異、kubectl exec 容器內 env/nc/resolv.conf 診斷三招、systemctl list-units --state=failed 與 journalctl 服務健康檢查、git reset --soft/restore/reflog 三種復原情境、helm list/history/rollback/get values 生命週期管理</div>
+   317|        <div class="day-topics">
+   318|          <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">systemd</span> <span class="tag">systemctl</span> <span class="tag">journalctl</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span>
+   319|        </div>
+   320|      </div>
+   321|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   322|        <span class="date-badge">🏋️ 06/08</span>
+   323|        <a href="daily/2026-06-08.html">自主練習：kubectl Pod 診斷流程、Docker 多階段建置、OOM Killer 診斷、Git stash 暫存管理、網路排查四指令</a>
+   324|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷 Pod 失敗、Docker multi-stage build 瘦身（FROM scratch/alpine）、dmesg -T OOM Killer 查詢與 K8s 連鎖 OOM 原理、git stash push/list/pop/apply/drop LIFO 暫存管理、curl/dig/ss/nc 四指令網路排查對應 OSI 四層</div>
+   325|        <div class="day-topics">
+   326|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   327|        </div>
+   328|      </div>
+   329|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   330|        <span class="date-badge">🏋️ 06/07</span>
+   331|        <a href="daily/2026-06-07.html">自主練習：kubectl Pod 診斷流程、GitHub PR 流程、Cloudflare DNS 管理、Docker 多階段建置、Helm values 分層覆蓋</a>
+   332|        <div class="day-meta">0 對話 · 5 知識點（含 5 自主練習）— 涵蓋 kubectl get pods/describe/logs/events 四步驟 Pod 診斷、gh CLI 完整 PR 流程（create/merge --squash）、Cloudflare Proxy vs DNS only 模式與 API 管理、Docker multi-stage build 瘦身與 scratch/alpine runtime、Helm values 三層覆蓋原則與 helm template 除錯</div>
+   333|        <div class="day-topics">
+   334|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">gh</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">override</span>
+   335|        </div>
+   336|      </div>
+   337|      <div class="day-card" style="border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.03);">
+   338|        <span class="date-badge">📅 06/06</span>
+   339|        <a href="daily/2026-06-06.html">伺服器資訊診斷：IP 地理定位、雲端廠商判斷、系統資訊查詢</a>
+   340|        <div class="day-meta">1 對話 · 10 知識點（含 4 補充）— 涵蓋 curl ifconfig.me/ipinfo.io/ipapi.co IP 查詢三部曲、OS 版本/核心/主機名稱查詢、Tencent Cloud 命名慣例與 IP 區段判斷、Git stash 暫存管理、Helm values 分層覆蓋、kubectl top/describe node 資源診斷、systemctl + journalctl 服務管理</div>
+   341|        <div class="day-topics">
+   342|          <span class="tag">IP</span> <span class="tag">curl</span> <span class="tag">geolocation</span> <span class="tag">Tencent Cloud</span> <span class="tag">Linux</span> <span class="tag">OS</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">systemd</span> <span class="tag">journalctl</span>
+   343|        </div>
+   344|      </div>
+   345|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   346|        <span class="date-badge">🏋️ 06/05</span>
+   347|        <a href="daily/2026-06-05.html">自主練習：kubectl exec Pod 內排查、k3s containerd 鏡像管理、Linux 資源監控、Git 復原操作、Helm 生命週期管理</a>
+   348|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl exec -it 容器內診斷、docker build/save/k3s ctr import 部署流程、uptime/free/df 資源監控三指令、git reset/restore/reflog 三種復原、helm list/history/rollback/get values 版本管理</div>
+   349|        <div class="day-topics">
+   350|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span>
+   351|        </div>
+   352|      </div>
+   353|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   354|        <span class="date-badge">🏋️ 06/04</span>
+   355|        <a href="daily/2026-06-04.html">自主練習：Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Helm values 分層、Cloudflare DNS 管理</a>
+   356|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 multi-stage build 縮小 image、systemctl + journalctl 服務管理、gh pr create/merge 流程、Helm values.yaml ← 環境.yaml ← --set 覆蓋順序、Cloudflare Proxy vs DNS only 模式與 API 管理</div>
+   357|        <div class="day-topics">
+   358|          <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">systemd</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span>
+   359|        </div>
+   360|      </div>
+   361|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   362|        <span class="date-badge">🏋️ 06/03</span>
+   363|        <a href="daily/2026-06-03.html">自主練習：kubectl Pod 診斷、k3s containerd 鏡像管理、OOM 紀錄、Git stash、網路排查指令</a>
+   364|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl describe/logs/events 四步驟診斷、k3s ctr images import pipeline、dmesg OOM Killer 查詢、git stash push/pop/list LIFO 暫存、curl/dig/ss/nc 四指令網路排查</div>
+   365|        <div class="day-topics">
+   366|          <span class="tag">kubectl</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">OOM</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   367|        </div>
+   368|      </div>
+   369|      <div class="day-card" style="border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.03);">
+   370|        <span class="date-badge">📅 06/02</span>
+   371|        <a href="daily/2026-06-02.html">k3s 部署 Pipeline 除錯 · Hermes Cron 排程 · TWSE 掃描器維運</a>
+   372|        <div class="day-meta">1 對話 · 12 知識點 — 涵蓋 k3s clean rebuild + timestamp tag 繞過 digest 快取、containerd 鏡像匯入與 namespace 陷阱、deploy 前資料保留、imagePullPolicy: Never 行為、Hermes cron 120s timeout、實體複製腳本、/tmp/ status file 輪詢、MACD 五處同步、post-deploy chunk 驗證</div>
+   373|        <div class="day-topics">
+   374|          <span class="tag">k3s</span> <span class="tag">Docker</span> <span class="tag">containerd</span> <span class="tag">deploy</span> <span class="tag">cron</span> <span class="tag">Hermes</span> <span class="tag">timeout</span> <span class="tag">Next.js</span> <span class="tag">MACD</span> <span class="tag">verification</span>
+   375|        </div>
+   376|      </div>
+   377|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   378|        <span class="date-badge">🏋️ 06/01</span>
+   379|        <a href="daily/2026-06-01.html">自主練習：kubectl 資源診斷、Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Cloudflare DNS 管理</a>
+   380|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top + describe node Allocated 資源診斷、Docker multi-stage build 瘦身、systemctl + journalctl 服務管理、gh pr create/merge 流程、Cloudflare Proxy vs DNS only 模式切換</div>
+   381|        <div class="day-topics">
+   382|          <span class="tag">kubectl</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">systemd</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span>
+   383|        </div>
+   384|      </div>
+   385|    </div>
+   386|
+   387|    <div class="year-section">
+   388|      <div class="year-title">📅 2026 年 5 月</div>
+   389|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   390|        <span class="date-badge">🏋️ 05/31</span>
+   391|        <a href="daily/2026-05-31.html">自主練習：kubectl Pod 診斷流程、Linux 資源監控、Git 復原操作、Helm 生命週期管理、k3s containerd 鏡像管理</a>
+   392|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl get pods/describe/logs/events 四步驟診斷、uptime/free/df 資源監控、git reset/restore/reflog 復原、helm list/history/rollback/get values 生命週期、docker build/save/k3s ctr import 鏡像管理</div>
+   393|        <div class="day-topics">
+   394|          <span class="tag">kubectl</span> <span class="tag">debug</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">Git</span> <span class="tag">Helm</span> <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span>
+   395|        </div>
+   396|      </div>
+   397|
+   398|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   399|        <span class="date-badge">🏋️ 05/30</span>
+   400|        <a href="daily/2026-05-30.html">自主練習：kubectl exec Pod 內排查、OOM Killer 診斷、Git stash 暫存管理、Helm values 分層覆蓋、網路排查四指令</a>
+   401|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl exec 容器內排查、dmesg OOM 診斷、git stash push/pop/list、Helm values 分層 + --set 陷阱、curl/dig/ss/nc 網路診斷四指令</div>
+   402|        <div class="day-topics">
+   403|          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">OOM</span> <span class="tag">Git</span> <span class="tag">stash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">network</span> <span class="tag">curl</span> <span class="tag">dig</span> <span class="tag">ss</span> <span class="tag">nc</span>
+   404|        </div>
+   405|      </div>
+   406|
+   407|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   408|        <span class="date-badge">🏋️ 05/29</span>
+   409|        <a href="daily/2026-05-29.html">自主練習：kubectl 資源診斷、Docker 多階段建置、systemd 服務管理、GitHub PR 流程、Cloudflare DNS 管理</a>
+   410|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl top/describe Allocated 診斷、Docker multi-stage build 縮小 image、systemctl + journalctl 服務管理、gh pr create/merge 流程、Cloudflare Proxy vs DNS only</div>
+   411|        <div class="day-topics">
+   412|          <span class="tag">kubectl</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">systemd</span> <span class="tag">GitHub</span> <span class="tag">PR</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span>
+   413|        </div>
+   414|      </div>
+   415|
+   416|      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
+   417|        <span class="date-badge">📅 05/28</span>
+   418|        <a href="daily/2026-05-28.html">Vendor Plugins MVP 基礎設施建置 · Cloudflare 連線診斷 · ArgoCD 存取 · CI/CD Pipeline</a>
+   419|        <div class="day-meta">3 對話 · 10 知識點 — 涵蓋 Helm values 分層覆蓋、GitHub Actions CI Gate 三階段、Dockerfile --user 路徑陷阱、Python module mode 相對匯入、Helm Ingress template、scan-and-sync 自動部署、curl HTTPS 診斷、Cloudflare Proxy Connection reset 排查、kubectl describe ingress 診斷、K8s Secret base64 解碼</div>
+   420|        <div class="day-topics">
+   421|          <span class="tag">Helm</span> <span class="tag">ArgoCD</span> <span class="tag">GitHub Actions</span> <span class="tag">Docker</span> <span class="tag">Ingress</span> <span class="tag">Cloudflare</span> <span class="tag">kubectl</span> <span class="tag">Secret</span> <span class="tag">CI/CD</span>
+   422|        </div>
+   423|      </div>
+   424|
+   425|      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
+   426|        <span class="date-badge">📅 05/27</span>
+   427|        <a href="daily/2026-05-27.html">k3s 部署流程 · TWSE 單位陷阱 · Cron timeout · 緊急熱修復 · Cloudflare CDN 快取</a>
+   428|        <div class="day-meta">4 對話 · 12 知識點 — 涵蓋 k3s containerd 部署四步驟、timestamp tag 繞過 imagePullPolicy 緩存、TWSE TradeVolume 股 vs 張單位陷阱、kubectl exec tee 熱修復、Hermes cron 120s timeout 與 agent mode、broken symlink 排查、資料源更新時間排程設計、Cloudflare CDN 快取繞過驗證、Pod hotfix ephemeral 特性</div>
+   429|        <div class="day-topics">
+   430|          <span class="tag">k3s</span> <span class="tag">containerd</span> <span class="tag">Docker</span> <span class="tag">kubectl</span> <span class="tag">cron</span> <span class="tag">Cloudflare</span> <span class="tag">CDN</span> <span class="tag">hotfix</span>
+   431|        </div>
+   432|      </div>
+   433|
+   434|      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
+   435|        <span class="date-badge">📅 05/26</span>
+   436|        <a href="daily/2026-05-26.html">伺服器端全市場掃描系統部署：hostPath 動態檔案、API rate limit 遷移、長時間腳本監控、CronJob 解耦、崩潰恢復、資源管理</a>
+   437|        <div class="day-meta">1 對話 · 10 知識點 — 涵蓋 hostPath volume 動態檔案服務、FinMind→TWSE API 遷移策略、STOCK_DAY_ALL 批次查詢、進度監控 /tmp/scan-status.json、CronJob symlink 解耦、DirectoryOrCreate 防呆、Python stdout 緩衝、中繼檔案崩潰恢復、資源 requests/limits 權衡、liveness/readiness 參數設計</div>
+   438|        <div class="day-topics">
+   439|          <span class="tag">k3s</span> <span class="tag">hostPath</span> <span class="tag">API rate limit</span> <span class="tag">TWSE</span> <span class="tag">cron</span> <span class="tag">進程監控</span> <span class="tag">crash recovery</span> <span class="tag">probes</span>
+   440|        </div>
+   441|      </div>
+   442|
+   443|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   444|        <span class="date-badge">🏋️ 05/25</span>
+   445|        <a href="daily/2026-05-25.html">自主練習：kubectl Pod 故障排查、k3s 鏡像管理、Linux 資源監控、Git 復原、Helm 運維操作</a>
+   446|        <div class="day-meta">0 對話 · 5 知識點 — 涵蓋 kubectl describe/logs/events 四步驟診斷、k3s containerd 鏡像匯入免 registry、uptime/free/df 正確讀法、git reset/restore/reflog 復原、Helm list/history/rollback/get values</div>
+   447|        <div class="day-topics">
+   448|          <span class="tag">kubectl</span> <span class="tag">k3s</span> <span class="tag">Linux</span> <span class="tag">Git</span> <span class="tag">Helm</span>
+   449|        </div>
+   450|      </div>
+   451|
+   452|      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
+   453|        <span class="date-badge">📅 05/24</span>
+   454|        <a href="daily/2026-05-24.html">stock-analysis-v2 K3s 部署實戰：Docker socket 權限、containerd 鏡像匯入、rollout restart、ingress routing、smoke test</a>
+   455|        <div class="day-meta">1 對話 · 10 知識點 — 涵蓋 sudo docker 權限、k3s ctr images import、imagePullPolicy Never、Next.js static export、rollout restart/status、resource limits、probes、ingress host routing、curl smoke test、namespace 隔離</div>
+   456|        <div class="day-topics">
+   457|          <span class="tag">k3s</span> <span class="tag">Docker</span> <span class="tag">containerd</span> <span class="tag">nginx</span> <span class="tag">ingress</span> <span class="tag">kubectl</span> <span class="tag">smoke test</span>
+   458|        </div>
+   459|      </div>
+   460|
+   461|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   462|        <span class="date-badge">🏋️ 05/23</span>
+   463|        <a href="daily/2026-05-23.html">自主練習：kubectl Pod 故障排查、Git reflog 復原、Helm 運維操作、網路診斷四指令、systemd 服務管理</a>
+   464|        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl describe/logs/events 三步驟診斷、git reset/restore/reflog 復原、Helm list/history/rollback、curl/dig/ss/nc 網路排查、systemd failed units/journalctl 管理</div>
+   465|        <div class="day-topics">
+   466|          <span class="tag">kubectl</span><span class="tag">Git</span><span class="tag">Helm</span><span class="tag">網路</span><span class="tag">systemd</span>
+   467|        </div>
+   468|      </div>
+   469|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   470|        <span class="date-badge">🏋️ 05/22</span>
+   471|        <a href="daily/2026-05-22.html">自主練習：kubectl 資源診斷、Docker 多階段建置、Linux 監控、Git stash、Helm values 分層</a>
+   472|        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl top/describe Allocated 三層診斷、Docker FROM scratch 極簡 image、uptime/free/df 正確讀法、git stash LIFO 暫存、Helm values 分層覆蓋</div>
+   473|        <div class="day-topics">
+   474|          <span class="tag">kubectl</span><span class="tag">Docker</span><span class="tag">Linux</span><span class="tag">Git</span><span class="tag">Helm</span>
+   475|        </div>
+   476|      </div>
+   477|      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+   478|        <span class="date-badge">🏋️ 05/21</span>
+   479|        <a href="daily/2026-05-21.html">自主練習：kubectl Pod 內排查、k3s containerd 鏡像管理、OOM Killer 診斷、GitHub PR 流程、Cloudflare DNS 管理</a>
+   480|        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl exec 容器排查、k3s ctr images import、dmesg OOM 查詢、gh pr create/merge、Cloudflare Proxy vs DNS only</div>
+   481|        <div class="day-topics">
+   482|          <span class="tag">kubectl</span><span class="tag">k3s</span><span class="tag">containerd</span><span class="tag">OOM</span><span class="tag">GitHub</span><span class="tag">Cloudflare</span><span class="tag">DNS</span>
+   483|        </div>
+   484|      </div>
+   485|      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
+   486|        <span class="date-badge">🏋️ 05/18</span>
+   487|        <a href="daily/2026-05-18.html">自主練習：kubectl 排查、k3s 鏡像管理、Linux 資源監控、Git 復原、Helm 操作</a>
+   488|        <div class="day-meta">0 個對話 · 5 個知識點 — 涵蓋 kubectl Pod 診斷、k3s containerd 鏡像匯入、Linux 資源監控三指令、Git reset/restore/reflog、Helm list/history/rollback</div>
+   489|        <div class="day-topics">
+   490|          <span class="tag">kubectl</span><span class="tag">k3s</span><span class="tag">containerd</span><span class="tag">Linux</span><span class="tag">Git</span><span class="tag">Helm</span>
+   491|        </div>
+   492|      
+   493|      <div class="day-card" style="border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.03);">
+   494|        <span class="date-badge">📅 05/19</span>
+   495|        <a href="daily/2026-05-19.html">plugin-hub 子模組架構轉換：GitHub push protection、Submodule CI/CD、K8s 部署驗證、Git merge --no-ff</a>
+   496|        <div class="day-meta">1 個對話 · 10 個知識點（含 3 補充）— 涵蓋 gitmodules PAT token 安全、submodule-aware CI、kubectl describe 驗證、manifest 自動生成、Linux 資源監控、Cloudflare DNS、網路排查</div>
+   497|        <div class="day-topics">
+   498|          <span class="tag">GitHub</span> <span class="tag">CI/CD</span> <span class="tag">submodule</span> <span class="tag">kubectl</span> <span class="tag">K8s</span> <span class="tag">Git</span> <span class="tag">Cloudflare</span> <span class="tag">網路</span>
+   499|        </div>
+   500|      </div>
+   501|

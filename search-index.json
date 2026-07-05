@@ -5573,5 +5573,70 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-05-kp1",
+    "date": "2026-07-05",
+    "title": "kubectl top 資源診斷：即時用量 vs Scheduler 視角",
+    "summary": "kubectl top nodes 與 kubectl top pods -A 查看即時 CPU/RAM 用量；kubectl describe node | grep -A 8 Allocated 查看 request/limit 佔比（Scheduler 視角）。兩者差異：top 是實際消耗，describe Allocated 是排程保證量。",
+    "tags": [
+      "kubectl",
+      "資源監控",
+      "K8s"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-05-kp2",
+    "date": "2026-07-05",
+    "title": "Docker 多階段建置：Builder → Runtime 瘦身法",
+    "summary": "多階段建置（Multi-stage build）讓 builder stage 裝編譯工具，runtime stage 只複製 artifacts。Go 可 FROM scratch 產生～10MB 的靜態 binary；Node.js 用 standalone output 也可大幅縮小。",
+    "tags": [
+      "Docker",
+      "Image",
+      "多階段建置"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-05-kp3",
+    "date": "2026-07-05",
+    "title": "Linux 資源監控：uptime / free / df 三指令",
+    "summary": "uptime 看 load average（超過核心數表示排隊）；free -h 看 available（不是 free——Linux 用閒置 RAM 做 cache）；df -h / 看磁碟使用率。三部曲涵蓋 CPU、RAM、Disk。",
+    "tags": [
+      "Linux",
+      "監控",
+      "系統維運"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-05-kp4",
+    "date": "2026-07-05",
+    "title": "Git 復原操作：reset / restore / reflog 三種情境",
+    "summary": "git reset --soft HEAD~1（退回 commit 但保留 staged 檔案）；git restore <file>（丟棄工作區改動，相當於 checkout）；git reflog（看所有 HEAD 移動記錄，可救回誤刪的 commit）。",
+    "tags": [
+      "Git",
+      "復原",
+      "版本控制"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-05-kp5",
+    "date": "2026-07-05",
+    "title": "Helm 常用操作：生命週期管理四指令",
+    "summary": "helm list -A 看所有 release；helm history <release> -n <ns> 看版本歷史；helm rollback <release> <rev> 退回指定版本；helm get values <release> -n <ns> 看目前生效的 values。",
+    "tags": [
+      "Helm",
+      "K8s",
+      "套件管理"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-07-05（自主練習）</title>
+<style>
+:root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+    line-height: 1.6;
+    padding: 0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.container { padding: 2rem 1.5rem; }
+header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+h2 { font-size: 1.3rem; color: var(--accent); margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; color: var(--accent-orange); margin: 1rem 0 0.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 2rem; }
+.toc h3 { color: var(--accent); margin-top: 0; font-size: 1rem; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { padding: 0.2rem 0; }
+.toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; display: flex; align-items: baseline; gap: 0.5rem; }
+.kp-card h4 .kp-tag { font-size: 0.7rem; color: var(--accent); background: rgba(88,166,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.82rem; margin: 0.3rem 0; }
+.kp-card code { font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', monospace; }
+.notice { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: var(--accent-orange); }
+.notice strong { color: var(--accent-orange); }
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin: 2rem 0; }
+.cheatsheet h3 { color: var(--accent); margin-top: 0; }
+.cheatsheet pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: 0.85rem; }
+footer { border-top: 1px solid var(--border); padding: 1.5rem 0; margin-top: 2rem; text-align: center; }
+footer a { color: var(--accent); text-decoration: none; margin: 0 0.8rem; font-size: 0.88rem; }
+footer a:hover { text-decoration: underline; }
+footer .nav-sep { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🏋️ DevOps 學習筆記 — 07/05</h1>
+  <p class="subtitle">July 05, 2026 · 自主練習：kubectl top、Docker 多階段、Linux 監控、Git 復原、Helm 生命週期</p>
+</header>
+
+<div class="notice">
+  <strong>📚 今日無 DevOps 對話</strong> — 以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ul>
+    <li><a href="#kp1">💡 kp1 · kubectl top 資源診斷：即時用量 vs Scheduler 視角</a></li>
+    <li><a href="#kp2">💡 kp2 · Docker 多階段建置：Builder → Runtime 瘦身法</a></li>
+    <li><a href="#kp3">💡 kp3 · Linux 資源監控：uptime / free / df 三指令</a></li>
+    <li><a href="#kp4">💡 kp4 · Git 復原操作：reset / restore / reflog 三種情境</a></li>
+    <li><a href="#kp5">💡 kp5 · Helm 常用操作：生命週期管理四指令</a></li>
+  </ul>
+</div>
+
+<h2>📖 知識點</h2>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 kp1 · kubectl top 資源診斷：即時用量 vs Scheduler 視角 <span class="kp-tag">kubectl,資源監控,K8s</span></h4>
+  <p>kubectl top nodes 與 kubectl top pods -A 查看即時 CPU/RAM 用量；kubectl describe node | grep -A 8 Allocated 查看 request/limit 佔比（Scheduler 視角）。兩者差異：top 是實際消耗，describe Allocated 是排程保證量。</p>
+  <pre><code>kubectl top nodes
+kubectl top pods -A
+kubectl describe node | grep -A 8 Allocated</code></pre>
+  <p class="why">💭 原理：即時用量 vs 排程用量是兩個不同維度——OOM 時看即時，Unschedulable 時看排程佔比。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 kp2 · Docker 多階段建置：Builder → Runtime 瘦身法 <span class="kp-tag">Docker,Image,多階段建置</span></h4>
+  <p>多階段建置（Multi-stage build）讓 builder stage 裝編譯工具，runtime stage 只複製 artifacts。Go 可 FROM scratch 產生～10MB 的靜態 binary；Node.js 用 standalone output 也可大幅縮小。</p>
+  <pre><code>FROM golang:alpine AS builder
+WORKDIR /app
+COPY . .
+RUN go build -o myapp .
+FROM alpine:latest
+COPY --from=builder /app/myapp /myapp
+CMD ["/myapp"]
+# 查看 image 大小
+docker images | grep <name></code></pre>
+  <p class="why">💭 原理：多階段建置的精髓是 runtime 環境只保留必要內容，拋棄編譯階段的重量級工具鏈。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 kp3 · Linux 資源監控：uptime / free / df 三指令 <span class="kp-tag">Linux,監控,系統維運</span></h4>
+  <p>uptime 看 load average（超過核心數表示排隊）；free -h 看 available（不是 free——Linux 用閒置 RAM 做 cache）；df -h / 看磁碟使用率。三部曲涵蓋 CPU、RAM、Disk。</p>
+  <pre><code>uptime
+free -h
+df -h /</code></pre>
+  <p class="why">💭 原理：load average > CPU 核心數表示 CPU 排程阻塞；available 是真正可用的 RAM（free + cache/buffer 中可回收的部分）。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 kp4 · Git 復原操作：reset / restore / reflog 三種情境 <span class="kp-tag">Git,復原,版本控制</span></h4>
+  <p>git reset --soft HEAD~1（退回 commit 但保留 staged 檔案）；git restore <file>（丟棄工作區改動，相當於 checkout）；git reflog（看所有 HEAD 移動記錄，可救回誤刪的 commit）。</p>
+  <pre><code># 退回 commit 但保留變更
+git reset --soft HEAD~1
+# 丟棄工作區改動
+git restore <file>
+# 救回誤刪的 commit
+git reflog
+git reset --hard HEAD@{n}</code></pre>
+  <p class="why">💭 原理：reflog 是 Git 的局部安全網——只要 commit 曾經被 HEAD 指向過，reflog 就有記錄，reset 和 rebase 誤操作都救得回來。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 kp5 · Helm 常用操作：生命週期管理四指令 <span class="kp-tag">Helm,K8s,套件管理</span></h4>
+  <p>helm list -A 看所有 release；helm history <release> -n <ns> 看版本歷史；helm rollback <release> <rev> 退回指定版本；helm get values <release> -n <ns> 看目前生效的 values。</p>
+  <pre><code>helm list -A
+helm history <release> -n <ns>
+helm rollback <release> <rev> -n <ns>
+helm get values <release> -n <ns></code></pre>
+  <p class="why">💭 原理：helm history + rollback 是 K8s 應用的時間機器——部署出問題時秒級回退，不用重新部署整個 YAML。</p>
+</article>
+
+
+<!-- Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <pre><code># 資源監控三部曲
+kubectl top nodes
+kubectl top pods -A
+kubectl describe node | grep -A 8 Allocated
+uptime
+free -h
+df -h /
+
+# Git 復原三招
+git reset --soft HEAD~1
+git restore &lt;file&gt;
+git reflog
+
+# Helm 生命週期
+helm list -A
+helm history &lt;release&gt; -n &lt;ns&gt;
+helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code></pre>
+</div>
+
+<footer>
+  <a href="index.html">🏠 返回首頁</a>
+  <span class="nav-sep">·</span>
+  <span style="color: var(--text-secondary); font-size: 0.85rem;">DevOps 每日學習筆記 · 2026-07-05</span>
+</footer>
+
+</div>
+</body>
+</html>
