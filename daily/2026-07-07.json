@@ -1,0 +1,79 @@
+[
+  {
+    "id": "2026-07-07-kp1",
+    "date": "2026-07-07",
+    "title": "kubectl 診斷 Pod 啟動失敗的四步驟流程",
+    "summary": "kubectl get pods → describe → logs → events 四步驟診斷 Pod 啟動失敗（ImagePullBackOff/CrashLoopBackOff/OOMKilled/Pending 判讀）",
+    "tags": [
+      "kubectl",
+      "debug",
+      "pod",
+      "logs",
+      "events"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-07-kp2",
+    "date": "2026-07-07",
+    "title": "k3s containerd 鏡像管理完整流程：離線部署",
+    "summary": "docker build → docker save → sudo k3s ctr images import → kubectl apply + imagePullPolicy: Never 離線部署完整流程",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "imagePullPolicy",
+      "離線部署"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-07-kp3",
+    "date": "2026-07-07",
+    "title": "systemd 服務管理三指令：systemctl、journalctl、daemon-reload",
+    "summary": "systemctl list-units --state=failed 看失敗服務、journalctl -u service -n 50 看日誌、systemctl daemon-reload 在修改 unit file 後重載設定",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "daemon-reload",
+      "服務管理"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-07-kp4",
+    "date": "2026-07-07",
+    "title": "Git stash 暫存管理：切換分支前的安全網",
+    "summary": "git stash -u 暫存含 untracked 檔案、git stash list/pop/apply/drop LIFO 堆疊管理，切分支前先 stash 再切的安全操作",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "暫存管理"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-07-kp5",
+    "date": "2026-07-07",
+    "title": "網路排查四指令：curl / dig / ss / nc 對應 OSI 四層",
+    "summary": "curl -v (L7 HTTP/TLS)、dig +short (DNS)、ss -tlnp (L4 local port)、nc -zv host port (L4 connectivity) 四指令涵蓋 OSI 四層網路排查",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "OSI",
+      "debug"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]
