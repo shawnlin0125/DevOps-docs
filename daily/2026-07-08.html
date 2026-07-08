@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-07-08（自主練習）</title>
+<style>
+:root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d2991d;
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --accent-purple: #a371f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+    line-height: 1.6;
+    padding: 0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.container { padding: 2rem 1.5rem; }
+header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+h2 { font-size: 1.3rem; color: var(--accent); margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; color: var(--accent-orange); margin: 1rem 0 0.5rem; }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 2rem; }
+.toc h3 { color: var(--accent); margin-top: 0; font-size: 1rem; }
+.toc ul { list-style: none; padding: 0; }
+.toc li { padding: 0.2rem 0; }
+.toc a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.toc a:hover { text-decoration: underline; }
+.kp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.6rem; }
+.kp-card h4 { color: var(--accent-green); margin: 0 0 0.3rem; font-size: 0.95rem; display: flex; align-items: baseline; gap: 0.5rem; }
+.kp-card h4 .kp-tag { font-size: 0.7rem; color: var(--accent); background: rgba(88,166,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; }
+.kp-card p { color: var(--text); font-size: 0.88rem; margin-bottom: 0.5rem; }
+.kp-card .why { color: var(--accent-purple); font-size: 0.85rem; margin-top: 0.5rem; }
+.kp-card pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.82rem; margin: 0.3rem 0; }
+.kp-card code { font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', monospace; }
+.notice { background: rgba(210,153,29,0.1); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: var(--accent-orange); }
+.notice strong { color: var(--accent-orange); }
+.cheatsheet { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin: 2rem 0; }
+.cheatsheet h3 { color: var(--accent); margin-top: 0; }
+.cheatsheet pre { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: 0.85rem; }
+footer { border-top: 1px solid var(--border); padding: 1.5rem 0; margin-top: 2rem; text-align: center; }
+footer a { color: var(--accent); text-decoration: none; margin: 0 0.8rem; font-size: 0.88rem; }
+footer a:hover { text-decoration: underline; }
+footer .nav-sep { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🏋️ DevOps 學習筆記 — 07/08</h1>
+  <p class="subtitle">July 08, 2026 · 自主練習：kubectl top 資源診斷、Linux 監控、Git 復原操作、Helm 常用操作、Cloudflare DNS 管理</p>
+</header>
+
+<div class="notice">
+  <strong>📚 今日無 DevOps 對話</strong> — 以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h3>📑 目錄</h3>
+  <ul>
+    <li><a href="#kp1">💡 KP1 · kubectl top 資源診斷：即時用量 vs Scheduler 視角</a></li>
+    <li><a href="#kp2">💡 KP2 · Linux 資源監控三指令：uptime / free / df</a></li>
+    <li><a href="#kp3">💡 KP3 · Git 復原操作：reset / restore / reflog 三種情境</a></li>
+    <li><a href="#kp4">💡 KP4 · Helm 常用操作：list / history / rollback / get values</a></li>
+    <li><a href="#kp5">💡 KP5 · Cloudflare DNS 管理：Proxy Mode vs DNS Only</a></li>
+  </ul>
+</div>
+
+<h2>📖 知識點</h2>
+
+<article class="kp-card" id="kp1">
+  <h4>💡 KP1 · kubectl top 資源診斷：即時用量 vs Scheduler 視角 <span class="kp-tag">kubectl,top,resources,capacity,scheduler</span></h4>
+  <p><code>kubectl top nodes</code> 看各節點即時 CPU/Memory 使用量（來自 cgroup 統計），<code>kubectl top pods -A</code> 看每個 Pod 即時用量（找出吃資源的 Pod）。<code>kubectl describe node &lt;node&gt; | grep -A 8 Allocated</code> 看該節點已分配的 request/limit 總和佔比——這是 scheduler 在排 Pod 時看的數字。兩者對比很重要：top 是「實際用多少」，Allocated 是「設定要保留多少」。Alocated 接近 100% 時新 Pod 會 Pending（Unschedulable）。</p>
+  <pre><code># 看所有節點即時 CPU/Memory 用量
+kubectl top nodes
+
+# 看所有 Pod 即時用量（找出異常吃資源的 Pod）
+kubectl top pods -A
+
+# 看特定節點的資源分配佔比（scheduler 視角）
+kubectl describe node <node-name> | grep -A 8 Allocated
+
+# 快速找出 Unschedulable 節點
+kubectl get nodes | grep -v Ready</code></pre>
+  <p class="why">💭 原理：kubectl top 透過 metrics-server 抓取 kubelet cAdvisor 收集的即時 cgroup 統計資料；describe node Allocated 是 scheduler 在排程時計算的 request/limit 佔比。即時用量低不代表可以再塞 Pod——scheduler 只看 request，不管實際用量。</p>
+</article>
+
+<article class="kp-card" id="kp2">
+  <h4>💡 KP2 · Linux 資源監控三指令：uptime / free / df <span class="kp-tag">Linux,monitoring,uptime,free,df,load average,memory,disk</span></h4>
+  <p>三個 Linux 資源監控必知指令：<code>uptime</code> 顯示 load average（1/5/15 分鐘平均排隊執行緒數），比較 load average vs CPU 核心數——load > 核心數表示 CPU 排隊中。<code>free -h</code> 看記憶體使用，重點看 available 欄位（不是 free）——Linux 會拿閒置 RAM 做 page cache，所以 free 低不代表記憶體不足。<code>df -h /</code> 看磁碟使用率（掛載點空間），搭配 <code>df -i /</code> 看 inode 是否耗盡（inode 滿了檔案系統會報 Disk Full 即使還有空間）。</p>
+  <pre><code># 看 load average（1/5/15 分鐘平均排隊數）
+uptime
+
+# 看記憶體（重點看 available）
+free -h
+
+# 看磁碟空間
+df -h /
+
+# 看 inode 用量（inode 滿了也會報 Disk Full）
+df -i /</code></pre>
+  <p class="why">💭 原理：load average 統計的是正在運行 + 不可中斷睡眠（D state）的執行緒總數，超過核心數 = CPU 成為瓶頸。free 指令的 available 是系統估算「可立即分配給新程式的記憶體」（free + 可回收的 cache），比 free 準確。df 查 /proc/mounts 和 statfs syscall，inode 數在格式化時決定（mkfs -i 可調）。</p>
+</article>
+
+<article class="kp-card" id="kp3">
+  <h4>💡 KP3 · Git 復原操作：reset / restore / reflog 三種情境 <span class="kp-tag">Git,reset,restore,reflog,復原</span></h4>
+  <p>Git 三種復原操作對應不同情境：<code>git reset --soft HEAD~1</code> 退回最近一個 commit 但保留工作區和 staging 區的改動（適合 commit 錯內容後重新 commit）；<code>git restore &lt;file&gt;</code> 丟棄工作區未暫存的改動（取代舊版 <code>git checkout --</code>）；<code>git reflog</code> 看所有 HEAD 移動記錄——即使 <code>git reset --hard</code> 誤刪 commit 也能找回（reflog 裡有每個移動的 SHA）。</p>
+  <pre><code># 退回最近 commit 但保留改動（重新 commit）
+git reset --soft HEAD~1
+
+# 丟棄工作區改動（檔案回到上次 commit 狀態）
+git restore <file>
+
+# 看所有 HEAD 移動記錄（救回誤刪的 commit）
+git reflog
+
+# 救回誤刪的 commit（從 reflog 找 SHA 然後 checkout）
+git checkout <sha-from-reflog></code></pre>
+  <p class="why">💭 原理：git reset 移動 HEAD 指標和 branch ref（--soft 不碰 index/working tree，--mixed 重設 index，--hard 全部重設）。git restore 直接改工作區檔案內容（restore 是 2.23 引入的 checkout 拆分管線）。reflog 是本機的 HEAD 移動歷史記錄（存在 .git/logs/HEAD），commit 被 GC 前都能從 reflog 找回（預設 90 天過期）。</p>
+</article>
+
+<article class="kp-card" id="kp4">
+  <h4>💡 KP4 · Helm 常用操作：list / history / rollback / get values <span class="kp-tag">Helm,list,history,rollback,get values,release,revision</span></h4>
+  <p>Helm 版本生命週期管理四指令：<code>helm list -A</code> 看所有 namespace 的所有 release（STATUS: deployed/failed/pending）；<code>helm history &lt;release&gt; -n &lt;ns&gt;</code> 看指定 release 的 revision 歷史（每次 upgrade/install 產生一個 revision）；<code>helm rollback &lt;release&gt; &lt;rev&gt; -n &lt;ns&gt;</code> 退回指定 revision（等同於用該 revision 的 manifest 做一次 upgrade）；<code>helm get values &lt;release&gt; -n &lt;ns&gt;</code> 看目前 release 的 values（含所有覆蓋層級合併後的結果）。</p>
+  <pre><code># 看所有 release
+helm list -A
+
+# 看 release 版本歷史
+helm history <release> -n <namespace>
+
+# 退回指定版本
+helm rollback <release> <revision-number> -n <namespace>
+
+# 看目前 release 的合併後 values
+helm get values <release> -n <namespace>
+
+# 限制保留 revision 數量（避免 etcd 膨脹）
+helm upgrade --history-max 5 <release> .</code></pre>
+  <p class="why">💭 原理：Helm 每次 upgrade/install 產生一個新 revision（Secret 資源中儲存完整 manifest + values），rollback 只是將目標 revision 的 manifest 重新 apply 到集群。revision 累積過多會佔用 etcd 空間，建議 --history-max 設 5-10。get values 顯示的是 values.yaml、外部 values 檔案、--set 合併後的最終結果。</p>
+</article>
+
+<article class="kp-card" id="kp5">
+  <h4>💡 KP5 · Cloudflare DNS 管理：Proxy Mode vs DNS Only <span class="kp-tag">Cloudflare,DNS,Proxy,DNS only,CDN,API</span></h4>
+  <p>Cloudflare DNS 記錄有兩種模式：<strong>Proxy mode</strong>（橘色雲朵）——流量經過 Cloudflare CDN 代理，隱藏真實 origin IP（DDoS 防護 + 快取），同時提供免費 SSL/TLS 終止（Flexible/Full/Strict）；<strong>DNS only</strong>（灰色雲朵）——直接將域名解析到 origin IP，Cloudflare 只做 DNS 代管不做代理。用 Cloudflare API 可自動化管理 DNS 記錄：列出區域→創建/更新/刪除 DNS 記錄，支援批量操作。注意切換 Proxy 模式時建議關閉 SSL 回退，避免代理快取舊記錄。</p>
+  <pre><code># 用 Cloudflare API 列出所有 DNS 記錄
+curl -s -X GET "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records"   -H "Authorization: Bearer <API_TOKEN>"   -H "Content-Type: application/json" | jq '.result[] | {name, type, content, proxied}'
+
+# 創建 DNS 記錄（A 記錄 + Proxy 模式）
+curl -s -X POST "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records"   -H "Authorization: Bearer <API_TOKEN>"   -H "Content-Type: application/json"   -d '{"type":"A","name":"example.com","content":"1.2.3.4","proxied":true}' | jq .
+
+# 數位工具：dig 檢查 DNS 記錄狀態
+dig +short example.com
+dig example.com +noall +answer</code></pre>
+  <p class="why">💭 原理：Proxy 模式時 Cloudflare 的 Anycast 邊緣節點取代 origin server 直接接收請求（origin IP 隱藏），同時提供 CDN 快取和 HTTP/2 到 HTTP/1.1 回源轉換。DNS only 模式僅提供權威 DNS 解析服務，流量直連 origin server。API 使用 RESTful HTTP + Bearer Token 認證，ZONE_ID 可從 dashboard 或 API 取得。</p>
+</article>
+
+<!-- Cheatsheet -->
+<div class="cheatsheet">
+  <h3>🛠️ 本日指令速查表</h3>
+  <pre><code># kubectl 資源診斷
+kubectl top nodes
+kubectl top pods -A
+kubectl describe node <node> | grep -A 8 Allocated
+
+# Linux 資源監控
+uptime
+free -h
+df -h /
+df -i /
+
+# Git 復原
+git reset --soft HEAD~1
+git restore <file>
+git reflog
+
+# Helm 生命週期
+helm list -A
+helm history <release> -n <ns>
+helm rollback <release> <rev> -n <ns>
+helm get values <release> -n <ns>
+
+# Cloudflare DNS API
+curl -X GET "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/dns_records" \
+  -H "Authorization: Bearer <API_TOKEN>" | jq .</code></pre>
+</div>
+
+<footer>
+  <a href="index.html">🏠 返回首頁</a>
+  <span class="nav-sep">·</span>
+  <span style="color: var(--text-secondary); font-size: 0.85rem;">DevOps 每日學習筆記 · July 08, 2026</span>
+</footer>
+
+</div>
+</body>
+</html>

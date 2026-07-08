@@ -5797,5 +5797,86 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-08-kp1",
+    "date": "2026-07-08",
+    "title": "kubectl top 資源診斷：即時用量 vs Scheduler 視角",
+    "summary": "kubectl top nodes 看各節點即時 CPU/Memory 使用量（來自 cgroup 統計），kubectl top pods -A 看每個 Pod 即時用量（找出吃資源的 Pod）。",
+    "tags": [
+      "kubectl",
+      "top",
+      "resources",
+      "capacity",
+      "scheduler"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-08-kp2",
+    "date": "2026-07-08",
+    "title": "Linux 資源監控三指令：uptime / free / df",
+    "summary": "三個 Linux 資源監控必知指令：uptime 顯示 load average（1/5/15 分鐘平均排隊執行緒數），比較 load average vs CPU 核心數——load > 核心數表示 CPU 排隊中。",
+    "tags": [
+      "Linux",
+      "monitoring",
+      "uptime",
+      "free",
+      "df",
+      "load average",
+      "memory",
+      "disk"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-08-kp3",
+    "date": "2026-07-08",
+    "title": "Git 復原操作：reset / restore / reflog 三種情境",
+    "summary": "Git 三種復原操作對應不同情境：git reset --soft HEAD~1 退回最近一個 commit 但保留工作區和 staging 區的改動（適合 commit 錯內容後重新 commit）；git restore <file> 丟棄工作區未暫存的改動（取代舊版 git checkout --）；git reflog 看所有 HEAD 移動記錄——即使 git reset --hard 誤刪 commit 也能找回（reflog 裡有每個移動的 SHA）。",
+    "tags": [
+      "Git",
+      "reset",
+      "restore",
+      "reflog",
+      "復原"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-08-kp4",
+    "date": "2026-07-08",
+    "title": "Helm 常用操作：list / history / rollback / get values",
+    "summary": "Helm 版本生命週期管理四指令：helm list -A 看所有 namespace 的所有 release（STATUS: deployed/failed/pending）；helm history <release> -n <ns> 看指定 release 的 revision 歷史（每次 upgrade/install 產生一個 revision）；helm rollback <release> <rev> -n <ns> 退回指定 revision（等同於用該 revision 的 manifest 做一次 upgrade）；helm get values <release> -n <ns> 看目前 release 的 values（含所有覆蓋層級合併後的結果）。",
+    "tags": [
+      "Helm",
+      "list",
+      "history",
+      "rollback",
+      "get values",
+      "release",
+      "revision"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-08-kp5",
+    "date": "2026-07-08",
+    "title": "Cloudflare DNS 管理：Proxy Mode vs DNS Only",
+    "summary": "Cloudflare DNS 記錄有兩種模式：Proxy mode（橘色雲朵）——流量經過 Cloudflare CDN 代理，隱藏真實 origin IP（DDoS 防護 + 快取），同時提供免費 SSL/TLS 終止（Flexible/Full/Strict）；DNS only（灰色雲朵）——直接將域名解析到 origin IP，Cloudflare 只做 DNS 代管不做代理。",
+    "tags": [
+      "Cloudflare",
+      "DNS",
+      "Proxy",
+      "DNS only",
+      "CDN",
+      "API"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
