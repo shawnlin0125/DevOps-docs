@@ -1,0 +1,83 @@
+[
+  {
+    "id": "2026-07-09-kp1",
+    "date": "2026-07-09",
+    "title": "kubectl exec 進 Pod 內排查：env、nc、resolv.conf 三招",
+    "summary": "用 kubectl exec -it <pod> -n <ns> -- sh 或 bash 進入容器內互動排查。常用三指令：env | grep -i 確認環境變數是否正確設置、nc -zv <service> <port> 測試 TCP 連線是否通、cat /etc/resolv.conf 確認 Pod 內的 DNS 設定（nameserver/search domain）。",
+    "tags": [
+      "kubectl",
+      "exec",
+      "debug",
+      "pod",
+      "nc",
+      "env",
+      "dns"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-09-kp2",
+    "date": "2026-07-09",
+    "title": "Docker 多階段建置縮小 Image（Multi-stage Build）",
+    "summary": "多階段建置將 Dockerfile 分為 builder stage（安裝編譯工具、下載 dependencies、編譯）和 runtime stage（只複製編譯後的 artifacts），大幅縮小 final image。Go 可 FROM scratch（靜態 binary 約 10MB），Node.js 用 alpine + standalone output。",
+    "tags": [
+      "Docker",
+      "Image",
+      "多階段建置",
+      "multi-stage",
+      "scratch"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-09-kp3",
+    "date": "2026-07-09",
+    "title": "OOM Killer 診斷：dmesg + exit code 137 + kubectl describe",
+    "summary": "sudo dmesg -T | grep -i oom 查看核心 OOM Killer 記錄（含 oom_score 和被殺 process）。Exit code 137 = 128 + 9 (SIGKILL) 表示 process 被 kill。K8s 中 kubectl describe pod 的 Last State: OOMKilled 表示 cgroup 層級 OOM（Pod memory limits 觸發），而 dmesg OOM 是系統層級（節點實體記憶體不足）。",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "SIGKILL",
+      "memory",
+      "k8s",
+      "Linux"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-09-kp4",
+    "date": "2026-07-09",
+    "title": "GitHub PR 流程：gh CLI 終端機完整操作",
+    "summary": "用 gh CLI 在終端機完成 PR 全流程：git checkout -b feature/xxx → git commit → git push -u origin feature/xxx → gh pr create --title \"...\" --body \"...\" → gh pr merge --squash --delete-branch。不必開瀏覽器就能審查和合併。gh pr list 看所有 PR、gh pr checkout <number> 切換到 PR branch、gh pr diff 看 diff。",
+    "tags": [
+      "GitHub",
+      "gh",
+      "PR",
+      "merge",
+      "squash",
+      "CLI"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-09-kp5",
+    "date": "2026-07-09",
+    "title": "Helm values 分層覆蓋機制：values.yaml → 環境檔案 → --set",
+    "summary": "Helm values 有三層覆蓋鏈：values.yaml（chart 預設值）← values/production.yaml（環境覆蓋檔案）← --set key=value（CLI 參數）。後面層級 merge 覆蓋前面的同名 key。helm get values <release> -n <ns> 可以看到合併後的最終 values。--set 方便快速測試但容易因 typo 出錯（Helm 不檢查 key 是否有效）。",
+    "tags": [
+      "Helm",
+      "values",
+      "values.yaml",
+      "--set",
+      "merge",
+      "覆蓋"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
+  }
+]

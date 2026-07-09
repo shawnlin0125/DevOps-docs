@@ -79,8 +79,8 @@
     79|    <h1>⚡ Shawn's <span>DevOps Lab</span></h1>
     80|    <p class="subtitle">每日學習筆記 — 從真實專案中學 DevOps：k3s · Kubernetes · CI/CD · 監控 · GitOps</p>
     <div class="stats">
-      <div class="stat"><span class="stat-num" id="stat-days">59</span><div class="stat-label">學習天數</div></div>
-      <div class="stat"><span class="stat-num" id="stat-kps">378</span><div class="stat-label">知識點</div></div>
+      <div class="stat"><span class="stat-num" id="stat-days">60</span><div class="stat-label">學習天數</div></div>
+      <div class="stat"><span class="stat-num" id="stat-kps">383</span><div class="stat-label">知識點</div></div>
     </div>
   </header>
 
@@ -123,6 +123,14 @@
         <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl top nodes/pods + describe node Allocated 即時用量 vs scheduler 視角、uptime load average 比較核心數判斷 CPU 排隊 + free -h available 才是真可用記憶體 + df -h/df -i 磁碟與 inode 監控、git reset --soft HEAD~1 保留改動重新 commit + git restore/reflog 復原情境、helm list -A/history/rollback/get values 版本生命週期管理 + --history-max 控制 revision 數量、Cloudflare Proxy vs DNS only 模式差異與 API 自動化管理</div>
         <div class="day-topics">
           <span class="tag">kubectl</span> <span class="tag">top</span> <span class="tag">resources</span> <span class="tag">capacity</span> <span class="tag">Linux</span> <span class="tag">monitoring</span> <span class="tag">uptime</span> <span class="tag">free</span> <span class="tag">df</span> <span class="tag">load average</span> <span class="tag">memory</span> <span class="tag">disk</span> <span class="tag">Git</span> <span class="tag">reset</span> <span class="tag">restore</span> <span class="tag">reflog</span> <span class="tag">Helm</span> <span class="tag">rollback</span> <span class="tag">list</span> <span class="tag">history</span> <span class="tag">values</span> <span class="tag">Cloudflare</span> <span class="tag">DNS</span> <span class="tag">Proxy</span> <span class="tag">API</span>
+        </div>
+      </div>
+      <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
+        <span class="date-badge">🏋️ 07/09</span>
+        <a href="daily/2026-07-09.html">自主練習：kubectl exec Pod 內排查、Docker 多階段建置、OOM Killer 診斷、GitHub PR 流程、Helm values 分層覆蓋</a>
+        <div class="day-meta">0 對話 · 5 知識點（自主練習）— 涵蓋 kubectl exec -it pod -- sh 進容器互動排查（env/nc/resolv.conf 三招）、Docker multi-stage build 從 builder 到 scratch 瘦身（每個 FROM 獨立階段，builder 層建置完丟棄）、sudo dmesg -T OOM Killer 記錄 + exit code 137 SIGKILL 判別（cgroup vs 節點 OOM 區別）、gh pr create/merge --squash --delete-branch 完整 CLI 流程與 gh pr list/diff/checkout 實用工具、Helm values 三層覆蓋鏈（values.yaml → 環境檔案 → --set）與 helm history/rollback 版本管理</div>
+        <div class="day-topics">
+          <span class="tag">kubectl</span> <span class="tag">exec</span> <span class="tag">debug</span> <span class="tag">pod</span> <span class="tag">nc</span> <span class="tag">env</span> <span class="tag">Docker</span> <span class="tag">multi-stage</span> <span class="tag">build</span> <span class="tag">scratch</span> <span class="tag">OOM</span> <span class="tag">dmesg</span> <span class="tag">exit code</span> <span class="tag">SIGKILL</span> <span class="tag">GitHub</span> <span class="tag">gh</span> <span class="tag">PR</span> <span class="tag">merge</span> <span class="tag">squash</span> <span class="tag">Helm</span> <span class="tag">values</span> <span class="tag">覆蓋</span>
         </div>
       </div>
       <div class="day-card" style="border-color: rgba(163,113,247,0.3); background: rgba(163,113,247,0.03);">
