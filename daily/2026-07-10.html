@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps 學習筆記 — 2026-07-10（自主練習）</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --accent: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d2991d;
+  --accent-purple: #a371f7;
+  --text: #c9d1d9;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+  line-height: 1.6;
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+h1 { color: var(--accent); font-size: 1.6rem; margin-bottom: 0.3rem; }
+h2 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+h3 { color: var(--text); font-size: 1rem; margin: 0.8rem 0 0.4rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.notice {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-orange);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.toc { margin-bottom: 1.5rem; }
+.toc a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: inline-block;
+  padding: 0.2rem 0;
+}
+.toc a:hover { text-decoration: underline; }
+.toc ul { list-style: none; padding-left: 0; }
+.toc li { padding: 0.1rem 0; }
+.kp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.6rem;
+}
+.kp-card h4 {
+  color: var(--accent-green);
+  margin: 0 0 0.3rem;
+  font-size: 0.95rem;
+}
+.kp-card p {
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.kp-card .why {
+  color: var(--accent-purple);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+pre {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin-bottom: 0.3rem;
+}
+code { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+.nav {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+.nav a { color: var(--accent); text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+.tag {
+  display: inline-block;
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  margin: 0 0.2rem 0.2rem 0;
+}
+</style>
+</head>
+<body>
+
+<h1>🏋️ DevOps 學習筆記 — 2026-07-10（自主練習）</h1>
+<p class="subtitle">July 10, 2026 · 0 對話 · 5 知識點</p>
+
+<div class="notice">
+📌 今天沒有 DevOps 對話，以下是精選的 DevOps 基礎知識點，適合日常複習。
+</div>
+
+<nav class="toc">
+<h3>📑 目錄</h3>
+<ul>
+  <li><a href="#kp1">kubectl 診斷 Pod 啟動失敗：get → describe → logs → events</a></li>
+  <li><a href="#kp2">k3s containerd 鏡像管理：build → save → import → deploy</a></li>
+  <li><a href="#kp3">systemd 服務管理：systemctl + journalctl</a></li>
+  <li><a href="#kp4">Git stash 暫存管理：stash push/pop/list/drop</a></li>
+  <li><a href="#kp5">網路排查四指令：curl · dig · ss · nc</a></li>
+</ul>
+</nav>
+
+<section>
+<article class="kp-card" id="kp1">
+  <h4>💡 kubectl 診斷 Pod 啟動失敗的完整流程</h4>
+  <p>當 Pod 無法啟動時，依序執行四步驟診斷：(1) kubectl get pods -A 看 Status 欄快速判斷（CrashLoopBackOff、ImagePullBackOff、Pending、OOMKilled）；(2) kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; 看 Events 欄和 Conditions 找到真正錯誤；(3) kubectl logs &lt;pod&gt; -n &lt;ns&gt; 看容器 stdout/stderr；(4) kubectl get events -n &lt;ns&gt; 看 cluster 層級事件（如 Node 資源不足）。</p>
+  <pre><code># 步驟 1：看所有 Pod 狀態
+kubectl get pods -A
+
+# 步驟 2：詳細描述（Events 欄是關鍵）
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;
+
+# 步驟 3：看容器日誌
+kubectl logs &lt;pod&gt; -n &lt;ns&gt;
+kubectl logs --previous &lt;pod&gt; -n &lt;ns&gt;  # 看上一次 restart 前的 log
+
+# 步驟 4：看 cluster 事件
+kubectl get events -n &lt;ns&gt; --sort-by='.lastTimestamp'
+
+# 常見 Status 判讀：
+# ImagePullBackOff → 鏡像不存在或拉取失敗
+# CrashLoopBackOff → 容器啟動後一直 crash
+# Pending → 資源不夠或 PVC 未 bound
+# OOMKilled → memory limits 不足</code></pre>
+  <p class="why">💭 原理：kubectl describe 從 kube-apiserver 撈取 Pod 完整 spec + status + events，Events 是 kubelet/kube-scheduler 寫入的可觀察性記錄。CrashLoopBackOff 表示 container 啟動後立即退出（exit code ≠ 0），kubelet 回傳 restartCount ++，exponential backoff 延遲重啟。Pending 最常見原因是 Pod 排程不上去（資源不足）或 PersistentVolumeClaim 還沒 bound。</p>
+  <div>
+<article class="kp-card" id="kp2">
+  <h4>💡 k3s containerd 鏡像管理：build → save → import → deploy</h4>
+  <p>k3s 不使用 Docker daemon，而是內建 containerd。部署自建鏡像的完整流程：先在 Docker 環境 build 鏡像，docker save 成 tar 檔，再透過 k3s ctr images import 匯入 containerd 的 image store，最後 kubectl apply + imagePullPolicy: Never 讓 k3s 使用本地鏡像而不去 registry 拉取。</p>
+  <pre><code># 1. Docker build（在開發機或本機）
+docker build -t myapp:latest .
+
+# 2. Docker save 成 tar
+docker save myapp:latest -o myapp.tar
+
+# 3. k3s 節點上匯入 containerd
+sudo k3s ctr images import myapp.tar
+
+# 4. 確認已匯入
+sudo k3s ctr images ls | grep myapp
+
+# 5. Deployment 設定 imagePullPolicy: Never
+# spec.template.spec.containers[0].imagePullPolicy: Never
+
+# 6. 部署
+kubectl apply -f deployment.yaml
+kubectl rollout restart deploy/myapp
+
+# 注意：每次 rebuild 後要重新 save + import + restart</code></pre>
+  <p class="why">💭 原理：k3s containerd 的 image namespace 預設是 k8s.io，k3s ctr images import 自動匯入到正確的 namespace。imagePullPolicy: Never 讓 kubelet 跳過 registry pull 步驟，直接用 containerd 本地 image store 的鏡像。若用 :latest tag 不更新，建議用 timestamp tag（如 myapp:20260710-1200）確保每次強制使用新版。</p>
+  <div>
+<article class="kp-card" id="kp3">
+  <h4>💡 systemd 服務管理：systemctl + journalctl</h4>
+  <p>systemd 是 Linux 的 init 系統，管理所有服務（unit）。常用 systemctl 指令：systemctl status &lt;service&gt; 看服務狀態、systemctl list-units --state=failed 列出所有失敗的服務、systemctl daemon-reload 重載 unit file 變更。journalctl -u &lt;service&gt; -n 50 --no-pager 看特定服務的最近 log。systemctl enable/disable 控制開機自啟。</p>
+  <pre><code># 查看服務狀態
+systemctl status k3s
+
+# 列出所有失敗的服務
+systemctl list-units --state=failed
+
+# 看特定服務最近日誌
+journalctl -u k3s -n 50 --no-pager
+
+# 看即時日誌（類似 tail -f）
+journalctl -u k3s -f
+
+# 重載 unit file（修改 .service 檔後執行）
+systemctl daemon-reload
+
+# 重啟服務
+systemctl restart k3s
+
+# 開機自啟管理
+systemctl enable k3s
+systemctl disable k3s
+
+# 隱藏 service 副檔名也可以
+systemctl status k3s.service  # 等同 systemctl status k3s</code></pre>
+  <p class="why">💭 原理：systemd unit 放在 /etc/systemd/system/（自訂）或 /lib/systemd/system/（套件安裝），副檔名為 .service、.timer、.socket 等。systemctl daemon-reload 會重新掃描 unit 目錄並載入變更。journalctl 讀取 /var/log/journal/ 的二進位 journal 檔案，支援 --since/--until 時間範圍過濾。</p>
+  <div>
+<article class="kp-card" id="kp4">
+  <h4>💡 Git stash 暫存管理</h4>
+  <p>當你在 branch 上改了檔案但還沒 commit，卻需要換 branch 或處理其他事時，git stash 可以暫時儲存目前的工作目錄改動。預設只暫存 tracked 檔案，git stash -u 或 --include-untracked 連新增檔案也暫存。git stash list 看所有暫存，git stash pop 恢復最新暫存並刪除它，git stash apply 恢復但不刪除（給多次 apply 用）。</p>
+  <pre><code># 暫存目前改動（含 untracked）
+git stash -u
+
+# 看所有暫存
+git stash list
+# stash@{0}: WIP on main: a1b2c3d feat: xxx
+# stash@{1}: WIP on feature: e5f6g7h fix: yyy
+
+# 恢復最近暫存並刪除
+git stash pop
+
+# 恢復指定暫存但不刪除
+git stash apply stash@{1}
+
+# 刪除指定暫存
+git stash drop stash@{1}
+
+# 全部清空
+git stash clear
+
+# 暫存時加訊息方便辨識
+git stash push -u -m "WIP: refactoring auth module"</code></pre>
+  <p class="why">💭 原理：Git stash 本質上產生一個 merge commit（或兩個 parent commit：staged + working tree 的 HEAD），存放在 .git/refs/stash refs 中。stash list 是 LIFO 結構（stack），每次 stash push 都推到最上面，stash pop 取出最新（stash@{0}）並自動 drop。</p>
+  <div>
+<article class="kp-card" id="kp5">
+  <h4>💡 網路排查四指令：curl · dig · ss · nc</h4>
+  <p>四個指令分別對應 OSI 模型不同層級：curl -v http://domain（應用層，看 HTTP request/response 和 SSL 握手）、dig +short domain（DNS 層，查域名解析）、ss -tlnp（傳輸層，看 listening TCP port 及所屬 process）、nc -zv host port（傳輸層，測試 TCP 連線是否通）。</p>
+  <pre><code># curl：完整 HTTP 請求（含 header + SSL 握手資訊）
+curl -v https://example.com
+curl -I https://example.com  # 只看 response headers
+
+# dig：DNS 查詢
+dig +short example.com           # A record
+dig +short mx example.com        # MX record
+dig example.com CNAME            # CNAME record
+
+# ss：看 listening port（取代 netstat）
+ss -tlnp  # TCP listening + process
+ss -ulnp  # UDP listening
+
+# nc：測試 TCP 連線
+nc -zv example.com 443           # 測 HTTPS 通不通
+nc -zv 10.0.0.1 3306             # 測內部 MySQL 連線
+
+# 常見應用：確認服務是否在 listening
+ss -tlnp | grep 8080</code></pre>
+  <p class="why">💭 原理：curl -v 走完整 TCP + TLS 握手，輸出 SSL certificate 資訊和 HTTP response status line，是排查 HTTPS 連線問題的首選。dig +short 跳過 dig 詳細輸出直接給解析結果。ss 直接讀取 kernel socket 資訊（/proc/net/tcp），比 netstat 更快更完整（支援 cgroup、socket inode）。nc -zv 只發 SYN 等 ACK（三次握手第一步），成功即退出，不建立完整連線。</p>
+  <div><span class="tag">kubectl</span><span class="tag">debug</span><span class="tag">logs</span><span class="tag">events</span><span class="tag">k3s</span><span class="tag">containerd</span><span class="tag">Docker</span><span class="tag">imagePullPolicy</span><span class="tag">systemd</span><span class="tag">systemctl</span><span class="tag">journalctl</span><span class="tag">Git</span><span class="tag">stash</span><span class="tag">stash pop</span><span class="tag">network</span><span class="tag">curl</span><span class="tag">dig</span><span class="tag">ss</span><span class="tag">nc</span>  </div>
+</article>
+</section>
+
+<h2>🛠️ 本日指令速查表</h2>
+<pre><code># kubectl Pod 啟動失敗診斷四步驟
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;
+kubectl logs --previous &lt;pod&gt; -n &lt;ns&gt;
+
+# k3s 鏡像匯入
+sudo docker build -t myapp:latest . && sudo docker save myapp:latest -o myapp.tar
+sudo k3s ctr images import myapp.tar
+
+# systemd 看失敗服務
+systemctl list-units --state=failed
+journalctl -u k3s -n 50 --no-pager
+
+# Git stash 暫存
+git stash -u
+git stash pop
+
+# 網路排查四指令
+curl -v https://example.com
+dig +short example.com
+ss -tlnp | grep 8080
+nc -zv example.com 443</code></pre>
+
+<nav class="nav">
+  <a href="2026-07-09.html">← 前一天</a>
+  <a href="../index.html">🏠 回到首頁</a>
+  <span style="color: var(--text-secondary);">後一天 →</span>
+</nav>
+
+</body>
+</html>

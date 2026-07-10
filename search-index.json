@@ -5959,5 +5959,90 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-10-kp1",
+    "date": "2026-07-10",
+    "title": "kubectl 診斷 Pod 啟動失敗：get → describe → logs → events",
+    "summary": "四步驟診斷 Pod 啟動失敗：kubectl get pods -A 看 Status 欄（CrashLoopBackOff/ImagePullBackOff/Pending/OOMKilled）→ kubectl describe pod 看 Events/Conditions → kubectl logs/pods --previous 看容器日誌 → kubectl get events 看 cluster 層級事件。ImagePullBackOff 表示鏡像不存在；CrashLoopBackOff 表示容器反覆 crash；Pending 最常見是資源不足或 PVC 未 bound。",
+    "tags": [
+      "kubectl",
+      "debug",
+      "logs",
+      "events",
+      "pod",
+      "CrashLoopBackOff",
+      "ImagePullBackOff",
+      "OOMKilled"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-10-kp2",
+    "date": "2026-07-10",
+    "title": "k3s containerd 鏡像管理：build → save → import → deploy",
+    "summary": "k3s 使用 containerd 而非 Docker daemon。部署自建鏡像流程：docker build → docker save img:tag -o img.tar → sudo k3s ctr images import img.tar → kubectl apply + imagePullPolicy: Never。每次 rebuild 後要重新 save + import + rollout restart。建議用 timestamp tag 避免 :latest 快取問題。",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "imagePullPolicy",
+      "ctr",
+      "images",
+      "deploy"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-10-kp3",
+    "date": "2026-07-10",
+    "title": "systemd 服務管理：systemctl + journalctl",
+    "summary": "systemd 管理所有 Linux 服務。systemctl status/list-units --state=failed 看服務健康狀態；systemctl daemon-reload 重載 unit file；journalctl -u <service> -n 50 --no-pager 看特定服務日誌（支援 --since/--until 時間過濾、-f 即時追蹤）。systemctl enable/disable 控制開機自啟。",
+    "tags": [
+      "systemd",
+      "systemctl",
+      "journalctl",
+      "Linux",
+      "service",
+      "unit"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-10-kp4",
+    "date": "2026-07-10",
+    "title": "Git stash 暫存管理：stash push/pop/list/drop",
+    "summary": "git stash 暫存工作目錄改動（適合換 branch 前使用）。git stash -u 連 untracked 檔案一起暫存；git stash list 看所有暫存（LIFO stack）；git stash pop 恢復最近暫存並刪除；git stash apply 恢復但不刪除（可多次 apply）；git stash push -u -m 'message' 加說明。本質是 commit-like 物件存在 .git/refs/stash。",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "LIFO",
+      "stack"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-10-kp5",
+    "date": "2026-07-10",
+    "title": "網路排查四指令：curl · dig · ss · nc",
+    "summary": "四指令對應 OSI 不同層級：curl -v（應用層 HTTP/HTTPS 含 SSL 握手）、dig +short（DNS 層域名解析）、ss -tlnp（傳輸層 TCP listening port 含 process）、nc -zv host port（傳輸層 TCP 連通測試）。ss 直接讀 kernel socket 比 netstat 更快更完整，nc -zv 走三次握手第一步確認連線性。",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "DNS",
+      "TCP",
+      "HTTP"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
