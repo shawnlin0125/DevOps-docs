@@ -6044,5 +6044,88 @@
     ],
     "anchor": "kp5",
     "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-11-kp1",
+    "date": "2026-07-11",
+    "title": "kubectl 診斷 Pod 啟動失敗的完整流程",
+    "summary": "用 kubectl get pods → describe → logs → get events 四步驟，從 Status/Events 欄位判斷是 ImagePullBackOff、CrashLoopBackOff、OOMKilled 還是 Pending",
+    "tags": [
+      "kubectl",
+      "debug",
+      "pods",
+      "logs",
+      "events",
+      "ImagePullBackOff",
+      "CrashLoopBackOff"
+    ],
+    "anchor": "kp1",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-11-kp2",
+    "date": "2026-07-11",
+    "title": "k3s containerd 鏡像管理完整流程",
+    "summary": "docker build → docker save | sudo k3s ctr images import - 將鏡像匯入 containerd image store，Deployment 設 imagePullPolicy: Never 避免遠端拉取",
+    "tags": [
+      "k3s",
+      "containerd",
+      "Docker",
+      "imagePullPolicy",
+      "ctr",
+      "images import"
+    ],
+    "anchor": "kp2",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-11-kp3",
+    "date": "2026-07-11",
+    "title": "查 OOM 紀錄與 exit code 137 判別",
+    "summary": "sudo dmesg -T | grep -i oom 看核心 OOM Killer 紀錄；Pod 被 OOM 殺掉顯示 OOMKilled (exit code 137 = 128 + SIGKILL 9)",
+    "tags": [
+      "OOM",
+      "dmesg",
+      "exit code",
+      "OOMKilled",
+      "SIGKILL",
+      "debug"
+    ],
+    "anchor": "kp3",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-11-kp4",
+    "date": "2026-07-11",
+    "title": "Git stash 暫存管理",
+    "summary": "git stash -u 暫存含 untracked 檔案、git stash list 看暫存清單、git stash pop 還原並移除、git stash apply/drop 精準操作",
+    "tags": [
+      "Git",
+      "stash",
+      "stash pop",
+      "stash list",
+      "LIFO",
+      "WIP"
+    ],
+    "anchor": "kp4",
+    "conversation": "自主練習"
+  },
+  {
+    "id": "2026-07-11-kp5",
+    "date": "2026-07-11",
+    "title": "網路排查四指令：curl / dig / ss / nc",
+    "summary": "curl -v 看 HTTP + SSL、dig +short 查 DNS、ss -tlnp 看 listening port、nc -zv 測 TCP 連線，對應 OSI 四層",
+    "tags": [
+      "network",
+      "curl",
+      "dig",
+      "ss",
+      "nc",
+      "TCP",
+      "DNS",
+      "HTTP"
+    ],
+    "anchor": "kp5",
+    "conversation": "自主練習"
   }
 ]
